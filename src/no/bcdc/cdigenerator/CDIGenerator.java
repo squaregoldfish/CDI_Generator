@@ -36,6 +36,7 @@ public class CDIGenerator {
 			// Initialise the command-line mode generator
 			CommandLineGenerator generator = new CommandLineGenerator(configuration);
 			generator.start();
+			System.out.println("Goodbye!");
 		} catch (Exception e) {
 			System.out.println("A terrible thing has occurred, and it shouldn't have done.");
 			System.out.println("Please copy and paste the stuff below, and send it to someone");

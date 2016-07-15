@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CommandLineGenerator {
-		
+	
+	private static final String QUIT_OPTION = "q";
+	 
 	private Config config;
 	
 	private Scanner inputScanner;
@@ -15,8 +17,17 @@ public class CommandLineGenerator {
 	}
 	
 	protected void start() throws Exception {
-		String chosenImporter = getImporterChoice();
-		System.out.println(chosenImporter);
+		
+		boolean quit = false;
+		
+		while (!quit) {
+			String chosenImporter = getImporterChoice();
+			if (null == chosenImporter) {
+				quit = true;
+			} else {
+				System.out.println(chosenImporter);
+			}
+		}
 	}
 	
 	/**
@@ -46,7 +57,7 @@ public class CommandLineGenerator {
 		
 			String userInput = inputScanner.next();
 			
-			if (userInput.equalsIgnoreCase("q")) {
+			if (userInput.equalsIgnoreCase(QUIT_OPTION)) {
 				inputOK = true;
 			} else {
 				try {
