@@ -3,23 +3,39 @@ package no.bcdc.cdigenerator;
 import java.util.List;
 import java.util.Scanner;
 
-public class CommandLineGenerator {
+/**
+ * CDI Generator that runs on the command line
+ * @author Steve Jones
+ *
+ */
+public class CommandLineGenerator extends Generator {
 	
+	/**
+	 * String indicating that the user wants to quit
+	 */
 	private static final String QUIT_OPTION = "q";
 	 
-	private Config config;
-	
+	/**
+	 * Command line processor
+	 */
 	private Scanner inputScanner;
 	
+	/**
+	 * Initialises the configuration and command line scanner
+	 * @param config The configuration
+	 */
 	protected CommandLineGenerator(Config config) {
-		this.config = config;
+		super(config);
 		inputScanner = new Scanner(System.in);
 	}
 	
+	@Override
 	protected void start() throws Exception {
 		
 		boolean quit = false;
 		
+		// Main loop asks for an importer, then runs it.
+		// We do that until the user decides to quit.
 		while (!quit) {
 			String chosenImporter = getImporterChoice();
 			if (null == chosenImporter) {
