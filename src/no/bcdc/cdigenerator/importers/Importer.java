@@ -1,6 +1,9 @@
 package no.bcdc.cdigenerator.importers;
 
+import java.util.List;
+
 import no.bcdc.cdigenerator.Config;
+import no.bcdc.cdigenerator.Generator;
 
 /**
  * Parent class of all importers. Lists the required methods
@@ -24,6 +27,15 @@ public abstract class Importer {
 		// Default initialiser does nothing. It can be overridden if needed.
 	}
 	
-	public abstract void doAThing();
-	
+	/**
+	 * Begin the importing process
+	 * @param generator The generator, so we can send/receive information to/from it.
+	 */
+	public void start(Generator generator) {
+		
+		// Get the list of data set IDs to be imported from the generator
+		List<String> dataSetIds = generator.getDataSetIds();
+		
+		System.out.println("I am the Importer, and I have the list of data set IDs. There are " + dataSetIds.size() + ".");
+	}
 }

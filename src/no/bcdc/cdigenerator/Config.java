@@ -120,7 +120,6 @@ public class Config extends Properties {
 			throw new ConfigException("Error while retrieving constructing importer: " + e.getMessage(), e);
 		}
 		
-		return importer;
-		
+		return importer;	
 	}
 }

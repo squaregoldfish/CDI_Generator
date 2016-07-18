@@ -1,7 +1,10 @@
 package no.bcdc.cdigenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import no.bcdc.cdigenerator.importers.Importer;
 
 /**
  * CDI Generator that runs on the command line
@@ -41,7 +44,8 @@ public class CommandLineGenerator extends Generator {
 			if (null == chosenImporter) {
 				quit = true;
 			} else {
-				System.out.println(chosenImporter);
+				Importer importer= config.getImporter(chosenImporter);
+				importer.start(this);
 			}
 		}
 	}
@@ -89,5 +93,10 @@ public class CommandLineGenerator extends Generator {
 		}
 		
 		return result;
+	}
+	
+	@Override
+	public List<String> getDataSetIds() {
+		return new ArrayList<String>();
 	}
 }

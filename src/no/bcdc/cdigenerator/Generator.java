@@ -1,5 +1,7 @@
 package no.bcdc.cdigenerator;
 
+import java.util.List;
+
 /**
  * Abstract generator class
  * @author Steve Jones
@@ -25,4 +27,10 @@ public abstract class Generator {
 	 * @throws Exception Any errors are passed up to be handled by the main method. Ideally there shouldn't be any, obviously
 	 */
 	protected abstract void start() throws Exception;
+	
+	/**
+	 * Get the list of IDs for the data sets that are to be imported
+	 * @return The list of data set IDs
+	 */
+	public abstract List<String> getDataSetIds();
 }
