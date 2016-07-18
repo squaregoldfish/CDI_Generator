@@ -34,8 +34,17 @@ public abstract class Importer {
 	public void start(Generator generator) {
 		
 		// Get the list of data set IDs to be imported from the generator
-		List<String> dataSetIds = generator.getDataSetIds();
+		List<String> dataSetIds = generator.getDataSetIds(getDataSetIdsDescriptor());
 		
-		System.out.println("I am the Importer, and I have the list of data set IDs. There are " + dataSetIds.size() + ".");
+		// A null set of IDs means we just stop
+		if (null != dataSetIds) {
+			System.out.println("I am the Importer, and I have the list of data set IDs. There are " + dataSetIds.size() + ".");
+		}
 	}
+	
+	/**
+	 * Returns the descriptive name of the data set IDs, e.g. "DOIs"
+	 * @return The descriptive name of the data set IDs
+	 */
+	protected abstract String getDataSetIdsDescriptor();
 }

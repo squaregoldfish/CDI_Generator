@@ -30,7 +30,8 @@ public abstract class Generator {
 	
 	/**
 	 * Get the list of IDs for the data sets that are to be imported
-	 * @return The list of data set IDs
+	 * @param dataSetIdsDescriptor The descriptive name for the data set IDs (e.g. "DOIs")
+	 * @return The list of data set IDs, or {@code null} if we are aborting the process
 	 */
-	public abstract List<String> getDataSetIds();
+	public abstract List<String> getDataSetIds(String dataSetIdsDescriptor);
 }
