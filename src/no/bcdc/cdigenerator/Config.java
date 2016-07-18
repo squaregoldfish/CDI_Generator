@@ -115,6 +115,7 @@ public class Config extends Properties {
 		
 		try {
 			importer = importerClass.newInstance();
+			importer.init(this);
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new ConfigException("Error while retrieving constructing importer: " + e.getMessage(), e);
 		}

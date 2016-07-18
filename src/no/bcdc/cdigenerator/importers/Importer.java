@@ -1,5 +1,7 @@
 package no.bcdc.cdigenerator.importers;
 
+import no.bcdc.cdigenerator.Config;
+
 /**
  * Parent class of all importers. Lists the required methods
  * @author Steve Jones
@@ -18,7 +20,7 @@ public abstract class Importer {
 	 * Initialise the importer. This usually doesn't need to do anything,
 	 * so an empty version is provided here.
 	 */
-	public void init() {
+	public void init(Config config) {
 		// Default initialiser does nothing. It can be overridden if needed.
 	}
 	
