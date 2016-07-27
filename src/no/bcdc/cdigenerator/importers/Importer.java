@@ -46,5 +46,26 @@ public abstract class Importer {
 	 * Returns the descriptive name of the data set IDs, e.g. "DOIs"
 	 * @return The descriptive name of the data set IDs
 	 */
-	protected abstract String getDataSetIdsDescriptor();
+	public abstract String getDataSetIdsDescriptor();
+	
+	/**
+	 * Returns the descriptive name of a single data set ID, e.g. "DOI"
+	 * @return The descriptive name of the data set ID
+	 */
+	public abstract String getDataSetIdDescriptor();
+	
+	/**
+	 * Returns the format of the data set IDs for this importer, to be displayed to the user
+	 * @return The format of the data set IDs
+	 */
+	public abstract String getDataSetIdFormat();
+	
+	/**
+	 * Validate an ID's format to make sure it looks right.
+	 * Note that this doesn't necessarily mean that it *is* right...
+	 * 
+	 * @param id The id
+	 * @return {@code true} if the ID appears to be valid; {@code false} if it does not.
+	 */
+	public abstract boolean validateIdFormat(String id);
 }

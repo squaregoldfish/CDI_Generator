@@ -2,6 +2,8 @@ package no.bcdc.cdigenerator;
 
 import java.util.List;
 
+import no.bcdc.cdigenerator.importers.Importer;
+
 /**
  * Abstract generator class
  * @author Steve Jones
@@ -13,6 +15,11 @@ public abstract class Generator {
 	 * The application's configuration
 	 */
 	protected Config config;
+	
+	/**
+	 * The importer being used
+	 */
+	protected Importer importer;
 	
 	/**
 	 * Base constructor - stores the configuration

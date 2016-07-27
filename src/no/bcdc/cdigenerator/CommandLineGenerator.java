@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import no.bcdc.cdigenerator.importers.Importer;
-
 /**
  * CDI Generator that runs on the command line
  * @author Steve Jones
@@ -64,7 +62,7 @@ public class CommandLineGenerator extends Generator {
 			if (null == chosenImporter) {
 				quit = true;
 			} else {
-				Importer importer= config.getImporter(chosenImporter);
+				importer = config.getImporter(chosenImporter);
 				importer.start(this);
 			}
 		}
@@ -118,13 +116,21 @@ public class CommandLineGenerator extends Generator {
 	@Override
 	public List<String> getDataSetIds(String dataSetIdsDescriptor) {
 		
-		List<String> ids = new ArrayList<String>();
+		List<String> ids = null;
 		
-		int sourceOption = getIdSourceOption(dataSetIdsDescriptor);
+		int sourceOption = getIdSourceOption();
 		
 		switch (sourceOption) {
 		case OPTION_BACK: {
 			ids = null;
+			break;
+		}
+		case SOURCE_OPTION_TYPED: {
+			String enteredId = getSingleDoi();
+			if (null != enteredId) {
+				ids = new ArrayList<String>(1);
+				ids.add(enteredId);
+			}
 			break;
 		}
 		default: {
@@ -132,9 +138,7 @@ public class CommandLineGenerator extends Generator {
 		}
 		}
 		
-		
 		return ids;
-		
 	}
 	
 	/**
@@ -142,15 +146,15 @@ public class CommandLineGenerator extends Generator {
 	 * @param dataSetIdsDescriptor The descriptive name for the data set IDs (e.g. "DOIs")
 	 * @return The user's choice
 	 */
-	private int getIdSourceOption(String dataSetIdsDescriptor) {
+	private int getIdSourceOption() {
 		
 		boolean inputOK = false;
 		int result = 0;
 
 		while (!inputOK) {
-			System.out.println("\n\nHow do you want to supply the " + dataSetIdsDescriptor + "?");
+			System.out.println("\n\nHow do you want to supply the " + importer.getDataSetIdsDescriptor() + "?");
 			System.out.println("1. Type one in");
-			System.out.println("2. Name a file containing the " + dataSetIdsDescriptor);
+			System.out.println("2. Name a file containing the " + importer.getDataSetIdsDescriptor());
 			System.out.println("B. Go back");
 			
 			System.out.print("Make your choice: ");
@@ -170,6 +174,34 @@ public class CommandLineGenerator extends Generator {
 				} catch (NumberFormatException e) {
 					// Do nothing - we'll go round the loop again.
 				}
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Get a single DOI typed in on the command line
+	 * @return The entered DOI
+	 */
+	private String getSingleDoi() {
+		
+		String result = null;
+		
+		boolean inputOK = false;
+		
+		while (!inputOK) {
+			System.out.print("\nPlease enter the " + importer.getDataSetIdDescriptor() + " (b to go back): ");
+			
+			String userInput = inputScanner.next().trim();
+
+			if (userInput.equalsIgnoreCase(OPTION_BACK_STRING)) {
+				inputOK = true;
+			} else if (importer.validateIdFormat(userInput)) {
+				inputOK = true;
+				result = userInput;
+			} else {
+				System.out.println("The " + importer.getDataSetIdDescriptor() + " must be of the form \"" + importer.getDataSetIdFormat() + "\"");
 			}
 		}
 		
