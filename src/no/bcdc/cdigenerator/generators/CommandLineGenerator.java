@@ -1,4 +1,4 @@
-package no.bcdc.cdigenerator;
+package no.bcdc.cdigenerator.generators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+import no.bcdc.cdigenerator.Config;
 
 /**
  * CDI Generator that runs on the command line
@@ -55,7 +57,7 @@ public class CommandLineGenerator extends Generator {
 	 * Initialises the configuration and command line scanner
 	 * @param config The configuration
 	 */
-	protected CommandLineGenerator(Config config) throws Exception {
+	public CommandLineGenerator(Config config) throws Exception {
 		super(config);
 		inputScanner = new Scanner(System.in);
 		
@@ -73,7 +75,7 @@ public class CommandLineGenerator extends Generator {
 	}
 	
 	@Override
-	protected void start() throws Exception {
+	public void start() throws Exception {
 		
 		boolean quit = false;
 		

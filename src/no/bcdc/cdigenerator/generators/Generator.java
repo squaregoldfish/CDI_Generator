@@ -1,7 +1,8 @@
-package no.bcdc.cdigenerator;
+package no.bcdc.cdigenerator.generators;
 
 import java.util.List;
 
+import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
 
 /**

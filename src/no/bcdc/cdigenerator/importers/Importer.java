@@ -3,7 +3,7 @@ package no.bcdc.cdigenerator.importers;
 import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
-import no.bcdc.cdigenerator.Generator;
+import no.bcdc.cdigenerator.generators.Generator;
 
 /**
  * Parent class of all importers. Lists the required methods

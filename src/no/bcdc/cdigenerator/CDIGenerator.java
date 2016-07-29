@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import no.bcdc.cdigenerator.generators.CommandLineGenerator;
+
 public class CDIGenerator {
 
 	/**
