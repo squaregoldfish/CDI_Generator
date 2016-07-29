@@ -3,6 +3,8 @@ package no.bcdc.cdigenerator;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 import no.bcdc.cdigenerator.generators.CommandLineGenerator;
 
@@ -86,5 +88,4 @@ public class CDIGenerator {
 		
 		return ok;
 	}
-
 }
