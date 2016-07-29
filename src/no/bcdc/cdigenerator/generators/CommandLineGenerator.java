@@ -237,6 +237,20 @@ public class CommandLineGenerator extends Generator {
 	public void logMessage(String dataSetId, String message) {
 		logger.log(Level.INFO, dataSetId + ": " + message);
 	}
+	
+	@Override
+	public void updateProgressDisplay() {
+		StringBuffer output = new StringBuffer();
+		output.append(progress);
+		output.append('/');
+		output.append(progressMax);
+		output.append(' ');
+		output.append(currentDataSetId);
+		output.append(": ");
+		output.append(progressMessage);
+		
+		System.out.println(output.toString());
+	}
 }
 
 class BasicFormatter extends Formatter {

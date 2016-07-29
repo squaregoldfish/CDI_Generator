@@ -23,6 +23,26 @@ public abstract class Generator {
 	protected Importer importer;
 	
 	/**
+	 * The maximum value for the progress monitor
+	 */
+	protected int progressMax = 1;
+	
+	/**
+	 * The current value of the progress monitor
+	 */
+	protected int progress = 0;
+	
+	/**
+	 * The data set ID currently being processed
+	 */
+	protected String currentDataSetId = null;
+	
+	/**
+	 * The text shown with the progress monitor
+	 */
+	protected String progressMessage = "Processing...";
+	
+	/**
 	 * Base constructor - stores the configuration
 	 * @param config The configuration
 	 */
@@ -48,4 +68,41 @@ public abstract class Generator {
 	 * @param message The message to be logged
 	 */
 	public abstract void logMessage(String dataSetId, String message);
+	
+	/**
+	 * Set the maximum value for the progress monitor
+	 * @param progressMax The maximum value for the progress monitor
+	 */
+	public void setProgressMax(int progressMax) {
+		this.progressMax = progressMax;
+	}
+	
+	/**
+	 * Set the current value of the progress monitor
+	 * @param progress The progress value
+	 */
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	/**
+	 * Set the progress message
+	 * @param progressMessage The progress message
+	 */
+	public void setProgressMessage(String progressMessage) {
+		this.progressMessage = progressMessage;
+	}
+	
+	/**
+	 * Set the name of the data set ID current being processed
+	 * @param dataSetId The ID of the data set currently being processed
+	 */
+	public void setCurrentDataSetId(String dataSetId) {
+		this.currentDataSetId = dataSetId;
+	}
+	
+	/**
+	 * Update the progress display 
+	 */
+	public abstract void updateProgressDisplay();
 }

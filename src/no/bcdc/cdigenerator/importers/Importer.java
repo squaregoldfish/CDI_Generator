@@ -39,8 +39,20 @@ public abstract class Importer {
 		// A null set of IDs means we just stop
 		if (null != dataSetIds) {
 			
+			int idsComplete = 0;
+			generator.setProgress(idsComplete);
 			for (String id : dataSetIds) {
-				generator.logMessage(id, "is the DOI I have processed");
+				generator.setCurrentDataSetId(id);
+				
+				generator.setProgressMessage("Retrieving data...");
+				generator.updateProgressDisplay();
+				
+				
+				
+				idsComplete++;
+				generator.setProgress(idsComplete);
+				generator.setProgressMessage("Done");
+				generator.updateProgressDisplay();
 			}
 		}
 	}
