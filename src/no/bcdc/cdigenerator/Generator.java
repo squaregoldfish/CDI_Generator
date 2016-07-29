@@ -41,4 +41,10 @@ public abstract class Generator {
 	 * @return The list of data set IDs, or {@code null} if we are aborting the process
 	 */
 	public abstract List<String> getDataSetIds(String dataSetIdsDescriptor);
+	
+	/**
+	 * Log a message for viewing after the processing is completed.
+	 * @param message The message to be logged
+	 */
+	public abstract void logMessage(String dataSetId, String message);
 }

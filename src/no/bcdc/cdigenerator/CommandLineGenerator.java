@@ -3,6 +3,11 @@ package no.bcdc.cdigenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * CDI Generator that runs on the command line
@@ -42,12 +47,29 @@ public class CommandLineGenerator extends Generator {
 	private Scanner inputScanner;
 	
 	/**
+	 * The logger - writes details to output file
+	 */
+	private static Logger logger;
+	
+	/**
 	 * Initialises the configuration and command line scanner
 	 * @param config The configuration
 	 */
-	protected CommandLineGenerator(Config config) {
+	protected CommandLineGenerator(Config config) throws Exception {
 		super(config);
 		inputScanner = new Scanner(System.in);
+		
+		
+		logger = Logger.getLogger("");
+
+		Handler[] handlers = logger.getHandlers();
+		for(Handler handler : handlers) {
+			logger.removeHandler(handler);
+		}
+		
+		FileHandler fileHandler = new FileHandler("CDI_Generator.log");
+		fileHandler.setFormatter(new SimpleFormatter());
+		logger.addHandler(fileHandler);
 	}
 	
 	@Override
@@ -206,5 +228,10 @@ public class CommandLineGenerator extends Generator {
 		}
 		
 		return result;
+	}
+	
+	@Override
+	public void logMessage(String dataSetId, String message) {
+		logger.log(Level.INFO, dataSetId + ": " + message);
 	}
 }

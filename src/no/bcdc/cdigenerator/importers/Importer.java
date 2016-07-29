@@ -38,7 +38,10 @@ public abstract class Importer {
 		
 		// A null set of IDs means we just stop
 		if (null != dataSetIds) {
-			System.out.println("I am the Importer, and I have the list of data set IDs. There are " + dataSetIds.size() + ".");
+			
+			for (String id : dataSetIds) {
+				generator.logMessage(id, "is the DOI I have processed");
+			}
 		}
 	}
 	
