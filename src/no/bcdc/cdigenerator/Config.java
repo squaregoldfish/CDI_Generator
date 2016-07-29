@@ -19,6 +19,11 @@ import no.bcdc.cdigenerator.importers.Importer;
 public class Config extends Properties {
 	
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7142620950292744471L;
+
+	/**
 	 * Key prefix for importers
 	 */
 	private static final String IMPORTER_PREFIX = "importer.";
