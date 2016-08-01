@@ -12,6 +12,8 @@ import no.bcdc.cdigenerator.generators.Generator;
  */
 public abstract class Importer {
 
+	protected Generator generator;
+	
 	/**
 	 * The basic importer has no constructor activities
 	 */
@@ -33,26 +35,45 @@ public abstract class Importer {
 	 */
 	public void start(Generator generator) {
 		
+		this.generator = generator;
+		
 		// Get the list of data set IDs to be imported from the generator
 		List<String> dataSetIds = generator.getDataSetIds(getDataSetIdsDescriptor());
 		
 		// A null set of IDs means we just stop
 		if (null != dataSetIds) {
 			
-			int idsComplete = 0;
-			generator.setProgress(idsComplete);
-			for (String id : dataSetIds) {
-				generator.setCurrentDataSetId(id);
-				
-				generator.setProgressMessage("Retrieving data...");
-				generator.updateProgressDisplay();
-				
-				
-				
-				idsComplete++;
+			try {
+			
+				int idsComplete = 0;
 				generator.setProgress(idsComplete);
-				generator.setProgressMessage("Done");
-				generator.updateProgressDisplay();
+				for (String id : dataSetIds) {
+	
+					generator.setCurrentDataSetId(id);
+					
+					// Retrieve the data
+					generator.setProgressMessage("Retrieving data...");
+					generator.updateProgressDisplay();
+					//String data = getDataSetData(id);
+					
+					// Retrieve the metadata
+					generator.setProgressMessage("Retrieving metadata...");
+					generator.updateProgressDisplay();
+					String metadata = getDataSetMetaData(id);
+					
+					System.out.println(metadata);
+					
+					generator.setProgressMessage("Validating retrieved data");
+					generator.updateProgressDisplay();
+					
+					idsComplete++;
+					generator.setProgress(idsComplete);
+					generator.setProgressMessage("Done");
+					generator.updateProgressDisplay();
+				}
+			} catch (Exception e) {
+				System.out.println("An error occurred! :(");
+				e.printStackTrace();
 			}
 		}
 	}
@@ -83,4 +104,18 @@ public abstract class Importer {
 	 * @return {@code true} if the ID appears to be valid; {@code false} if it does not.
 	 */
 	public abstract boolean validateIdFormat(String id);
+	
+	/**
+	 * Retrieve the data for the specified data set ID
+	 * @param dataSetId The data set ID
+	 * @return The data
+	 */
+	protected abstract String getDataSetData(String dataSetId) throws Exception;
+	
+	/**
+	 * Retrieve the metadata for the specified data set ID
+	 * @param dataSetId The data set ID
+	 * @return The metadata
+	 */
+ 	protected abstract String getDataSetMetaData(String dataSetId);
 }
