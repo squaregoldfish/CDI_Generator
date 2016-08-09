@@ -4,6 +4,7 @@ import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.generators.Generator;
+import no.bcdc.cdigenerator.output.Metadata;
 
 /**
  * Parent class of all importers. Lists the required methods
@@ -59,9 +60,7 @@ public abstract class Importer {
 					// Retrieve the metadata
 					generator.setProgressMessage("Retrieving metadata...");
 					generator.updateProgressDisplay();
-					String metadata = getDataSetMetaData(id);
-					
-					System.out.println(metadata);
+					Metadata metadata = getDataSetMetaData(id);
 					
 					generator.setProgressMessage("Validating retrieved data");
 					generator.updateProgressDisplay();
@@ -117,5 +116,5 @@ public abstract class Importer {
 	 * @param dataSetId The data set ID
 	 * @return The metadata
 	 */
- 	protected abstract String getDataSetMetaData(String dataSetId);
+ 	protected abstract Metadata getDataSetMetaData(String dataSetId);
 }

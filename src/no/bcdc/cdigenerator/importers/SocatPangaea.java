@@ -11,7 +11,9 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.io.IOUtils;
 
-public class SocatPangaea extends Importer {
+import no.bcdc.cdigenerator.output.PangaeaImporter;
+
+public class SocatPangaea extends PangaeaImporter {
 
 	/**
 	 * The constructor does nothing.
@@ -39,11 +41,6 @@ public class SocatPangaea extends Importer {
 		}
 		
 		return result;
-	}
-	
-	@Override
-	public String getDataSetIdFormat() {
-		return "10.1594/PANGAEA.<number>";
 	}
 	
 	@Override
@@ -81,11 +78,6 @@ public class SocatPangaea extends Importer {
 		
 		return result;
 		
-	}
-	
-	@Override
-	protected String getDataSetMetaData(String dataSetId) {
-		return "This is the metadata";
 	}
 	
 	private URL makeUrl(String dataSetId) throws MalformedURLException {
