@@ -60,7 +60,7 @@ public abstract class Importer {
 					// Retrieve the metadata
 					generator.setProgressMessage("Retrieving metadata...");
 					generator.updateProgressDisplay();
-					Metadata metadata = getDataSetMetaData(id);
+					//Metadata metadata = getDataSetMetaData(id);
 					
 					generator.setProgressMessage("Validating retrieved data");
 					generator.updateProgressDisplay();

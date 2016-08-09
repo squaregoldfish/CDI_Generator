@@ -1,11 +1,20 @@
 package no.bcdc.cdigenerator.importers.Pangaea;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+import javax.net.ssl.HttpsURLConnection;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
 
 import org.apache.axis.Constants;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
+import org.apache.commons.io.IOUtils;
 
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
@@ -64,6 +73,27 @@ public abstract class PangaVistaImporter extends Importer {
 	@Override
 	public String getDataSetIdFormat() {
 		return "10.1594/PANGAEA.<number>";
+	}
+	
+	@Override
+	public boolean validateIdFormat(String id) {
+		boolean result = false;
+		
+		if (null != id) {
+			result= id.matches("10\\.1594/PANGAEA\\.[0-9]+");
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public String getDataSetIdsDescriptor() {
+		return "DOIs";
+	}
+	
+	@Override
+	public String getDataSetIdDescriptor() {
+		return "DOI";
 	}
 	
 	/**
@@ -125,6 +155,57 @@ public abstract class PangaVistaImporter extends Importer {
 		return xml;
 	}
 	
+	@Override
+	protected String getDataSetData(String dataSetId) throws ImporterException {
+		
+		String result = null;
+		
+		HttpsURLConnection conn = null;
+		InputStream stream = null;
+		StringWriter writer = null;
+		
+		
+		try {
+			URL url = makeUrl(dataSetId);
+			conn = (HttpsURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.connect();
+			
+			stream = conn.getInputStream();
+			writer = new StringWriter();
+			IOUtils.copy(stream, writer, StandardCharsets.UTF_8);
+			result = writer.toString();
+		} catch (IOException e) {
+			throw new ImporterException("Error while retrieving data set", e);
+		} finally {
+			try {
+				writer.close();
+				stream.close();
+				conn.disconnect();
+			} catch (IOException e) {
+				// Do nothing - we can say that we tried.
+			}
+		}
+		
+		
+		return result;
+		
+	}
+	
+	/**
+	 * Make a URL for a data set
+	 * @param dataSetId The data set ID
+	 * @return The data set URL
+	 * @throws MalformedURLException If the generated URL is invalid
+	 */
+	private URL makeUrl(String dataSetId) throws MalformedURLException {
+		StringBuffer url = new StringBuffer("https://doi.pangaea.de/");
+		url.append(dataSetId);
+		url.append("?format=textfile");
+		
+		return new URL(url.toString());
+	}
+
 	/**
 	 * Generates a Metadata object from a PangaVista metadata XML string
 	 * @param xml The PangaVista XML
