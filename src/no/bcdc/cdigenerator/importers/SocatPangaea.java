@@ -11,7 +11,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.io.IOUtils;
 
-import no.bcdc.cdigenerator.output.PangaeaImporter;
+import no.bcdc.cdigenerator.importers.Pangaea.PangaeaImporter;
 
 public class SocatPangaea extends PangaeaImporter {
 

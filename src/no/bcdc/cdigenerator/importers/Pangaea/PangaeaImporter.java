@@ -1,6 +1,7 @@
-package no.bcdc.cdigenerator.output;
+package no.bcdc.cdigenerator.importers.Pangaea;
 
 import no.bcdc.cdigenerator.importers.Importer;
+import no.bcdc.cdigenerator.output.Metadata;
 
 public abstract class PangaeaImporter extends Importer {
 
