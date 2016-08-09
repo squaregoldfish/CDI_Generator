@@ -11,9 +11,9 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.io.IOUtils;
 
-import no.bcdc.cdigenerator.importers.Pangaea.PangaeaImporter;
+import no.bcdc.cdigenerator.importers.Pangaea.PangaVistaImporter;
 
-public class SocatPangaea extends PangaeaImporter {
+public class SocatPangaea extends PangaVistaImporter {
 
 	/**
 	 * The constructor does nothing.
@@ -44,7 +44,7 @@ public class SocatPangaea extends PangaeaImporter {
 	}
 	
 	@Override
-	protected String getDataSetData(String dataSetId) throws Exception {
+	protected String getDataSetData(String dataSetId) throws ImporterException {
 		
 		String result = null;
 		
@@ -64,7 +64,7 @@ public class SocatPangaea extends PangaeaImporter {
 			IOUtils.copy(stream, writer, StandardCharsets.UTF_8);
 			result = writer.toString();
 		} catch (IOException e) {
-			throw e;
+			throw new ImporterException("Error while retrieving data set", e);
 		} finally {
 			try {
 				writer.close();

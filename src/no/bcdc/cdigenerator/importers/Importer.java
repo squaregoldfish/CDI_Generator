@@ -109,12 +109,12 @@ public abstract class Importer {
 	 * @param dataSetId The data set ID
 	 * @return The data
 	 */
-	protected abstract String getDataSetData(String dataSetId) throws Exception;
+	protected abstract String getDataSetData(String dataSetId) throws ImporterException;
 	
 	/**
 	 * Retrieve the metadata for the specified data set ID
 	 * @param dataSetId The data set ID
 	 * @return The metadata
 	 */
- 	protected abstract Metadata getDataSetMetaData(String dataSetId);
+ 	protected abstract Metadata getDataSetMetaData(String dataSetId) throws ImporterException;
 }
