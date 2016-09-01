@@ -72,7 +72,7 @@ public abstract class PangaVistaImporter extends Importer {
 	
 	@Override
 	public String getDataSetIdFormat() {
-		return "10.1594/PANGAEA.<number>";
+		return "<number>";
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public abstract class PangaVistaImporter extends Importer {
 		boolean result = false;
 		
 		if (null != id) {
-			result= id.matches("10\\.1594/PANGAEA\\.[0-9]+");
+			result= id.matches("[0-9]+");
 		}
 		
 		return result;
@@ -88,12 +88,12 @@ public abstract class PangaVistaImporter extends Importer {
 	
 	@Override
 	public String getDataSetIdsDescriptor() {
-		return "DOIs";
+		return "PANGAEA IDs";
 	}
 	
 	@Override
 	public String getDataSetIdDescriptor() {
-		return "DOI";
+		return "PANGAEA ID";
 	}
 	
 	/**
@@ -199,7 +199,7 @@ public abstract class PangaVistaImporter extends Importer {
 	 * @throws MalformedURLException If the generated URL is invalid
 	 */
 	private URL makeUrl(String dataSetId) throws MalformedURLException {
-		StringBuffer url = new StringBuffer("https://doi.pangaea.de/");
+		StringBuffer url = new StringBuffer("https://doi.pangaea.de/10.1594/PANGAEA.");
 		url.append(dataSetId);
 		url.append("?format=textfile");
 		
