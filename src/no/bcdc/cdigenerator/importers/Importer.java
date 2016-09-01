@@ -49,26 +49,32 @@ public abstract class Importer {
 				int idsComplete = 0;
 				generator.setProgress(idsComplete);
 				for (String id : dataSetIds) {
-	
-					generator.setCurrentDataSetId(id);
-					
-					// Retrieve the metadata
-					generator.setProgressMessage("Retrieving metadata...");
-					generator.updateProgressDisplay();
-					Metadata metadata = getDataSetMetaData(id);
-					
-					// Retrieve the data
-					generator.setProgressMessage("Retrieving data...");
-					generator.updateProgressDisplay();
-					//String data = getDataSetData(id);
-					
-					generator.setProgressMessage("Validating retrieved data");
-					generator.updateProgressDisplay();
-					
-					idsComplete++;
-					generator.setProgress(idsComplete);
-					generator.setProgressMessage("Done");
-					generator.updateProgressDisplay();
+					try {
+						generator.setCurrentDataSetId(id);
+						
+						// Retrieve the data
+						generator.setProgressMessage("Retrieving data...");
+						generator.updateProgressDisplay();
+						String data = getDataSetData(id);
+						
+						// Retrieve the metadata
+						generator.setProgressMessage("Retrieving metadata...");
+						generator.updateProgressDisplay();
+						Metadata metadata = getDataSetMetaData(id);
+						
+						generator.setProgressMessage("Validating retrieved data");
+						generator.updateProgressDisplay();
+						
+						idsComplete++;
+						generator.setProgress(idsComplete);
+						generator.setProgressMessage("Done");
+						generator.updateProgressDisplay();
+					} catch (DataSetNotFoundException e) {
+						idsComplete++;
+						generator.setProgress(idsComplete);
+						generator.setProgressMessage(e.getMessage());
+						generator.updateProgressDisplay();
+					}
 				}
 			} catch (Exception e) {
 				System.out.println("An error occurred! :(");
@@ -109,12 +115,12 @@ public abstract class Importer {
 	 * @param dataSetId The data set ID
 	 * @return The data
 	 */
-	protected abstract String getDataSetData(String dataSetId) throws ImporterException;
+	protected abstract String getDataSetData(String dataSetId) throws ImporterException, DataSetNotFoundException;
 	
 	/**
 	 * Retrieve the metadata for the specified data set ID
 	 * @param dataSetId The data set ID
 	 * @return The metadata
 	 */
- 	protected abstract Metadata getDataSetMetaData(String dataSetId) throws ImporterException;
+ 	protected abstract Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException;
 }

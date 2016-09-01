@@ -1,5 +1,6 @@
 package no.bcdc.cdigenerator.importers.Pangaea;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -16,6 +17,7 @@ import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.commons.io.IOUtils;
 
+import no.bcdc.cdigenerator.importers.DataSetNotFoundException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.output.Metadata;
@@ -48,6 +50,11 @@ public abstract class PangaVistaImporter extends Importer {
 	private static final String EXPIRED_SESSION_ERROR = "You must register a valid session first!";
 	
 	/**
+	 * The error string returned when the data set cannot be found
+	 */
+	private static final String DATASET_NOT_FOUND_ERROR = "This is not a valid PANGAEA DOI or DATASETID";
+	
+	/**
 	 * The SOAP service object
 	 */
 	private Service service = new Service();
@@ -59,7 +66,7 @@ public abstract class PangaVistaImporter extends Importer {
 	
 	
 	@Override
-	protected Metadata getDataSetMetaData(String dataSetId) throws ImporterException {
+	protected Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		
 		// Start a new session if required
 		if (null == sessionId) {
@@ -116,8 +123,9 @@ public abstract class PangaVistaImporter extends Importer {
 	 * @param dataSetid The data set ID
 	 * @return The metadata XML
 	 * @throws ImporterException If an error occurs during the retrieval
+	 * @throws DataSetNotFoundException 
 	 */
-	private String getMetadataXML(String dataSetId) throws ImporterException {
+	private String getMetadataXML(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		
 		String xml = null;
 		
@@ -145,6 +153,8 @@ public abstract class PangaVistaImporter extends Importer {
 						// If that fails, throw the resulting exception
 						throw e2;
 					}
+				} else if (e.getMessage().startsWith(DATASET_NOT_FOUND_ERROR)) {
+					throw new DataSetNotFoundException(dataSetId);
 				} else {
 					// Otherwise we just throw the exception
 					throw new ImporterException("Error while retrieving metadata", e);
@@ -156,7 +166,7 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 	
 	@Override
-	protected String getDataSetData(String dataSetId) throws ImporterException {
+	protected String getDataSetData(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		
 		String result = null;
 		
@@ -175,13 +185,23 @@ public abstract class PangaVistaImporter extends Importer {
 			writer = new StringWriter();
 			IOUtils.copy(stream, writer, StandardCharsets.UTF_8);
 			result = writer.toString();
-		} catch (IOException e) {
+		} catch (FileNotFoundException e) {
+			throw new DataSetNotFoundException(dataSetId);
+		} catch (Exception e) {
 			throw new ImporterException("Error while retrieving data set", e);
 		} finally {
 			try {
-				writer.close();
-				stream.close();
-				conn.disconnect();
+				if (null != writer) {
+					writer.close();
+				}
+				
+				if (null != stream) {
+					stream.close();
+				}
+				
+				if (null != conn) {
+					conn.disconnect();
+				}
 			} catch (IOException e) {
 				// Do nothing - we can say that we tried.
 			}
