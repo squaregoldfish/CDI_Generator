@@ -1,5 +1,7 @@
 package no.bcdc.cdigenerator.importers;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
@@ -13,7 +15,15 @@ import no.bcdc.cdigenerator.output.Metadata;
  */
 public abstract class Importer {
 
+	/**
+	 * The generator
+	 */
 	protected Generator generator;
+
+	/**
+	 * The configuration
+	 */
+	protected Config config;
 	
 	/**
 	 * The basic importer has no constructor activities
@@ -27,7 +37,8 @@ public abstract class Importer {
 	 * so an empty version is provided here.
 	 */
 	public void init(Config config) {
-		// Default initialiser does nothing. It can be overridden if needed.
+		// Default initialiser stores the configuration
+		this.config = config;
 	}
 	
 	/**
@@ -56,6 +67,11 @@ public abstract class Importer {
 						generator.setProgressMessage("Retrieving data...");
 						generator.updateProgressDisplay();
 						String data = getDataSetData(id);
+						
+						File dataFile = new File(config.getTempDir(), id + "_data");
+						PrintWriter out = new PrintWriter(dataFile);
+						out.print(data);
+						out.close();
 						
 						// Retrieve the metadata
 						generator.setProgressMessage("Retrieving metadata...");
