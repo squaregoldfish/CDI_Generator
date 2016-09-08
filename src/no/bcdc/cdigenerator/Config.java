@@ -1,5 +1,6 @@
 package no.bcdc.cdigenerator;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -33,10 +34,17 @@ public class Config extends Properties {
 	 */
 	private static final String DEFAULT_IMPORTER_PACKAGE = "no.bcdc.cdigenerator.importers";
 	
+	private static final String TEMP_DIR_PROPERTY = "config.tempDir";
+	
 	/**
 	 * Lookup table of importers
 	 */
 	private Map<String, Class<? extends Importer>> importers = null;
+	
+	/**
+	 * Temp directory
+	 */
+	private File tempDir = null;
 	
 	/**
 	 * Initialise and load the configuration
@@ -48,6 +56,7 @@ public class Config extends Properties {
 		super();
 		load(configReader);
 		extractImporters();
+		checkTempDir();
 	}
 	
 	/**
@@ -126,5 +135,33 @@ public class Config extends Properties {
 		}
 		
 		return importer;	
+	}
+	
+	/**
+	 * Check the temporary directory
+	 * @throws ConfigException If the temporary directory is incorrectly configured
+	 */
+	private void checkTempDir() throws ConfigException {
+		String tempDirString = getProperty(TEMP_DIR_PROPERTY);
+		if (null == tempDirString) {
+			throw new ConfigException("config.tempDir not specified");
+		}
+		
+		tempDir = new File(tempDirString);
+		if (!tempDir.exists()) {
+			throw new ConfigException("Specified temporary directory does not exist");
+		} else if (!tempDir.isDirectory()) {
+			throw new ConfigException("Specified temporary directory is not a directory");
+		} else if (!tempDir.canWrite()) {
+			throw new ConfigException("Specified temporary directory is not writeable");
+		}
+	}
+	
+	/**
+	 * Get the temporary directory
+	 * @return The temporary directory
+	 */
+	public File getTempDir() {
+		return tempDir;
 	}
 }
