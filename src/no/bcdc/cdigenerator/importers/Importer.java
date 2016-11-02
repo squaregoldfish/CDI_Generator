@@ -94,10 +94,12 @@ public abstract class Importer {
 						idsComplete++;
 						generator.setProgress(idsComplete);
 						generator.setProgressMessage("Done");
+						generator.logMessage(id, "Data set processed successfully");
 					} catch (DataSetNotFoundException e) {
 						idsComplete++;
 						generator.setProgress(idsComplete);
 						generator.setProgressMessage(e.getMessage());
+						generator.logMessage(id, "Data set not found");
 					}
 				}
 			} catch (Exception e) {
