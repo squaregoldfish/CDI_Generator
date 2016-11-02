@@ -81,6 +81,9 @@ public class CDIGenerator {
 			} catch (ConfigException e) {
 				System.out.println("Error in configuration file: " + e.getMessage());
 				ok = false;
+			} catch (IllegalAccessException|InstantiationException e) {
+				System.out.println("Error setting up configuration: " + e.getMessage());
+				ok = false;
 			}
 		}
 		

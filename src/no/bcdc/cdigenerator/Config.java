@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import no.bcdc.cdigenerator.importers.Importer;
 
@@ -19,27 +17,27 @@ import no.bcdc.cdigenerator.importers.Importer;
  */
 public class Config extends Properties {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7142620950292744471L;
+	private static final long serialVersionUID = -9088488147547028352L;
 
 	/**
-	 * Key prefix for importers
+	 * The key for importers
 	 */
-	private static final String IMPORTER_PREFIX = "importer.";
+	private static final String IMPORTERS_PROPERTY = "importers";
 	
 	/**
 	 * The default package for importer classes. Used if the package isn't set in the config file.
 	 */
 	private static final String DEFAULT_IMPORTER_PACKAGE = "no.bcdc.cdigenerator.importers";
 	
+	/**
+	 * The key for the temporary/cache directory
+	 */
 	private static final String TEMP_DIR_PROPERTY = "config.tempDir";
 	
 	/**
 	 * Lookup table of importers
 	 */
-	private Map<String, Class<? extends Importer>> importers = null;
+	private TreeMap<String, Importer> importers = null;
 	
 	/**
 	 * Temp directory
@@ -52,7 +50,7 @@ public class Config extends Properties {
 	 * @throws IOException If an error occurs while reading the file data
 	 * @throws ConfigException If there are errors in the configuration
 	 */
-	public Config(Reader configReader) throws IOException, ConfigException {
+	public Config(Reader configReader) throws IOException, ConfigException, IllegalAccessException, InstantiationException {
 		super();
 		load(configReader);
 		extractImporters();
@@ -63,40 +61,37 @@ public class Config extends Properties {
 	 * Checks that the configuration is valid.
 	 * @throws ConfigException If there are any errors in the configuration
 	 */
-	@SuppressWarnings("unchecked")
-	private void extractImporters() throws ConfigException {
+	private void extractImporters() throws ConfigException, IllegalAccessException, InstantiationException {
 		
-		importers = new HashMap<String, Class<? extends Importer>>();
+		importers = new TreeMap<String, Importer>();
 		
 		// Loop through all the keys, looking for those with the right prefix
-		for (String key : stringPropertyNames()) {
-			if (key.startsWith(IMPORTER_PREFIX)) {
-				
-				String importerName = key.substring(IMPORTER_PREFIX.length());
-				String className = getProperty(key);
-				
-				// Add the default prefix if required
-				if (className.indexOf('.') == -1) {
-					className = DEFAULT_IMPORTER_PACKAGE + "." + className;
+		String[] importerClasses = getProperty(IMPORTERS_PROPERTY).split(";");
+		
+		for (String className : importerClasses) {
+
+			// Add the default prefix if required
+			if (className.indexOf('.') == -1) {
+				className = DEFAULT_IMPORTER_PACKAGE + "." + className;
+			}
+			
+			// Check the class exists and extends the correct class
+			try {
+				Class<?> clazz = Class.forName(className);
+				if (!Importer.class.isAssignableFrom(clazz)) {
+					throw new ConfigException("Importer class '" + className + "' is not a subclass of no.bcdc.cdigenerator.Importer");
 				}
 				
-				// Check the class exists and extends the correct class
-				try {
-					Class<?> clazz = Class.forName(className);
-					if (!Importer.class.isAssignableFrom(clazz)) {
-						throw new ConfigException("Importer '" + importerName + "': Importer class '" + className + "' is not a subclass of no.bcdc.cdigenerator.Importer");
-					}
-					
-					importers.put(importerName, (Class<? extends Importer>) clazz);
-					
-					
-				} catch (ClassNotFoundException e) {
-					throw new ConfigException("Importer '" + importerName + "': Importer class '" + className + "' does not exist");
-				}
+				Importer importer = (Importer) clazz.newInstance();
+				importers.put(importer.getName(), importer);
+				
+				
+			} catch (ClassNotFoundException e) {
+				throw new ConfigException("Importer class '" + className + "' does not exist");
 			}
 		}
 		
-		if (importers.size() == 0) {
+		if (importers.keySet().size() == 0) {
 			throw new ConfigException("No importers specified in config file");
 		}
 	}
@@ -104,12 +99,11 @@ public class Config extends Properties {
 	/**
 	 * Returns a sorted list of all the importer names
 	 * @return The list of importer names
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
 	public List<String> getImporterNames() {
-		List<String> importerNames = new ArrayList<String>(importers.size());
-		importerNames.addAll(importers.keySet());
-		Collections.sort(importerNames);
-		return importerNames;
+		return new ArrayList<String>(importers.keySet());		
 	}
 	
 	/**
@@ -118,23 +112,10 @@ public class Config extends Properties {
 	 * @return The Importer object
 	 * @throws ConfigException If the importer cannot be found
 	 */
-	public Importer getImporter(String importerName) throws ConfigException {
-		
-		Importer importer = null;
-		
-		Class<? extends Importer> importerClass = importers.get(importerName);
-		if (null == importerClass) {
-			throw new ConfigException("Cannot find importer with name '" + importerName + "'");
-		}
-		
-		try {
-			importer = importerClass.newInstance();
-			importer.init(this);
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new ConfigException("Error while retrieving constructing importer: " + e.getMessage(), e);
-		}
-		
-		return importer;	
+	public Importer getImporter(String name) throws ConfigException {
+		Importer importer = importers.get(name);
+		importer.init(this);
+		return importer;
 	}
 	
 	/**

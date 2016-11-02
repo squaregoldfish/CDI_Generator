@@ -11,4 +11,8 @@ public class SocatPangaea extends PangaVistaImporter {
 		super();
 	}
 
+	@Override
+	public String getName() {
+		return "SOCATv3 from PANGAEA";
+	}
 }

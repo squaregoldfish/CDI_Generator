@@ -147,4 +147,10 @@ public abstract class Importer {
 	 * @return The metadata
 	 */
  	protected abstract Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException;
+ 	
+ 	/**
+ 	 * Returns the name of this importer
+ 	 * @return The name of the importer
+ 	 */
+ 	public abstract String getName();
 }
