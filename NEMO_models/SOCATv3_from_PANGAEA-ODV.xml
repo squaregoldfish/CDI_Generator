@@ -1,0 +1,264 @@
+<InputModel version="1.6.2" isValid="false">
+  <MediaModel path="/media/sf_Documents/SeaDataNet/socat_nemo/PF_06AQ20001004_CO2_underway_SOCATv3.tab">
+    <processType multiStations="false">CRUISE_FILE</processType>
+    <separator>&#9;</separator>
+    <inputType>TRAJECTORY</inputType>
+    <fileHeader>0</fileHeader>
+    <stationHeader pattern="Date/Time">0</stationHeader>
+    <endStation>0</endStation>
+    <endData pattern="" patternIsRegexp="false">EOF</endData>
+  </MediaModel>
+  <CruiseModel>
+    <reference></reference>
+    <localCSRIdentifier></localCSRIdentifier>
+    <name>SOCAT</name>
+    <shipCode></shipCode>
+    <shipName></shipName>
+    <startDate></startDate>
+    <endDate></endDate>
+    <regionName></regionName>
+    <regionCode></regionCode>
+    <country></country>
+    <laboratories></laboratories>
+    <chiefScientist></chiefScientist>
+    <projectName>SOCAT</projectName>
+    <dataCentre>Bjerknes Climate Data Centre</dataCentre>
+    <availability>publicly</availability>
+    <comment><![CDATA[]]></comment>
+    <dataTypes/>
+  </CruiseModel>
+  <StationModel>
+    <referenceProperty>
+      <PropertyModel property="" userProvided="true">
+        <userValue>1</userValue>
+      </PropertyModel>
+    </referenceProperty>
+    <properties>
+      <PropertyModel property="dcHistory1" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="dcHistory2" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="comment" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="surfaceSamples1" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="surfaceSamples2" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="offsetTU" userProvided="true">
+        <format>
+          <FloatFormat formatString="%4.1f"/>
+        </format>
+        <userValue>0.0</userValue>
+      </PropertyModel>
+      <PropertyModel property="time" userProvided="false">
+        <format>
+          <DateTimeFormat formatString="hh24:mm"/>
+        </format>
+        <HeaderFragment isSingleLine="true" isVariable="false">
+          <firstLine>38</firstLine>
+          <lastLine>38</lastLine>
+          <firstCharOffset>13</firstCharOffset>
+          <lastCharOffset>17</lastCharOffset>
+        </HeaderFragment>
+      </PropertyModel>
+      <PropertyModel property="date" userProvided="false">
+        <format>
+          <DateTimeFormat formatString="YYYY-MM-DD"/>
+        </format>
+        <HeaderFragment isSingleLine="true" isVariable="false">
+          <firstLine>38</firstLine>
+          <lastLine>38</lastLine>
+          <firstCharOffset>2</firstCharOffset>
+          <lastCharOffset>11</lastCharOffset>
+        </HeaderFragment>
+      </PropertyModel>
+      <PropertyModel property="latitude" userProvided="false">
+        <format>
+          <LatitudeFormat formatString="+DD.ddddd"/>
+        </format>
+        <HeaderFragment isSingleLine="true" isVariable="false">
+          <firstLine>38</firstLine>
+          <lastLine>38</lastLine>
+          <firstCharOffset>19</firstCharOffset>
+          <lastCharOffset>27</lastCharOffset>
+        </HeaderFragment>
+      </PropertyModel>
+      <PropertyModel property="longitude" userProvided="false">
+        <format>
+          <LongitudeFormat formatString="+DDD.ddddd"/>
+        </format>
+        <HeaderFragment isSingleLine="true" isVariable="false">
+          <firstLine>38</firstLine>
+          <lastLine>38</lastLine>
+          <firstCharOffset>28</firstCharOffset>
+          <lastCharOffset>37</lastCharOffset>
+        </HeaderFragment>
+      </PropertyModel>
+      <PropertyModel property="bottomDepth" userProvided="true">
+        <format>
+          <FloatFormat formatString="%4.0f"/>
+        </format>
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="sensorDepth" userProvided="true">
+        <format>
+          <FloatFormat formatString="%4.0f"/>
+        </format>
+        <userValue>5</userValue>
+      </PropertyModel>
+      <PropertyModel property="samplingRate" userProvided="true">
+        <format>
+          <FloatFormat formatString="%4.0f"/>
+        </format>
+        <conversionFormula>*1</conversionFormula>
+        <userValue>0</userValue>
+      </PropertyModel>
+      <PropertyModel property="endDate" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="endTime" userProvided="true">
+        <userValue></userValue>
+      </PropertyModel>
+      <PropertyModel property="endLatitude" userProvided="false"/>
+      <PropertyModel property="endLongitude" userProvided="false"/>
+      <PropertyModel property="endDepth" userProvided="false">
+        <format>
+          <FloatFormat formatString="%4.0f"/>
+        </format>
+      </PropertyModel>
+      <PropertyModel property="magneticDeclination" userProvided="true">
+        <format>
+          <FloatFormat formatString="%4.1f"/>
+        </format>
+        <userValue>-999</userValue>
+      </PropertyModel>
+    </properties>
+    <DataType code="H71">
+      <profiles>0</profiles>
+      <qc>false</qc>
+      <sensor>false</sensor>
+    </DataType>
+    <FlagTable code="Moose" label="Test Moose">
+      <Flag local="1" SDN="1 - good value"/>
+      <Flag local="4" SDN="4 - bad value"/>
+      <Flag local="5" SDN="6 - value below detection"/>
+      <Flag local="6" SDN="9 - missing value"/>
+    </FlagTable>
+  </StationModel>
+  <DataModel>
+    <dataListType>P011_VIA_P021</dataListType>
+    <mesureType>BSSURF</mesureType>
+    <fallrateCode></fallrateCode>
+    <fallrateLabel></fallrateLabel>
+    <verticalParametersList>
+      <p_depthBSBed></p_depthBSBed>
+      <p_depthBSSurf></p_depthBSSurf>
+      <p_pressure></p_pressure>
+      <p_heightASLvl></p_heightASLvl>
+    </verticalParametersList>
+    <parameters>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="42" lastCharOffset="47"/>
+        <Parameter code="PSAL">
+          <fullName>Salinity of the water column</fullName>
+          <unit>Dimensionless</unit>
+          <unitCode>UUUU</unitCode>
+          <default></default>
+          <format>%6.3f</format>
+          <CodeP011>PSLTZZ01</CodeP011>
+          <NameP011>Practical salinity of the water body</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="49" lastCharOffset="54"/>
+        <Parameter code="TEMP">
+          <fullName>Temperature of the water column</fullName>
+          <unit>Degrees Celsius</unit>
+          <unitCode>UPAA</unitCode>
+          <default></default>
+          <format>%6.3f</format>
+          <CodeP011>TEMPP901</CodeP011>
+          <NameP011>Temperature (ITS-90) of the water body</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="63" lastCharOffset="70"/>
+        <Parameter code="CAPH">
+          <fullName>Air pressure</fullName>
+          <unit>Hectopascals</unit>
+          <unitCode>HPAX</unitCode>
+          <default></default>
+          <format>%8.3f</format>
+          <CodeP011>CAPHZZ01</CodeP011>
+          <NameP011>Pressure (measured variable) exerted by the atmosphere</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="89" lastCharOffset="92"/>
+        <Parameter code="MBAN">
+          <fullName>Bathymetry and Elevation</fullName>
+          <unit>Metres</unit>
+          <unitCode>ULAA</unitCode>
+          <default></default>
+          <format>%4d</format>
+          <CodeP011>MBANZZZZ</CodeP011>
+          <NameP011>Sea-floor depth (below instantaneous sea level) {bathymetric depth} in the water body</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="148" lastCharOffset="154"/>
+        <Parameter code="PCO2">
+          <fullName>Partial pressure (pCO2) and fugacity (fCO2) of carbon dioxide in the water column</fullName>
+          <unit>Microatmospheres</unit>
+          <unitCode>UATM</unitCode>
+          <default></default>
+          <format>%7.3f</format>
+          <CodeP011>FCO2EQTX</CodeP011>
+          <NameP011>Fugacity of carbon dioxide {fCO2 CAS 124-38-9} in the water body by equilibration with air, drying and constant temperature non-dispersive infra-red gas analysis and computation from pCO2 corrected to 1 bar at 100% humidity</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+    </parameters>
+  </DataModel>
+  <ConversionModel>
+    <permissions>
+      <MEDATLAS enable="true"/>
+      <ODV_MULTISTATIONS enable="true"/>
+      <ODV_MONOSTATION enable="true"/>
+      <UNKNOWN enable="true"/>
+      <NETCDF_MONOSTATION enable="true"/>
+      <NETCDF_MULTISTATIONS enable="true"/>
+    </permissions>
+    <sortStations>false</sortStations>
+    <outputFormat>ODV_MULTISTATIONS</outputFormat>
+  </ConversionModel>
+</InputModel>

@@ -17,6 +17,7 @@ import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.commons.io.IOUtils;
 
+import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.DataSetNotFoundException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
@@ -63,7 +64,15 @@ public abstract class PangaVistaImporter extends Importer {
 	 * The current session ID
 	 */
 	private String sessionId = null;
-	
+
+	/**
+	 * Default constructor - invokes the parent constructor
+	 * @param config The configuration
+	 */
+	public PangaVistaImporter(Config config) {
+		super(config);
+	}
+
 	@Override
 	protected Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		

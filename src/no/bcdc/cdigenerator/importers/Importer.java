@@ -2,6 +2,7 @@ package no.bcdc.cdigenerator.importers;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
@@ -26,19 +27,23 @@ public abstract class Importer {
 	protected Config config;
 	
 	/**
+	 * The filename filter for NEMO models
+	 */
+	private ModelFilenameFilter modelFilenameFilter = null;
+	
+	/**
 	 * The basic importer has no constructor activities
 	 */
-	public Importer() {
-		// Do nothing!
+	public Importer(Config config) {
+		this.config = config;
+		modelFilenameFilter = new ModelFilenameFilter(getName());
 	}
 	
 	/**
 	 * Initialise the importer. This usually doesn't need to do anything,
 	 * so an empty version is provided here.
 	 */
-	public void init(Config config) {
-		// Default initialiser stores the configuration
-		this.config = config;
+	public void init() {
 	}
 	
 	/**
@@ -107,6 +112,14 @@ public abstract class Importer {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * Get the list of NEMO model files for this importer
+	 * @return The list of NEMO model files
+	 */
+	public List<File> getNemoModelList() {
+		return Arrays.asList(config.getModelsDir().listFiles(modelFilenameFilter));
 	}
 	
 	/**

@@ -3,6 +3,8 @@ package no.bcdc.cdigenerator;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -35,6 +37,11 @@ public class Config extends Properties {
 	private static final String TEMP_DIR_PROPERTY = "config.tempDir";
 	
 	/**
+	 * The key for the models directory
+	 */
+	private static final String MODELS_DIR_PROPERTY = "config.modelsDir";
+	
+	/**
 	 * Lookup table of importers
 	 */
 	private TreeMap<String, Importer> importers = null;
@@ -45,6 +52,11 @@ public class Config extends Properties {
 	private File tempDir = null;
 	
 	/**
+	 * Models directory
+	 */
+	private File modelsDir = null;
+	
+	/**
 	 * Initialise and load the configuration
 	 * @param configReader A reader for the config file
 	 * @throws IOException If an error occurs while reading the file data
@@ -53,8 +65,9 @@ public class Config extends Properties {
 	public Config(Reader configReader) throws IOException, ConfigException, IllegalAccessException, InstantiationException {
 		super();
 		load(configReader);
-		extractImporters();
 		checkTempDir();
+		checkModelsDir();
+		extractImporters();
 	}
 	
 	/**
@@ -82,12 +95,20 @@ public class Config extends Properties {
 					throw new ConfigException("Importer class '" + className + "' is not a subclass of no.bcdc.cdigenerator.Importer");
 				}
 				
-				Importer importer = (Importer) clazz.newInstance();
+				Constructor<?> constructor = clazz.getConstructor(Config.class);
+				Importer importer = (Importer) constructor.newInstance(this);
+				if (importer.getNemoModelList().size() == 0) {
+					throw new ConfigException("There are no NEMO models for importer " + importer.getName());
+				}
 				importers.put(importer.getName(), importer);
 				
 				
 			} catch (ClassNotFoundException e) {
 				throw new ConfigException("Importer class '" + className + "' does not exist");
+			} catch (NoSuchMethodException e) {
+				throw new ConfigException("Importer class '" + className + "' does not have a Config constructor");
+			} catch (IllegalArgumentException|InvocationTargetException e) {
+				throw new ConfigException("Could not instatiate importer class '" + className, e);
 			}
 		}
 		
@@ -114,27 +135,49 @@ public class Config extends Properties {
 	 */
 	public Importer getImporter(String name) throws ConfigException {
 		Importer importer = importers.get(name);
-		importer.init(this);
+		importer.init();
 		return importer;
 	}
 	
 	/**
-	 * Check the temporary directory
-	 * @throws ConfigException If the temporary directory is incorrectly configured
+	 * Set up and check the temp directory
+	 * @throws ConfigException If the models directory is incorrectly configured
 	 */
 	private void checkTempDir() throws ConfigException {
 		String tempDirString = getProperty(TEMP_DIR_PROPERTY);
 		if (null == tempDirString) {
 			throw new ConfigException("config.tempDir not specified");
 		}
-		
+
 		tempDir = new File(tempDirString);
-		if (!tempDir.exists()) {
-			throw new ConfigException("Specified temporary directory does not exist");
-		} else if (!tempDir.isDirectory()) {
-			throw new ConfigException("Specified temporary directory is not a directory");
-		} else if (!tempDir.canWrite()) {
-			throw new ConfigException("Specified temporary directory is not writeable");
+		checkDir(tempDir);
+	}
+	
+	/**
+	 * Set up and check the models directory
+	 * @throws ConfigException If the models directory is incorrectly configured
+	 */
+	private void checkModelsDir() throws ConfigException {
+		String tempDirString = getProperty(MODELS_DIR_PROPERTY);
+		if (null == tempDirString) {
+			throw new ConfigException("config.modelsDir not specified");
+		}
+
+		modelsDir = new File(tempDirString);
+		checkDir(modelsDir);
+	}
+	
+	/**
+	 * Check a directory for existence, directoryness, and writeability
+	 * @throws ConfigException If the directory has none of those things.
+	 */
+	private void checkDir(File directory) throws ConfigException {
+		if (!directory.exists()) {
+			throw new ConfigException(directory.getAbsolutePath() + " does not exist");
+		} else if (!directory.isDirectory()) {
+			throw new ConfigException(directory.getAbsolutePath() + " is not a directory");
+		} else if (!directory.canWrite()) {
+			throw new ConfigException(directory.getAbsolutePath() + " is not writeable");
 		}
 	}
 	
@@ -144,5 +187,13 @@ public class Config extends Properties {
 	 */
 	public File getTempDir() {
 		return tempDir;
+	}
+	
+	/**
+	 * Get the models directory
+	 * @return The models directory
+	 */
+	public File getModelsDir() {
+		return modelsDir;
 	}
 }
