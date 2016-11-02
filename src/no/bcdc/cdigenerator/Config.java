@@ -39,7 +39,7 @@ public class Config extends Properties {
 	/**
 	 * The key for the models directory
 	 */
-	private static final String MODELS_DIR_PROPERTY = "config.modelsDir";
+	private static final String NEMO_TEMPLATES_DIR_PROPERTY = "config.nemoTemplatesDir";
 	
 	/**
 	 * Lookup table of importers
@@ -54,7 +54,7 @@ public class Config extends Properties {
 	/**
 	 * Models directory
 	 */
-	private File modelsDir = null;
+	private File nemoTemplatesDir = null;
 	
 	/**
 	 * Initialise and load the configuration
@@ -66,7 +66,7 @@ public class Config extends Properties {
 		super();
 		load(configReader);
 		checkTempDir();
-		checkModelsDir();
+		checkNemoTemplatesDir();
 		extractImporters();
 	}
 	
@@ -149,7 +149,7 @@ public class Config extends Properties {
 	private void checkTempDir() throws ConfigException {
 		String tempDirString = getProperty(TEMP_DIR_PROPERTY);
 		if (null == tempDirString) {
-			throw new ConfigException("config.tempDir not specified");
+			throw new ConfigException(TEMP_DIR_PROPERTY + " not specified");
 		}
 
 		tempDir = new File(tempDirString);
@@ -160,14 +160,14 @@ public class Config extends Properties {
 	 * Set up and check the models directory
 	 * @throws ConfigException If the models directory is incorrectly configured
 	 */
-	private void checkModelsDir() throws ConfigException {
-		String tempDirString = getProperty(MODELS_DIR_PROPERTY);
+	private void checkNemoTemplatesDir() throws ConfigException {
+		String tempDirString = getProperty(NEMO_TEMPLATES_DIR_PROPERTY);
 		if (null == tempDirString) {
-			throw new ConfigException("config.modelsDir not specified");
+			throw new ConfigException(NEMO_TEMPLATES_DIR_PROPERTY + " not specified");
 		}
 
-		modelsDir = new File(tempDirString);
-		checkDir(modelsDir);
+		nemoTemplatesDir = new File(tempDirString);
+		checkDir(nemoTemplatesDir);
 	}
 	
 	/**
@@ -193,10 +193,10 @@ public class Config extends Properties {
 	}
 	
 	/**
-	 * Get the models directory
-	 * @return The models directory
+	 * Get the NEMO templates directory
+	 * @return The NEMO templates directory
 	 */
-	public File getModelsDir() {
-		return modelsDir;
+	public File getNemoTemplatesDir() {
+		return nemoTemplatesDir;
 	}
 }

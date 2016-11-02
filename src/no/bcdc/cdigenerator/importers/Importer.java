@@ -119,7 +119,7 @@ public abstract class Importer {
 	 * @return The list of NEMO model files
 	 */
 	public List<File> getNemoModelList() {
-		return Arrays.asList(config.getModelsDir().listFiles(modelFilenameFilter));
+		return Arrays.asList(config.getNemoTemplatesDir().listFiles(modelFilenameFilter));
 	}
 	
 	/**
