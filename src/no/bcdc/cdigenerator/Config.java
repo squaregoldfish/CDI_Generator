@@ -95,13 +95,16 @@ public class Config extends Properties {
 					throw new ConfigException("Importer class '" + className + "' is not a subclass of no.bcdc.cdigenerator.Importer");
 				}
 				
+				// Create an instance of the class, and check that there are
+				// NEMO models for it
 				Constructor<?> constructor = clazz.getConstructor(Config.class);
 				Importer importer = (Importer) constructor.newInstance(this);
 				if (importer.getNemoModelList().size() == 0) {
 					throw new ConfigException("There are no NEMO models for importer " + importer.getName());
 				}
-				importers.put(importer.getName(), importer);
 				
+				// Store the importer
+				importers.put(importer.getName(), importer);
 				
 			} catch (ClassNotFoundException e) {
 				throw new ConfigException("Importer class '" + className + "' does not exist");
