@@ -63,33 +63,41 @@ public abstract class Importer {
 					try {
 						generator.setCurrentDataSetId(id);
 						
-						// Retrieve the data
-						generator.setProgressMessage("Retrieving data...");
-						generator.updateProgressDisplay();
-						String data = getDataSetData(id);
-						
 						File dataFile = new File(config.getTempDir(), id + "_data");
-						PrintWriter out = new PrintWriter(dataFile);
-						out.print(data);
-						out.close();
+						File metadataFile = new File(config.getTempDir(), id + "_metadata");
+						
+						// Retrieve the data
+						if (dataFile.exists()) {
+							generator.setProgressMessage("Data is already in cache");
+						} else {
+							generator.setProgressMessage("Retrieving data...");
+							String data = getDataSetData(id);
+						
+							PrintWriter dataOut = new PrintWriter(dataFile);
+							dataOut.print(data);
+							dataOut.close();
+						}
 						
 						// Retrieve the metadata
-						generator.setProgressMessage("Retrieving metadata...");
-						generator.updateProgressDisplay();
-						Metadata metadata = getDataSetMetaData(id);
+						if (metadataFile.exists()) {
+							generator.setProgressMessage("Metadata is already in cache");
+						} else {
+							generator.setProgressMessage("Retrieving metadata...");
+							Metadata metadata = getDataSetMetaData(id);
+							PrintWriter metadataOut = new PrintWriter(metadataFile);
+							metadataOut.print(metadata);
+							metadataOut.close();
+						}
 						
 						generator.setProgressMessage("Validating retrieved data");
-						generator.updateProgressDisplay();
 						
 						idsComplete++;
 						generator.setProgress(idsComplete);
 						generator.setProgressMessage("Done");
-						generator.updateProgressDisplay();
 					} catch (DataSetNotFoundException e) {
 						idsComplete++;
 						generator.setProgress(idsComplete);
 						generator.setProgressMessage(e.getMessage());
-						generator.updateProgressDisplay();
 					}
 				}
 			} catch (Exception e) {

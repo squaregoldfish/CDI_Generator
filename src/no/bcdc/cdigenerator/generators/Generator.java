@@ -91,6 +91,7 @@ public abstract class Generator {
 	 */
 	public void setProgressMessage(String progressMessage) {
 		this.progressMessage = progressMessage;
+		updateProgressDisplay();
 	}
 	
 	/**
