@@ -64,7 +64,6 @@ public abstract class PangaVistaImporter extends Importer {
 	 */
 	private String sessionId = null;
 	
-	
 	@Override
 	protected Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		
@@ -74,6 +73,7 @@ public abstract class PangaVistaImporter extends Importer {
 		}
 		
 		String metadataXML = getMetadataXML(dataSetId);
+		System.out.println(metadataXML);
 		return generateMetadataFromXML(metadataXML);
 	}
 	
@@ -167,13 +167,11 @@ public abstract class PangaVistaImporter extends Importer {
 	
 	@Override
 	protected String getDataSetData(String dataSetId) throws ImporterException, DataSetNotFoundException {
-		
 		String result = null;
 		
 		HttpsURLConnection conn = null;
 		InputStream stream = null;
 		StringWriter writer = null;
-		
 		
 		try {
 			URL url = makeUrl(dataSetId);
@@ -207,9 +205,7 @@ public abstract class PangaVistaImporter extends Importer {
 			}
 		}
 		
-		
 		return result;
-		
 	}
 	
 	/**
