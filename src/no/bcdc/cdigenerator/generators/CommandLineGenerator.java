@@ -76,21 +76,20 @@ public class CommandLineGenerator extends Generator {
 	}
 	
 	@Override
-	public void start() throws Exception {
+	public boolean getImporterChoice() throws Exception {
 		
 		boolean quit = false;
 		
 		// Main loop asks for an importer, then runs it.
 		// We do that until the user decides to quit.
-		while (!quit) {
-			String chosenImporter = getImporterChoice();
-			if (null == chosenImporter) {
-				quit = true;
-			} else {
-				importer = config.getImporter(chosenImporter);
-				importer.start(this);
-			}
+		String chosenImporter = selectImporter();
+		if (null == chosenImporter) {
+			quit = true;
+		} else {
+			importer = config.getImporter(chosenImporter);
 		}
+		
+		return quit;
 	}
 	
 	/**
@@ -99,7 +98,7 @@ public class CommandLineGenerator extends Generator {
 	 * indicating that the program should quit.
 	 * @return The name of the importer to use, or {@code null} if the program should quit.
 	 */
-	private String getImporterChoice() {
+	private String selectImporter() {
 		
 		// Show a list of importers
 		List<String> importerNames = config.getImporterNames();

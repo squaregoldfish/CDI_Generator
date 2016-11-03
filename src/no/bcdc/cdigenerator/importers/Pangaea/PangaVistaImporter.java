@@ -82,7 +82,6 @@ public abstract class PangaVistaImporter extends Importer {
 		}
 		
 		String metadataXML = getMetadataXML(dataSetId);
-		System.out.println(metadataXML);
 		return generateMetadataFromXML(metadataXML);
 	}
 	

@@ -17,11 +17,6 @@ import no.bcdc.cdigenerator.output.Metadata;
 public abstract class Importer {
 
 	/**
-	 * The generator
-	 */
-	protected Generator generator;
-
-	/**
 	 * The configuration
 	 */
 	protected Config config;
@@ -50,68 +45,48 @@ public abstract class Importer {
 	 * Begin the importing process
 	 * @param generator The generator, so we can send/receive information to/from it.
 	 */
-	public void start(Generator generator) {
+	public boolean retrieveData(String dataSetId, Generator generator) {
 		
-		this.generator = generator;
+		boolean success = true;
 		
-		// Get the list of data set IDs to be imported from the generator
-		List<String> dataSetIds = generator.getDataSetIds(getDataSetIdsDescriptor());
-		
-		// A null set of IDs means we just stop
-		if (null != dataSetIds) {
+		try {
+			File dataFile = new File(config.getTempDir(), dataSetId + "_data");
+			File metadataFile = new File(config.getTempDir(), dataSetId + "_metadata");
 			
-			try {
+			// Retrieve the data
+			if (dataFile.exists()) {
+				generator.setProgressMessage("Data is already in cache");
+			} else {
+				generator.setProgressMessage("Retrieving data...");
+				String data = getDataSetData(dataSetId);
 			
-				int idsComplete = 0;
-				generator.setProgress(idsComplete);
-				for (String id : dataSetIds) {
-					try {
-						generator.setCurrentDataSetId(id);
-						
-						File dataFile = new File(config.getTempDir(), id + "_data");
-						File metadataFile = new File(config.getTempDir(), id + "_metadata");
-						
-						// Retrieve the data
-						if (dataFile.exists()) {
-							generator.setProgressMessage("Data is already in cache");
-						} else {
-							generator.setProgressMessage("Retrieving data...");
-							String data = getDataSetData(id);
-						
-							PrintWriter dataOut = new PrintWriter(dataFile);
-							dataOut.print(data);
-							dataOut.close();
-						}
-						
-						// Retrieve the metadata
-						if (metadataFile.exists()) {
-							generator.setProgressMessage("Metadata is already in cache");
-						} else {
-							generator.setProgressMessage("Retrieving metadata...");
-							Metadata metadata = getDataSetMetaData(id);
-							PrintWriter metadataOut = new PrintWriter(metadataFile);
-							metadataOut.print(metadata);
-							metadataOut.close();
-						}
-						
-						generator.setProgressMessage("Validating retrieved data");
-						
-						idsComplete++;
-						generator.setProgress(idsComplete);
-						generator.setProgressMessage("Done");
-						generator.logMessage(id, "Data set processed successfully");
-					} catch (DataSetNotFoundException e) {
-						idsComplete++;
-						generator.setProgress(idsComplete);
-						generator.setProgressMessage(e.getMessage());
-						generator.logMessage(id, "Data set not found");
-					}
-				}
-			} catch (Exception e) {
-				System.out.println("An error occurred! :(");
-				e.printStackTrace();
+				PrintWriter dataOut = new PrintWriter(dataFile);
+				dataOut.print(data);
+				dataOut.close();
 			}
+			
+			// Retrieve the metadata
+			if (metadataFile.exists()) {
+				generator.setProgressMessage("Metadata is already in cache");
+			} else {
+				generator.setProgressMessage("Retrieving metadata...");
+				Metadata metadata = getDataSetMetaData(dataSetId);
+				PrintWriter metadataOut = new PrintWriter(metadataFile);
+				metadataOut.print(metadata);
+				metadataOut.close();
+			}
+			
+		} catch (DataSetNotFoundException e) {
+			generator.setProgressMessage(e.getMessage());
+			generator.logMessage(dataSetId, "Data set not found");
+			success = false;
+		} catch (Exception e) {
+			generator.setProgressMessage(e.getMessage());
+			generator.logMessage(dataSetId, "Error retrieving and storing data");
+			success = false;
 		}
+		
+		return success;
 	}
 	
 	/**

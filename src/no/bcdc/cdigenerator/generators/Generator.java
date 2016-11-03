@@ -4,6 +4,7 @@ import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
+import no.bcdc.cdigenerator.output.Metadata;
 
 /**
  * Abstract generator class
@@ -21,6 +22,11 @@ public abstract class Generator {
 	 * The importer being used
 	 */
 	protected Importer importer;
+	
+	/**
+	 * The list of data set IDs to be processed
+	 */
+	protected List<String> dataSetIds = null;
 	
 	/**
 	 * The maximum value for the progress monitor
@@ -43,6 +49,16 @@ public abstract class Generator {
 	protected String progressMessage = "Processing...";
 	
 	/**
+	 * The contents of the current data set file
+	 */
+	protected String dataSetData = null;
+	
+	/**
+	 * The metadata for the current data set
+	 */
+	protected Metadata dataSetMetadata = null;
+	
+	/**
 	 * Base constructor - stores the configuration
 	 * @param config The configuration
 	 */
@@ -54,7 +70,34 @@ public abstract class Generator {
 	 * Starts the generator. This is the main program.
 	 * @throws Exception Any errors are passed up to be handled by the main method. Ideally there shouldn't be any, obviously
 	 */
-	protected abstract void start() throws Exception;
+	public void start() throws Exception {
+		
+		boolean quit = false;
+		
+		while (!quit) {
+			quit = getImporterChoice();
+			if (!quit) {
+				dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
+
+				int idsComplete = 0;
+				setProgress(idsComplete);
+				for (String id : dataSetIds) {
+
+					currentDataSetId = id;
+					boolean dataRetrieved = importer.retrieveData(id, this);
+					
+					if (dataRetrieved) {
+						setProgressMessage("Data retrieved");
+					}
+					
+					idsComplete++;
+					setProgress(idsComplete);
+				}
+			}
+		}
+	}
+	
+	protected abstract boolean getImporterChoice() throws Exception;
 	
 	/**
 	 * Get the list of IDs for the data sets that are to be imported
@@ -92,14 +135,6 @@ public abstract class Generator {
 	public void setProgressMessage(String progressMessage) {
 		this.progressMessage = progressMessage;
 		updateProgressDisplay();
-	}
-	
-	/**
-	 * Set the name of the data set ID current being processed
-	 * @param dataSetId The ID of the data set currently being processed
-	 */
-	public void setCurrentDataSetId(String dataSetId) {
-		this.currentDataSetId = dataSetId;
 	}
 	
 	/**
