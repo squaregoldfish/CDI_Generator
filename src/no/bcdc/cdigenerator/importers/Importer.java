@@ -27,6 +27,11 @@ public abstract class Importer {
 	private ModelFilenameFilter modelFilenameFilter = null;
 	
 	/**
+	 * The generator
+	 */
+	protected Generator generator;
+	
+	/**
 	 * The basic importer has no constructor activities
 	 */
 	public Importer(Config config) {
@@ -35,17 +40,17 @@ public abstract class Importer {
 	}
 	
 	/**
-	 * Initialise the importer. This usually doesn't need to do anything,
-	 * so an empty version is provided here.
+	 * Set the parent generator
 	 */
-	public void init() {
+	public void setGenerator(Generator generator) {
+		this.generator = generator;
 	}
 	
 	/**
 	 * Begin the importing process
 	 * @param generator The generator, so we can send/receive information to/from it.
 	 */
-	public boolean retrieveData(String dataSetId, Generator generator) {
+	public boolean retrieveData(String dataSetId) {
 		
 		boolean success = true;
 		
@@ -143,4 +148,21 @@ public abstract class Importer {
  	 * @return The name of the importer
  	 */
  	public abstract String getName();
+
+ 	/**
+ 	 * Generate the NEMO model files
+ 	 */
+	public void generateNemoModels() {
+		
+		List<File> models = getNemoModelList();
+		int modelsProcessed = 0;
+		
+		for (File modelFile : models) {
+			modelsProcessed++;
+			
+			generator.setProgressMessage("Generating model " + modelsProcessed + " of " + models.size());
+			
+		}
+
+	}
 }

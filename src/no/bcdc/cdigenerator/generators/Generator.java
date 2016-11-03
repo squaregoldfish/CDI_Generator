@@ -77,6 +77,7 @@ public abstract class Generator {
 		while (!quit) {
 			quit = getImporterChoice();
 			if (!quit) {
+				importer.setGenerator(this);
 				dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
 
 				int idsComplete = 0;
@@ -84,15 +85,18 @@ public abstract class Generator {
 				for (String id : dataSetIds) {
 
 					currentDataSetId = id;
-					boolean dataRetrieved = importer.retrieveData(id, this);
+					boolean dataRetrieved = importer.retrieveData(id);
 					
 					if (dataRetrieved) {
 						setProgressMessage("Data retrieved");
+						importer.generateNemoModels();
 					}
 					
 					idsComplete++;
 					setProgress(idsComplete);
 				}
+				
+				setProgressMessage("Processing complete");
 			}
 		}
 	}

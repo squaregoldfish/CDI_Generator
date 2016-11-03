@@ -138,7 +138,6 @@ public class Config extends Properties {
 	 */
 	public Importer getImporter(String name) throws ConfigException {
 		Importer importer = importers.get(name);
-		importer.init();
 		return importer;
 	}
 	
