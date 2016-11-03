@@ -1,5 +1,5 @@
-<InputModel version="1.6.2" isValid="false">
-  <MediaModel path="/media/sf_Documents/SeaDataNet/socat_nemo/PF_06AQ20001004_CO2_underway_SOCATv3.tab">
+<InputModel version="1.6.2" isValid="true">
+  <MediaModel path="PF_%%EXPOCODE%%_CO2_underway_SOCATv3.tab">
     <processType multiStations="false">CRUISE_FILE</processType>
     <separator>&#9;</separator>
     <inputType>TRAJECTORY</inputType>
@@ -9,20 +9,20 @@
     <endData pattern="" patternIsRegexp="false">EOF</endData>
   </MediaModel>
   <CruiseModel>
-    <reference></reference>
+    <reference>SOCATV3_%%EXPOCODE%%</reference>
     <localCSRIdentifier></localCSRIdentifier>
     <name>SOCAT</name>
-    <shipCode></shipCode>
-    <shipName></shipName>
-    <startDate></startDate>
-    <endDate></endDate>
+    <shipCode>%%SHIP_CODE%%</shipCode>
+    <shipName>%%SHIP_NAME%%</shipName>
+    <startDate>%%START_DATE_MS%%</startDate>
+    <endDate>%%END_DATE_MS%%</endDate>
     <regionName></regionName>
     <regionCode></regionCode>
     <country></country>
     <laboratories></laboratories>
-    <chiefScientist></chiefScientist>
-    <projectName>SOCAT</projectName>
-    <dataCentre>Bjerknes Climate Data Centre</dataCentre>
+    <chiefScientist>%%FIRST_AUTHOR%%</chiefScientist>
+    <projectName>SOCAT V3</projectName>
+    <dataCentre></dataCentre>
     <availability>publicly</availability>
     <comment><![CDATA[]]></comment>
     <dataTypes/>
@@ -60,8 +60,8 @@
           <DateTimeFormat formatString="hh24:mm"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>38</firstLine>
-          <lastLine>38</lastLine>
+          <firstLine>%%FIRST_LINE%%</firstLine>
+          <lastLine>%%FIRST_LINE%%</lastLine>
           <firstCharOffset>13</firstCharOffset>
           <lastCharOffset>17</lastCharOffset>
         </HeaderFragment>
@@ -71,45 +71,45 @@
           <DateTimeFormat formatString="YYYY-MM-DD"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>38</firstLine>
-          <lastLine>38</lastLine>
+          <firstLine>%%FIRST_LINE%%</firstLine>
+          <lastLine>%%FIRST_LINE%%</lastLine>
           <firstCharOffset>2</firstCharOffset>
           <lastCharOffset>11</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="latitude" userProvided="false">
         <format>
-          <LatitudeFormat formatString="+DD.ddddd"/>
+          <LatitudeFormat formatString="%%LATITUDE_FORMAT%%"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>38</firstLine>
-          <lastLine>38</lastLine>
-          <firstCharOffset>19</firstCharOffset>
-          <lastCharOffset>27</lastCharOffset>
+          <firstLine>%%FIRST_LINE%%</firstLine>
+          <lastLine>%%FIRST_LINE%%</lastLine>
+          <firstCharOffset>%%LATITUDE_FIRST_CHAR%%</firstCharOffset>
+          <lastCharOffset>%%LATITUDE_LAST_CHAR%%</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="longitude" userProvided="false">
         <format>
-          <LongitudeFormat formatString="+DDD.ddddd"/>
+          <LongitudeFormat formatString="%%LONGITUDE_FORMAT%%"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>38</firstLine>
-          <lastLine>38</lastLine>
-          <firstCharOffset>28</firstCharOffset>
-          <lastCharOffset>37</lastCharOffset>
+          <firstLine>%%FIRST_LINE%%</firstLine>
+          <lastLine>%%FIRST_LINE%%</lastLine>
+          <firstCharOffset>%%LONGITUDE_FIRST_CHAR%%</firstCharOffset>
+          <lastCharOffset>%%LONGITUDE_LAST_CHAR%%</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="bottomDepth" userProvided="true">
         <format>
           <FloatFormat formatString="%4.0f"/>
         </format>
-        <userValue></userValue>
+        <userValue>-9999</userValue>
       </PropertyModel>
       <PropertyModel property="sensorDepth" userProvided="true">
         <format>
           <FloatFormat formatString="%4.0f"/>
         </format>
-        <userValue>5</userValue>
+        <userValue>%%SENSOR_DEPTH%%</userValue>
       </PropertyModel>
       <PropertyModel property="samplingRate" userProvided="true">
         <format>
@@ -143,11 +143,10 @@
       <qc>false</qc>
       <sensor>false</sensor>
     </DataType>
-    <FlagTable code="Moose" label="Test Moose">
-      <Flag local="1" SDN="1 - good value"/>
+    <FlagTable code="WOCE" label="WOCE Flag">
+      <Flag local="2" SDN="1 - good value"/>
+      <Flag local="3" SDN="2 - probably good value"/>
       <Flag local="4" SDN="4 - bad value"/>
-      <Flag local="5" SDN="6 - value below detection"/>
-      <Flag local="6" SDN="9 - missing value"/>
     </FlagTable>
   </StationModel>
   <DataModel>
@@ -165,7 +164,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="42" lastCharOffset="47"/>
+        <LineFragment firstCharOffset="%%SALINITY_FIRST_CHAR%%" lastCharOffset="%%SALINITY_LAST_CHAR%%"/>
         <Parameter code="PSAL">
           <fullName>Salinity of the water column</fullName>
           <unit>Dimensionless</unit>
@@ -182,7 +181,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="49" lastCharOffset="54"/>
+        <LineFragment firstCharOffset="%%SST_FIRST_CHAR%%" lastCharOffset="%%SST_LAST_CHAR%%"/>
         <Parameter code="TEMP">
           <fullName>Temperature of the water column</fullName>
           <unit>Degrees Celsius</unit>
@@ -199,7 +198,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="63" lastCharOffset="70"/>
+        <LineFragment firstCharOffset="%%PRESSURE_FIRST_CHAR%%" lastCharOffset="%%PRESSURE_LAST_CHAR%%"/>
         <Parameter code="CAPH">
           <fullName>Air pressure</fullName>
           <unit>Hectopascals</unit>
@@ -216,7 +215,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="89" lastCharOffset="92"/>
+        <LineFragment firstCharOffset="%%BATHYMETRY_FIRST_CHAR%%" lastCharOffset="%%BATHYMETRY_LAST_CHAR%%"/>
         <Parameter code="MBAN">
           <fullName>Bathymetry and Elevation</fullName>
           <unit>Metres</unit>
@@ -233,7 +232,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="148" lastCharOffset="154"/>
+        <LineFragment firstCharOffset="%%FCO2_FIRST_CHAR%%" lastCharOffset="%%FCO2_LAST_CHAR%%"/>
         <Parameter code="PCO2">
           <fullName>Partial pressure (pCO2) and fugacity (fCO2) of carbon dioxide in the water column</fullName>
           <unit>Microatmospheres</unit>
