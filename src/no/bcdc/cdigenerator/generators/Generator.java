@@ -79,24 +79,27 @@ public abstract class Generator {
 			if (!quit) {
 				importer.setGenerator(this);
 				dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
-
-				int idsComplete = 0;
-				setProgress(idsComplete);
-				for (String id : dataSetIds) {
-
-					currentDataSetId = id;
-					boolean dataRetrieved = importer.retrieveData(id);
-					
-					if (dataRetrieved) {
-						setProgressMessage("Data retrieved");
-						importer.generateNemoModels();
-					}
-					
-					idsComplete++;
+				if (null != dataSetIds) {
+	
+					int idsComplete = 0;
 					setProgress(idsComplete);
-				}
+					for (String id : dataSetIds) {
+	
+						currentDataSetId = id;
+						boolean dataRetrieved = importer.retrieveData(id);
+						
+						if (dataRetrieved) {
+							setProgressMessage("Data retrieved");
+							importer.generateNemoModels();
+						}
+						
+						idsComplete++;
+						setProgress(idsComplete);
+					}
 				
-				setProgressMessage("Processing complete");
+					setProgressMessage("Processing complete");
+					quit = true;
+				}
 			}
 		}
 	}
