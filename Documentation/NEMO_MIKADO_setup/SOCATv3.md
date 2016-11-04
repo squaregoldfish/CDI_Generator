@@ -89,7 +89,7 @@ end_date               End of valid period for this platform
 # MIKADO Table 'cdi_parameters'
 This table contains the paramters provided from each data set, with one record for each data set/parameter.
 
-For SOCAT V3, the `dataset` column is '`SOCATv3`', and the parameters supplied are:
+For SOCAT V3, the `dataset` column is '`SOCATv3', and the parameters supplied are:
 
  * PSAL
  * TEMP
