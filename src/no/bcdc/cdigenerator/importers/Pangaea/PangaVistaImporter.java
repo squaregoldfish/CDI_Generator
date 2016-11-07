@@ -10,12 +10,15 @@ import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.rpc.ParameterMode;
 
 import org.apache.axis.Constants;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Document;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.DataSetNotFoundException;
@@ -63,6 +66,11 @@ public abstract class PangaVistaImporter extends Importer {
 	 * The current session ID
 	 */
 	private String sessionId = null;
+	
+	/**
+	 * The parsed metadata XML
+	 */
+	private Document metadataXML = null;
 
 	/**
 	 * Default constructor - invokes the parent constructor
@@ -226,5 +234,13 @@ public abstract class PangaVistaImporter extends Importer {
 		url.append("?format=textfile");
 		
 		return new URL(url.toString());
+	}
+	
+	@Override
+	protected void preprocessMetadata() throws Exception {
+		// Create the XML document
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		metadataXML = builder.parse(IOUtils.toInputStream(metadata, StandardCharsets.UTF_8));
 	}
 }
