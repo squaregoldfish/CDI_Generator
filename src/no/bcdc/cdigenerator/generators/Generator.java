@@ -4,7 +4,6 @@ import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
-import no.bcdc.cdigenerator.output.Metadata;
 
 /**
  * Abstract generator class
@@ -52,11 +51,6 @@ public abstract class Generator {
 	 * The contents of the current data set file
 	 */
 	protected String dataSetData = null;
-	
-	/**
-	 * The metadata for the current data set
-	 */
-	protected Metadata dataSetMetadata = null;
 	
 	/**
 	 * Base constructor - stores the configuration

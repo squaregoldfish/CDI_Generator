@@ -7,7 +7,6 @@ import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.generators.Generator;
-import no.bcdc.cdigenerator.output.Metadata;
 
 /**
  * Parent class of all importers. Lists the required methods
@@ -30,6 +29,16 @@ public abstract class Importer {
 	 * The generator
 	 */
 	protected Generator generator;
+	
+	/**
+	 * The data set's data, as retrieved from the data source
+	 */
+	protected String data;
+	
+	/**
+	 * The data set's metadata, as retrieved from the data source
+	 */
+	protected String metadata;
 	
 	/**
 	 * The basic importer has no constructor activities
@@ -61,25 +70,31 @@ public abstract class Importer {
 			// Retrieve the data
 			if (dataFile.exists()) {
 				generator.setProgressMessage("Data is already in cache");
+				
+				
 			} else {
 				generator.setProgressMessage("Retrieving data...");
-				String data = getDataSetData(dataSetId);
+				data = getDataSetData(dataSetId);
 			
 				PrintWriter dataOut = new PrintWriter(dataFile);
 				dataOut.print(data);
 				dataOut.close();
 			}
 			
+			preprocessData();
+			
 			// Retrieve the metadata
 			if (metadataFile.exists()) {
 				generator.setProgressMessage("Metadata is already in cache");
 			} else {
 				generator.setProgressMessage("Retrieving metadata...");
-				Metadata metadata = getDataSetMetaData(dataSetId);
+				metadata = getDataSetMetaData(dataSetId);
 				PrintWriter metadataOut = new PrintWriter(metadataFile);
 				metadataOut.print(metadata);
 				metadataOut.close();
 			}
+			
+			preprocessMetadata();
 			
 		} catch (DataSetNotFoundException e) {
 			generator.setProgressMessage(e.getMessage());
@@ -141,7 +156,7 @@ public abstract class Importer {
 	 * @param dataSetId The data set ID
 	 * @return The metadata
 	 */
- 	protected abstract Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException;
+ 	protected abstract String getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException;
  	
  	/**
  	 * Returns the name of this importer
@@ -149,6 +164,22 @@ public abstract class Importer {
  	 */
  	public abstract String getName();
 
+ 	/**
+ 	 * Preprocess the loaded data. For example,
+ 	 * if the data is XML, it can be loaded into a Document object.
+ 	 */
+ 	public void preprocessData() throws Exception {
+ 		// Default implementation does nothing
+ 	}
+ 	
+ 	/**
+ 	 * Preprocess the loaded metadata. For example,
+ 	 * if the data is XML, it can be loaded into a Document object.
+ 	 */
+ 	public void preprocessMetadata() throws Exception {
+ 		// Default implementation does nothing
+ 	}
+ 	
  	/**
  	 * Generate the NEMO model files
  	 */

@@ -21,7 +21,6 @@ import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.DataSetNotFoundException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
-import no.bcdc.cdigenerator.output.Metadata;
 
 public abstract class PangaVistaImporter extends Importer {
 
@@ -74,15 +73,14 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 
 	@Override
-	protected Metadata getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException {
+	protected String getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		
 		// Start a new session if required
 		if (null == sessionId) {
 			getNewSession();
 		}
 		
-		String metadataXML = getMetadataXML(dataSetId);
-		return generateMetadataFromXML(metadataXML);
+		return getMetadataXML(dataSetId);
 	}
 	
 	@Override
@@ -228,14 +226,5 @@ public abstract class PangaVistaImporter extends Importer {
 		url.append("?format=textfile");
 		
 		return new URL(url.toString());
-	}
-
-	/**
-	 * Generates a Metadata object from a PangaVista metadata XML string
-	 * @param xml The PangaVista XML
-	 * @return The metadata object
-	 */
-	private Metadata generateMetadataFromXML(String xml) {
-		return new Metadata();
 	}
 }
