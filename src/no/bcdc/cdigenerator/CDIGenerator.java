@@ -23,14 +23,23 @@ public class CDIGenerator {
 		// For now it's command line all the way.
 	
 		try {
+			
+			String configFile = null;
+			
 			// Check the command line arguments
-			if (args.length != 1) {
-				System.out.println("Usage: java -jar CDIGenerator.jar <config file>");
+			for (String arg : args) {
+				if (!arg.startsWith("-D")) {
+					configFile = arg;
+				}
+			}
+			
+			if (null == configFile) {
+				System.out.println("Usage: java -jar CDIGenerator.jar [JVM options] config file");
 				System.exit(0);
 			}
 			
 			// Load the configuration
-			if (!loadConfig(args[0])) {
+			if (!loadConfig(configFile)) {
 				System.exit(0);
 			}
 		
