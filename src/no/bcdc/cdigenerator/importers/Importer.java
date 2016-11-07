@@ -2,6 +2,7 @@ package no.bcdc.cdigenerator.importers;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,9 +70,8 @@ public abstract class Importer {
 			
 			// Retrieve the data
 			if (dataFile.exists()) {
-				generator.setProgressMessage("Data is already in cache");
-				
-				
+				generator.setProgressMessage("Data is already in cache - loading from disk");
+				data = new String(Files.readAllBytes(dataFile.toPath()));
 			} else {
 				generator.setProgressMessage("Retrieving data...");
 				data = getDataSetData(dataSetId);
@@ -85,7 +85,8 @@ public abstract class Importer {
 			
 			// Retrieve the metadata
 			if (metadataFile.exists()) {
-				generator.setProgressMessage("Metadata is already in cache");
+				generator.setProgressMessage("Metadata is already in cache - loading from disk");
+				metadata = new String(Files.readAllBytes(metadataFile.toPath()));
 			} else {
 				generator.setProgressMessage("Retrieving metadata...");
 				metadata = getDataSetMetaData(dataSetId);
@@ -168,7 +169,7 @@ public abstract class Importer {
  	 * Preprocess the loaded data. For example,
  	 * if the data is XML, it can be loaded into a Document object.
  	 */
- 	public void preprocessData() throws Exception {
+ 	protected void preprocessData() throws Exception {
  		// Default implementation does nothing
  	}
  	
@@ -176,7 +177,7 @@ public abstract class Importer {
  	 * Preprocess the loaded metadata. For example,
  	 * if the data is XML, it can be loaded into a Document object.
  	 */
- 	public void preprocessMetadata() throws Exception {
+ 	protected void preprocessMetadata() throws Exception {
  		// Default implementation does nothing
  	}
  	
