@@ -51,7 +51,7 @@ public class CDIGenerator {
 		} catch (Exception e) {
 			System.out.println("A terrible thing has occurred, and it shouldn't have done.");
 			System.out.println("Please copy and paste the stuff below, and send it to someone");
-			System.out.println("who know what they're doing along with a description of what happened");
+			System.out.println("who knows what they're doing along with a description of what happened");
 			System.out.println("--------");
 			e.printStackTrace();
 		}
