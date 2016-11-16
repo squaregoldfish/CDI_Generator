@@ -1,7 +1,7 @@
 <InputModel version="1.6.2" isValid="true">
   <MediaModel path="PF_%%EXPOCODE%%_CO2_underway_SOCATv3.tab">
     <processType multiStations="false">CRUISE_FILE</processType>
-    <separator>&#9;</separator>
+    <separator>;</separator>
     <inputType>TRAJECTORY</inputType>
     <fileHeader>0</fileHeader>
     <stationHeader pattern="Date/Time">0</stationHeader>
@@ -79,7 +79,7 @@
       </PropertyModel>
       <PropertyModel property="latitude" userProvided="false">
         <format>
-          <LatitudeFormat formatString="%%LATITUDE_FORMAT%%"/>
+          <LatitudeFormat formatString="+DD.ddddd"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
           <firstLine>%%FIRST_LINE%%</firstLine>
@@ -90,7 +90,7 @@
       </PropertyModel>
       <PropertyModel property="longitude" userProvided="false">
         <format>
-          <LongitudeFormat formatString="%%LONGITUDE_FORMAT%%"/>
+          <LongitudeFormat formatString="+DDD.ddddd"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
           <firstLine>%%FIRST_LINE%%</firstLine>

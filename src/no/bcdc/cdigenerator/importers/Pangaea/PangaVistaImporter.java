@@ -13,6 +13,9 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.rpc.ParameterMode;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.axis.Constants;
 import org.apache.axis.client.Call;
@@ -24,6 +27,7 @@ import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.DataSetNotFoundException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
+import no.bcdc.cdigenerator.importers.NemoTemplateException;
 
 public abstract class PangaVistaImporter extends Importer {
 
@@ -31,6 +35,21 @@ public abstract class PangaVistaImporter extends Importer {
 	 * The URI for the PangaVista web service
 	 */
 	protected static final String END_POINT = "https://ws.pangaea.de/ws/services/PangaVista";
+	
+	/**
+	 * XPath for ship name
+	 */
+	private static final String XPATH_SHIP_NAME = "/MetaData/event/basis";
+	
+	/**
+	 * XPath for the first author's last name
+	 */
+	private static final String XPATH_AUTHOR_LAST_NAME = "/Metadata/citation/author/lastName";
+	
+	/**
+	 * XPath for the first author's first name
+	 */
+	private static final String XPATH_AUTHOR_FIRST_NAME = "/Metadata/citation/author/firstName";
 	
 	/**
 	 * The SOAP URI
@@ -70,14 +89,23 @@ public abstract class PangaVistaImporter extends Importer {
 	/**
 	 * The parsed metadata XML
 	 */
-	private Document metadataXML = null;
-
+	protected Document metadataXML = null;
+	
+	/**
+	 * XPath resolver for metadata files
+	 */
+	protected XPath xPathResolver = null;
+	
 	/**
 	 * Default constructor - invokes the parent constructor
 	 * @param config The configuration
 	 */
 	public PangaVistaImporter(Config config) {
 		super(config);
+		
+		XPathFactory xPathFactory = XPathFactory.newInstance();
+		xPathResolver = xPathFactory.newXPath();
+		xPathResolver.setNamespaceContext(new PangaeaMetadataNamespaceContext());
 	}
 
 	@Override
@@ -237,10 +265,75 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 	
 	@Override
-	protected void preprocessMetadata() throws Exception {
+	protected void preprocessMetadata() throws ImporterException {
 		// Create the XML document
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		metadataXML = builder.parse(IOUtils.toInputStream(metadata, StandardCharsets.UTF_8));
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			metadataXML = builder.parse(IOUtils.toInputStream(metadata, StandardCharsets.UTF_8));
+		} catch (Exception e) {
+			throw new ImporterException("Error while parsing metadata XML", e);
+		}
+	}
+
+	/**
+	 * Evaluate an XPath in the metadata
+	 * @param xPath The XPath to evaluate
+	 * @return The matching string
+	 * @throws Exception If the XPath fails
+	 */
+	protected String evaluateXPath(String xPath) throws NemoTemplateException {
+		String result = null;
+		
+		try {
+			result = xPathResolver.evaluate(xPath, metadataXML).trim();
+		} catch (XPathExpressionException e) {
+			throw new NemoTemplateException("Error extracting XPath from metadata", e);
+		}
+		
+		return result;
+	}
+	
+	@Override
+	protected String getTemplateTagValue(String tag) throws NemoTemplateException {
+		String tagValue = null;
+		
+		switch (tag) {
+		case "SHIP_NAME": {
+			tagValue = getShipName();
+			break;
+		}
+		case "FIRST_AUTHOR": {
+			tagValue = getFirstAuthor();
+			break;
+		}
+		}
+		
+		return tagValue;
+	}
+	
+	/**
+	 * Get the ship name
+	 * @return The name of the ship
+	 * @throws NemoTemplateException If the XPath lookup fails
+	 */
+	private String getShipName() throws NemoTemplateException {
+		return evaluateXPath(XPATH_SHIP_NAME); 
+	}
+	
+	/**
+	 * Get the first author of this data set, in the form <Last Name>, <First Name>
+	 * The author's last name and first name(s) are stored in two elements of the XML
+	 * @return The first author's name
+	 * @throws NemoTemplateException If the XPath lookups fail
+	 */
+	private String getFirstAuthor() throws NemoTemplateException {
+		StringBuilder output = new StringBuilder();
+		
+		output.append(evaluateXPath(XPATH_AUTHOR_LAST_NAME));
+		output.append(", ");
+		output.append(evaluateXPath(XPATH_AUTHOR_FIRST_NAME));
+		
+		return output.toString();
 	}
 }

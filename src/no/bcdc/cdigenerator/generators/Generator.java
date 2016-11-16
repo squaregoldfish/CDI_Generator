@@ -1,9 +1,13 @@
 package no.bcdc.cdigenerator.generators;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
+import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
 
 /**
  * Abstract generator class
@@ -84,7 +88,19 @@ public abstract class Generator {
 						
 						if (dataRetrieved) {
 							setProgressMessage("Data retrieved");
-							importer.generateNemoModels();
+
+							ModelFilenameFilter modelFilenameFilter = new ModelFilenameFilter(importer.getName());
+							List<File> models = Arrays.asList(config.getNemoTemplatesDir().listFiles(modelFilenameFilter));
+							int modelsProcessed = 0;
+							
+							for (File modelFile : models) {
+								modelsProcessed++;
+								setProgressMessage("Generating model " + modelsProcessed + " of " + models.size());
+								
+								String modelTemplate = new String(Files.readAllBytes(modelFile.toPath()));
+								String populatedTemplate = importer.populateModelTemplate(modelTemplate);
+								System.out.println(populatedTemplate);
+							}
 						}
 						
 						idsComplete++;

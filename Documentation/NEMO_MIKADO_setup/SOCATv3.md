@@ -6,13 +6,13 @@ Surrounded by `%%`
 
 Delimiter              Source             Value
 ---------------------  ----------------   -----------------------------------------------------------------------------------------------------
-EXPOCODE               Metadata           `/md:MetaData/md:event[@id = "event2636585"]/md:campaign[@id = "event2636585.campaign30110"]/md:name`
+EXPOCODE               Metadata           `/md:MetaData/md:event/md:label`, discarding anything after `-`
 SHIP_CODE              Other delimiter    First four letters of `EXPOCODE`
-SHIP_NAME              Metadata           `/md:MetaData/md:event[@id = "event2636585"]/md:basis[@id = "event2636585.basis163"]/md:name`
+SHIP_NAME              Metadata           `/md:MetaData/md:event/md:name`
 START_DATE_MS          Data               From first record (converted to milliseconds)
 END_DATE_MS            Data               From last record (converted to milliseconds)
-FIRST_AUTHOR           Metadata           Last Name: `/md:MetaData/md:citation[@id = "dataset850058"]/md:author[@id = "dataset.author22162"]/md:lastName`
-                                          First Name: `/md:MetaData/md:citation[@id = "dataset850058"]/md:author[@id = "dataset.author22162"]/md:firstName`
+FIRST_AUTHOR           Metadata           Last Name: `/md:MetaData/md:citation/md:lastName`
+                                          First Name: `/md:MetaData/md:citation/md:firstName`
                                           Combine them as `<Last Name>, <First Name>`
 FIRST_LINE             Data               Row number of first data line
 LATITUDE_FORMAT        Data               `+DD.ddddd`, 
@@ -41,7 +41,7 @@ Field                  Source             Value
 local_cdi_id           Other delimiter    'SOCATV3_`EXPOCODE`_00001_H71'
 platform_id            Other delimiter    `SHIP_CODE` (First four letters of `EXPOCODE`)
 dataset_name           Fixed value        'SOCATv3'
-doi                    Metadata           `/md:MetaData/md:citation[@id = "dataset850058"]/md:URI`
+doi                    Metadata           `/md:MetaData/md:citation/md:URI`
                                           Remove the text `doi:` from the front
 doi_url                Other delimiter    `doi`, preceded by 'https://doi.pangaea.de'
 abstract               Data               Citation line from data file

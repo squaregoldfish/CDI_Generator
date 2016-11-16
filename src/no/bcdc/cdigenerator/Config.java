@@ -6,11 +6,13 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeMap;
 
 import no.bcdc.cdigenerator.importers.Importer;
+import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
 
 /**
  * Configuration for the CDI Generator
@@ -29,7 +31,7 @@ public class Config extends Properties {
 	/**
 	 * The default package for importer classes. Used if the package isn't set in the config file.
 	 */
-	private static final String DEFAULT_IMPORTER_PACKAGE = "no.bcdc.cdigenerator.importers";
+	private static final String DEFAULT_IMPORTER_PACKAGE = "no.bcdc.cdigenerator.importers.concrete";
 	
 	/**
 	 * The key for the temporary/cache directory
@@ -99,7 +101,10 @@ public class Config extends Properties {
 				// NEMO models for it
 				Constructor<?> constructor = clazz.getConstructor(Config.class);
 				Importer importer = (Importer) constructor.newInstance(this);
-				if (importer.getNemoModelList().size() == 0) {
+				
+				ModelFilenameFilter modelFilenameFilter = new ModelFilenameFilter(importer.getName());
+				List<File> models = Arrays.asList(getNemoTemplatesDir().listFiles(modelFilenameFilter));
+				if (models.size() == 0) {
 					throw new ConfigException("There are no NEMO models for importer " + importer.getName());
 				}
 				
