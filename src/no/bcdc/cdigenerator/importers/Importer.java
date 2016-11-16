@@ -2,7 +2,6 @@ package no.bcdc.cdigenerator.importers;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -89,37 +88,24 @@ public abstract class Importer {
 			File metadataFile = new File(config.getTempDir(), dataSetId + "_metadata");
 			
 			// Retrieve the data
-			if (dataFile.exists()) {
-				generator.setProgressMessage("Data is already in cache - loading from disk");
-				data = new String(Files.readAllBytes(dataFile.toPath()));
-				dataCached = true;
-			} else {
-				generator.setProgressMessage("Retrieving data...");
-				data = getDataSetData(dataSetId);
-				
-				reformatData();
-			
-				PrintWriter dataOut = new PrintWriter(dataFile);
-				dataOut.print(data);
-				dataOut.close();
-			}
-			
+			generator.setProgressMessage("Retrieving data...");
+			data = getDataSetData(dataSetId);
+			reformatData();
 			preprocessData();
-			
-			// Retrieve the metadata
-			if (metadataFile.exists()) {
-				generator.setProgressMessage("Metadata is already in cache - loading from disk");
-				metadata = new String(Files.readAllBytes(metadataFile.toPath()));
-				metadataCached = true;
-			} else {
-				generator.setProgressMessage("Retrieving metadata...");
-				metadata = getDataSetMetaData(dataSetId);
-				PrintWriter metadataOut = new PrintWriter(metadataFile);
-				metadataOut.print(metadata);
-				metadataOut.close();
-			}
-			
+		
+			PrintWriter dataOut = new PrintWriter(dataFile);
+			dataOut.print(data);
+			dataOut.close();
+		
+		
+			generator.setProgressMessage("Retrieving metadata...");
+			metadata = getDataSetMetaData(dataSetId);
 			preprocessMetadata();
+
+			PrintWriter metadataOut = new PrintWriter(metadataFile);
+			metadataOut.print(metadata);
+			metadataOut.close();
+		
 			
 		} catch (DataSetNotFoundException e) {
 			generator.setProgressMessage(e.getMessage());
