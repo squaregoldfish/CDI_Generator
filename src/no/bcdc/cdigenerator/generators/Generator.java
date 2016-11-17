@@ -1,6 +1,7 @@
 package no.bcdc.cdigenerator.generators;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +100,11 @@ public abstract class Generator {
 								
 								String modelTemplate = new String(Files.readAllBytes(modelFile.toPath()));
 								String populatedTemplate = importer.populateModelTemplate(modelTemplate);
-								System.out.println(populatedTemplate);
+								
+								File nemoTemplateFile = new File(config.getTempDir(), id + "_nemoModel.xml");
+								PrintWriter templateOut = new PrintWriter(nemoTemplateFile);
+								templateOut.print(populatedTemplate);
+								templateOut.close();
 							}
 						}
 						

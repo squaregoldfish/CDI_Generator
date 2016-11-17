@@ -97,7 +97,6 @@ public abstract class Importer {
 			dataOut.print(data);
 			dataOut.close();
 		
-		
 			generator.setProgressMessage("Retrieving metadata...");
 			metadata = getDataSetMetaData(dataSetId);
 			preprocessMetadata();
@@ -105,8 +104,6 @@ public abstract class Importer {
 			PrintWriter metadataOut = new PrintWriter(metadataFile);
 			metadataOut.print(metadata);
 			metadataOut.close();
-		
-			
 		} catch (DataSetNotFoundException e) {
 			generator.setProgressMessage(e.getMessage());
 			generator.logMessage(dataSetId, "Data set not found");
