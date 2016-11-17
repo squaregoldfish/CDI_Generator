@@ -179,7 +179,8 @@ public abstract class PangaVistaImporter extends Importer {
 				Call call = (Call) service.createCall();
 				call.setTargetEndpointAddress(new java.net.URL(END_POINT));
 				call.setOperationName(new QName(OPERATION_NAME_URI, OPERATION_METADATA));
-		        
+				call.setReturnType(org.apache.axis.Constants.XSD_STRING);
+				
 				call.addParameter("session", Constants.XSD_STRING, ParameterMode.IN);
 				call.addParameter("URI", Constants.XSD_STRING, ParameterMode.IN);
 		        
