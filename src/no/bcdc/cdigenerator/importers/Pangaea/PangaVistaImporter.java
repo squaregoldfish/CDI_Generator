@@ -301,7 +301,7 @@ public abstract class PangaVistaImporter extends Importer {
 		
 		switch (tag) {
 		case "SHIP_NAME": {
-			tagValue = getShipName();
+			tagValue = evaluateXPath(XPATH_SHIP_NAME);
 			break;
 		}
 		case "FIRST_AUTHOR": {
@@ -311,15 +311,6 @@ public abstract class PangaVistaImporter extends Importer {
 		}
 		
 		return tagValue;
-	}
-	
-	/**
-	 * Get the ship name
-	 * @return The name of the ship
-	 * @throws NemoTemplateException If the XPath lookup fails
-	 */
-	private String getShipName() throws NemoTemplateException {
-		return evaluateXPath(XPATH_SHIP_NAME); 
 	}
 	
 	/**
@@ -337,4 +328,6 @@ public abstract class PangaVistaImporter extends Importer {
 		
 		return output.toString();
 	}
+	
+	
 }
