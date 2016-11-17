@@ -128,7 +128,7 @@ class BasicFormatter extends Formatter {
 	
     @Override
     public String format(LogRecord record) {
-        return dateFormatter.format(new Date(record.getMillis())) + record.getMessage();
+        return dateFormatter.format(new Date(record.getMillis())) + record.getLevel() + ' ' + record.getMessage();
     }
 }
 

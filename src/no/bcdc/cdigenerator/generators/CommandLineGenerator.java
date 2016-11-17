@@ -224,7 +224,6 @@ public class CommandLineGenerator extends Generator {
 	@Override
 	public void updateProgressDisplay() {
 		StringBuilder output = new StringBuilder();
-		output.append('\r');
 		output.append(progress);
 		output.append('/');
 		output.append(progressMax);
@@ -233,7 +232,7 @@ public class CommandLineGenerator extends Generator {
 		output.append(": ");
 		output.append(progressMessage);
 		
-		System.out.print(output.toString());
-		getLogger().info(output.toString());
+		System.out.print('\r' + output.toString());
+		getLogger().info(output.toString() + '\n');
 	}
 }
