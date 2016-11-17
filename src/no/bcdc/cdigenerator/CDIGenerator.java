@@ -3,6 +3,12 @@ package no.bcdc.cdigenerator;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import no.bcdc.cdigenerator.generators.CommandLineGenerator;
 
@@ -12,6 +18,8 @@ public class CDIGenerator {
 	 * The program configuration
 	 */
 	private static Config configuration = null;
+	
+	private static final Logger LOGGER = Logger.getLogger("CDIGenerator");
 	
 	/**
 	 * Start method
@@ -38,7 +46,14 @@ public class CDIGenerator {
 				System.exit(0);
 			}
 			
+			// Set up the logger
+			LOGGER.setUseParentHandlers(false);
+			FileHandler fileHandler = new FileHandler("CDI_Generator.log");
+			fileHandler.setFormatter(new BasicFormatter());
+			LOGGER.addHandler(fileHandler);
+			
 			// Load the configuration
+			LOGGER.info("Loading configuration");
 			if (!loadConfig(configFile)) {
 				System.exit(0);
 			}
@@ -97,4 +112,23 @@ public class CDIGenerator {
 		
 		return ok;
 	}
+	
+	/**
+	 * Get the application logger
+	 * @return The logger
+	 */
+	public static Logger getLogger() {
+		return LOGGER;
+	}
 }
+
+class BasicFormatter extends Formatter {
+
+	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS': '");
+	
+    @Override
+    public String format(LogRecord record) {
+        return dateFormatter.format(new Date(record.getMillis())) + record.getMessage();
+    }
+}
+

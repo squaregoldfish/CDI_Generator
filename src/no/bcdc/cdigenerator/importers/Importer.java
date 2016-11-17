@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
+import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.generators.Generator;
 import no.bcdc.cdigenerator.importers.NemoTemplateException;
@@ -306,4 +308,12 @@ public abstract class Importer {
 	 * @throws ImporterException If the header cannot be identified
 	 */
 	protected abstract void copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException;
+	
+	/**
+	 * Get the application logger
+	 * @return The logger
+	 */
+	protected Logger getLogger() {
+		return CDIGenerator.getLogger();
+	}
 }

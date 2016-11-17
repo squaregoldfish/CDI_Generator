@@ -5,7 +5,9 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
+import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
@@ -163,4 +165,12 @@ public abstract class Generator {
 	 * Update the progress display 
 	 */
 	public abstract void updateProgressDisplay();
+	
+	/**
+	 * Get the application logger
+	 * @return The logger
+	 */
+	protected Logger getLogger() {
+		return CDIGenerator.getLogger();
+	}
 }

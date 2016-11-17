@@ -3,11 +3,7 @@ package no.bcdc.cdigenerator.generators;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import no.bcdc.cdigenerator.Config;
@@ -61,18 +57,6 @@ public class CommandLineGenerator extends Generator {
 	public CommandLineGenerator(Config config) throws Exception {
 		super(config);
 		inputScanner = new Scanner(System.in);
-		
-		
-		logger = Logger.getLogger("");
-
-		Handler[] handlers = logger.getHandlers();
-		for(Handler handler : handlers) {
-			logger.removeHandler(handler);
-		}
-		
-		FileHandler fileHandler = new FileHandler("CDI_Generator.log");
-		fileHandler.setFormatter(new BasicFormatter());
-		logger.addHandler(fileHandler);
 	}
 	
 	@Override
@@ -250,13 +234,6 @@ public class CommandLineGenerator extends Generator {
 		output.append(progressMessage);
 		
 		System.out.print(output.toString());
+		getLogger().info(output.toString());
 	}
-}
-
-class BasicFormatter extends Formatter {
-
-    @Override
-    public String format(LogRecord record) {
-        return record.getMessage();
-    }
 }
