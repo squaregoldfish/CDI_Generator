@@ -257,7 +257,7 @@ public abstract class PangaVistaImporter extends Importer {
 	 * @throws MalformedURLException If the generated URL is invalid
 	 */
 	private URL makeUrl(String dataSetId) throws MalformedURLException {
-		StringBuffer url = new StringBuffer("https://doi.pangaea.de/10.1594/PANGAEA.");
+		StringBuilder url = new StringBuilder("https://doi.pangaea.de/10.1594/PANGAEA.");
 		url.append(dataSetId);
 		url.append("?format=textfile");
 		

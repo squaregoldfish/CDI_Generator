@@ -239,7 +239,7 @@ public class CommandLineGenerator extends Generator {
 	
 	@Override
 	public void updateProgressDisplay() {
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		output.append(progress);
 		output.append('/');
 		output.append(progressMax);
