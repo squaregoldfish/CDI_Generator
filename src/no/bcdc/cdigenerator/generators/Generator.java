@@ -112,7 +112,7 @@ public abstract class Generator {
 						setProgress(idsComplete);
 					}
 				
-					setProgressMessage("Processing complete");
+					setProgressMessage("\nProcessing complete\n");
 					quit = true;
 				}
 			}
