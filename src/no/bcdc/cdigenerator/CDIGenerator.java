@@ -53,7 +53,6 @@ public class CDIGenerator {
 			LOGGER.addHandler(fileHandler);
 			
 			// Load the configuration
-			LOGGER.info("Loading configuration");
 			if (!loadConfig(configFile)) {
 				System.exit(0);
 			}
