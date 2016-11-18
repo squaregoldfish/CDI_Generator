@@ -407,9 +407,7 @@ public abstract class Importer {
 		
 		return filename.toString();
 	}
-	
-	
-	
+
 	/**
 	 * Get the internal data set id of the data set. This may or may not
 	 * be the same as the data set ID used for data retrieval.
