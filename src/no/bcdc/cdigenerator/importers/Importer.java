@@ -403,7 +403,7 @@ public abstract class Importer {
 		filename.append(getNemoDataType());
 		filename.append('_');
 		filename.append(getNemoOutputFormat().toLowerCase());
-		filename.append(".txt");
+		filename.append("_summary.txt");
 		
 		return filename.toString();
 	}
