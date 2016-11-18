@@ -3,10 +3,9 @@ package no.bcdc.cdigenerator.generators;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import no.bcdc.cdigenerator.Config;
+import no.bcdc.cdigenerator.importers.Importer;
 
 /**
  * CDI Generator that runs on the command line
@@ -46,11 +45,6 @@ public class CommandLineGenerator extends Generator {
 	private Scanner inputScanner;
 	
 	/**
-	 * The logger - writes details to output file
-	 */
-	private static Logger logger;
-	
-	/**
 	 * Initialises the configuration and command line scanner
 	 * @param config The configuration
 	 */
@@ -60,20 +54,18 @@ public class CommandLineGenerator extends Generator {
 	}
 	
 	@Override
-	public boolean getImporterChoice() throws Exception {
+	public Importer getImporterChoice() throws Exception {
 		
-		boolean quit = false;
+		Importer result = null;
 		
 		// Main loop asks for an importer, then runs it.
 		// We do that until the user decides to quit.
 		String chosenImporter = selectImporter();
-		if (null == chosenImporter) {
-			quit = true;
-		} else {
-			importer = config.getImporter(chosenImporter);
+		if (null != chosenImporter) {
+			result = config.getImporter(chosenImporter);
 		}
 		
-		return quit;
+		return result;
 	}
 	
 	/**
@@ -218,7 +210,7 @@ public class CommandLineGenerator extends Generator {
 	
 	@Override
 	public void logMessage(String dataSetId, String message) {
-		logger.log(Level.INFO, dataSetId + ": " + message);
+		getLogger().info(dataSetId + ": " + message);
 	}
 	
 	@Override

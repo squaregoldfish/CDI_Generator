@@ -2,6 +2,7 @@ package no.bcdc.cdigenerator.importers;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -64,10 +65,16 @@ public abstract class Importer {
 	protected boolean metadataCached = false;
 	
 	/**
+	 * The formatter for station numbers
+	 */
+	private DecimalFormat stationNumberFormatter = null;
+	
+	/**
 	 * The basic importer has no constructor activities
 	 */
 	public Importer(Config config) {
 		this.config = config;
+		stationNumberFormatter = new DecimalFormat("000000");
 	}
 	
 	/**
@@ -86,26 +93,44 @@ public abstract class Importer {
 		boolean success = true;
 		
 		try {
-			File dataFile = new File(config.getTempDir(), dataSetId + "_data");
+			File dataFile = getDataFile(dataSetId);
 			File metadataFile = new File(config.getTempDir(), dataSetId + "_metadata");
 			
 			// Retrieve the data
 			generator.setProgressMessage("Retrieving data...");
 			data = getDataSetData(dataSetId);
-			reformatData();
-			preprocessData();
+			if (data == null) {
+				generator.setProgressMessage("Data retrieval failed. Aborting.");
+				generator.logMessage(dataSetId, "Data retrieval failed. Aborting");
+				success = false;
+			}
+			
+			if (success) {
+				reformatData();
+				preprocessData();
+			
+				PrintWriter dataOut = new PrintWriter(dataFile);
+				dataOut.print(data);
+				dataOut.close();
+			}
 		
-			PrintWriter dataOut = new PrintWriter(dataFile);
-			dataOut.print(data);
-			dataOut.close();
-		
-			generator.setProgressMessage("Retrieving metadata...");
-			metadata = getDataSetMetaData(dataSetId);
-			preprocessMetadata();
+			if (success) {
+				generator.setProgressMessage("Retrieving metadata...");
+				metadata = getDataSetMetaData(dataSetId);
+				if (null == metadata) {
+					generator.setProgressMessage("Metadata retrieval failed. Aborting.");
+					generator.logMessage(dataSetId, "Metadata retrieval failed. Aborting");
+					success = false;
+				}
+			}
+			
+			if (success) {
+				preprocessMetadata();
 
-			PrintWriter metadataOut = new PrintWriter(metadataFile);
-			metadataOut.print(metadata);
-			metadataOut.close();
+				PrintWriter metadataOut = new PrintWriter(metadataFile);
+				metadataOut.print(metadata);
+				metadataOut.close();
+			}
 		} catch (DataSetNotFoundException e) {
 			generator.setProgressMessage(e.getMessage());
 			generator.logMessage(dataSetId, "Data set not found");
@@ -117,6 +142,10 @@ public abstract class Importer {
 		}
 		
 		return success;
+	}
+	
+	public File getDataFile(String dataSetId) {
+		return new File(config.getTempDir(), dataSetId + "_data");
 	}
 	
 	/**
@@ -316,4 +345,90 @@ public abstract class Importer {
 	protected Logger getLogger() {
 		return CDIGenerator.getLogger();
 	}
+	
+	/**
+	 * Get the File object representing the NEMO output file
+	 * @return The NEMO output file
+	 * @throws ImporterException If the file generation fails
+	 */
+	public File getNemoOutputFile() throws ImporterException {
+		return new File(config.getNemoOutputDir(), getNemoOutputFilename());
+	}
+	
+	/**
+	 * Get the File object representing the NEMO summary file
+	 * @return The NEMO summary file
+	 * @throws ImporterException If the file generation fails
+	 */
+	public File getNemoSummaryFile() throws ImporterException {
+		return new File(config.getNemoOutputDir(), getNemoSummaryFilename());
+	}
+	
+	/**
+	 * Get the NEMO output format of this importer
+	 * @return The NEMO output format
+	 */
+	public abstract String getNemoOutputFormat();
+	
+	/**
+	 * Get the name of the NEMO output file
+	 * @return The filename
+	 */
+	private String getNemoOutputFilename() throws ImporterException {
+		StringBuilder filename = new StringBuilder();
+		
+		filename.append(getDataSetInternalId());
+		filename.append('_');
+		filename.append(stationNumberFormatter.format(getStationNumber()));
+		filename.append('_');
+		filename.append(getNemoDataType());
+		filename.append('_');
+		filename.append(getNemoOutputFormat().toLowerCase());
+		filename.append(".txt");
+		
+		return filename.toString();
+	}
+	
+	/**
+	 * Get the name of the NEMO summary file
+	 * @return The filename
+	 */
+	private String getNemoSummaryFilename() throws ImporterException {
+		StringBuilder filename = new StringBuilder();
+		
+		filename.append(getDataSetInternalId());
+		filename.append('_');
+		filename.append(stationNumberFormatter.format(getStationNumber()));
+		filename.append('_');
+		filename.append(getNemoDataType());
+		filename.append('_');
+		filename.append(getNemoOutputFormat().toLowerCase());
+		filename.append(".txt");
+		
+		return filename.toString();
+	}
+	
+	
+	
+	/**
+	 * Get the internal data set id of the data set. This may or may not
+	 * be the same as the data set ID used for data retrieval.
+	 * @return The internal data set ID
+	 * @throws ImporterException If the internal data set ID cannot be retrieved
+	 */
+	protected abstract String getDataSetInternalId() throws ImporterException;
+	
+	/**
+	 * Get the station number for this data set
+	 * @return The station number
+	 * @throws ImporterException If the station number cannot be retrieved
+	 */
+	protected abstract int getStationNumber() throws ImporterException;
+	
+	/**
+	 * Get the NEMO data type for this data set
+	 * @return The NEMO data type
+	 * @throws ImporterException If the NEMO data type cannot be retrieved
+	 */
+	public abstract String getNemoDataType() throws ImporterException;
 }

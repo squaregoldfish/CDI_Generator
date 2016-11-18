@@ -39,9 +39,29 @@ public class Config extends Properties {
 	private static final String TEMP_DIR_PROPERTY = "config.tempDir";
 	
 	/**
-	 * The key for the models directory
+	 * The key for the NEMO models directory
 	 */
 	private static final String NEMO_TEMPLATES_DIR_PROPERTY = "config.nemoTemplatesDir";
+	
+	/**
+	 * The key for the NEMO output directory
+	 */
+	private static final String NEMO_OUTPUT_DIR_PROPERTY = "config.nemoOutputDir";
+	
+	/**
+	 * The key for the NEMO working directory
+	 */
+	private static final String NEMO_WORKING_DIR_PROPERTY = "config.nemoWorkingDir";
+	
+	/**
+	 * The key for the number of network retries
+	 */
+	private static final String NETWORK_RETRIES_PROPERTY = "config.networkRetries";
+	
+	/**
+	 * The key for the retry wait time
+	 */
+	private static final String RETRY_WAIT_TIME_PROPERTY = "config.retryWaitTime";
 	
 	/**
 	 * Lookup table of importers
@@ -51,12 +71,32 @@ public class Config extends Properties {
 	/**
 	 * Temp directory
 	 */
-	private File tempDir = null;
+	private File tempDir;
 	
 	/**
-	 * Models directory
+	 * NEMO Models directory
 	 */
-	private File nemoTemplatesDir = null;
+	private File nemoTemplatesDir;
+	
+	/**
+	 * NEMO Output directory
+	 */
+	private File nemoOutputDir;
+	
+	/**
+	 * NEMO Working directory
+	 */
+	private File nemoWorkingDir;
+
+	/**
+	 * The number of attempts to make when retrieving data across the net
+	 */
+	private int networkRetries;
+	
+	/**
+	 * The number of seconds to wait between network retries
+	 */
+	private int retryWaitTime;
 	
 	/**
 	 * Initialise and load the configuration
@@ -69,8 +109,13 @@ public class Config extends Properties {
 		load(configReader);
 		checkTempDir();
 		checkNemoTemplatesDir();
+		checkNemoOutputDir();
+		checkNemoWorkingDir();
 		extractImporters();
-	}
+		
+		networkRetries = extractZeroPositiveInteger(NETWORK_RETRIES_PROPERTY);
+		retryWaitTime = extractZeroPositiveInteger(RETRY_WAIT_TIME_PROPERTY);
+}
 	
 	/**
 	 * Checks that the configuration is valid.
@@ -157,12 +202,12 @@ public class Config extends Properties {
 		}
 
 		tempDir = new File(tempDirString);
-		checkDir(tempDir);
+		checkDir(tempDir, true);
 	}
 	
 	/**
-	 * Set up and check the models directory
-	 * @throws ConfigException If the models directory is incorrectly configured
+	 * Set up and check the NEMO models directory
+	 * @throws ConfigException If the directory is incorrectly configured
 	 */
 	private void checkNemoTemplatesDir() throws ConfigException {
 		String tempDirString = getProperty(NEMO_TEMPLATES_DIR_PROPERTY);
@@ -171,21 +216,69 @@ public class Config extends Properties {
 		}
 
 		nemoTemplatesDir = new File(tempDirString);
-		checkDir(nemoTemplatesDir);
+		checkDir(nemoTemplatesDir, false);
+	}
+	
+	/**
+	 * Set up and check the NEMO output directory
+	 * @throws ConfigException If the directory is incorrectly configured
+	 */
+	private void checkNemoOutputDir() throws ConfigException {
+		String tempDirString = getProperty(NEMO_OUTPUT_DIR_PROPERTY);
+		if (null == tempDirString) {
+			throw new ConfigException(NEMO_OUTPUT_DIR_PROPERTY + " not specified");
+		}
+
+		nemoOutputDir = new File(tempDirString);
+		checkDir(nemoOutputDir, true);
+	}
+	
+	/**
+	 * Set up and check the NEMO working directory
+	 * @throws ConfigException If the directory is incorrectly configured
+	 */
+	private void checkNemoWorkingDir() throws ConfigException {
+		String tempDirString = getProperty(NEMO_WORKING_DIR_PROPERTY);
+		if (null == tempDirString) {
+			throw new ConfigException(NEMO_WORKING_DIR_PROPERTY + " not specified");
+		}
+
+		nemoWorkingDir = new File(tempDirString);
+		checkDir(nemoWorkingDir, false);
 	}
 	
 	/**
 	 * Check a directory for existence, directoryness, and writeability
 	 * @throws ConfigException If the directory has none of those things.
 	 */
-	private void checkDir(File directory) throws ConfigException {
+	private void checkDir(File directory, boolean mustBeWritable) throws ConfigException {
 		if (!directory.exists()) {
 			throw new ConfigException(directory.getAbsolutePath() + " does not exist");
 		} else if (!directory.isDirectory()) {
 			throw new ConfigException(directory.getAbsolutePath() + " is not a directory");
-		} else if (!directory.canWrite()) {
+		} else if (mustBeWritable && !directory.canWrite()) {
 			throw new ConfigException(directory.getAbsolutePath() + " is not writeable");
 		}
+	}
+	
+	private int extractZeroPositiveInteger(String propertyKey) throws ConfigException {
+		int result;
+		
+		String propertyValue = getProperty(propertyKey);
+		if (null == propertyValue) {
+			throw new ConfigException(propertyKey + " is missing");
+		} else {
+			try {
+				result = Integer.parseInt(propertyValue);
+				if (result < 0) {
+					throw new ConfigException(propertyKey + " must be zero or positive");
+				}
+			} catch (NumberFormatException e) {
+				throw new ConfigException(propertyKey + " must be an integer");
+			}
+		}
+		
+		return result;
 	}
 	
 	/**
@@ -202,5 +295,37 @@ public class Config extends Properties {
 	 */
 	public File getNemoTemplatesDir() {
 		return nemoTemplatesDir;
+	}
+	
+	/**
+	 * Get the NEMO output directory
+	 * @return The NEMO output directory
+	 */
+	public File getNemoOutputDir() {
+		return nemoOutputDir;
+	}
+	
+	/**
+	 * Get the NEMO working directory
+	 * @return The NEMO working directory
+	 */
+	public File getNemoWorkingDir() {
+		return nemoWorkingDir;
+	}
+	
+	/**
+	 * Get the number of times a network operation should be retried
+	 * @return The retry count
+	 */
+	public int getNetworkRetries() {
+		return networkRetries;
+	}
+	
+	/**
+	 * Get the number of seconds to wait before retrying a network operation
+	 * @return The wait time
+	 */
+	public int getRetryWaitTime() {
+		return retryWaitTime;
 	}
 }

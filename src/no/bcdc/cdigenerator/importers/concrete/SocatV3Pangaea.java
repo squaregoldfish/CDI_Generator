@@ -392,4 +392,24 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			throw new ImporterException("EOF before end of header");
 		}
 	}
+	
+	@Override
+	public String getNemoOutputFormat() {
+		return "ODV";
+	}
+	
+	@Override
+	protected int getStationNumber() throws ImporterException {
+		return 1;
+	}
+	
+	@Override
+	public String getNemoDataType() throws ImporterException {
+		return "H71";
+	}
+
+	@Override
+	protected String getDataSetInternalId() throws ImporterException {
+		return getExpoCode();
+	}
 }

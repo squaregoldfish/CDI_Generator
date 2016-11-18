@@ -158,6 +158,13 @@ public abstract class PangaVistaImporter extends Importer {
 		} catch (Exception e) {
 			throw new ImporterException("Unable to get a session ID", e);
 		}
+		
+		// Have a short sleep - trying to access the session too quickly causes problems
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// Meh
+		}
 	}
 	
 	/**
@@ -171,36 +178,60 @@ public abstract class PangaVistaImporter extends Importer {
 		
 		String xml = null;
 		
-		boolean retry = true;
+		int retriesLeft = config.getNetworkRetries();
 		
-		while (retry) {
-			retry = false;
-			try {
-				Call call = (Call) service.createCall();
-				call.setTargetEndpointAddress(new java.net.URL(END_POINT));
-				call.setOperationName(new QName(OPERATION_NAME_URI, OPERATION_METADATA));
-				call.setReturnType(org.apache.axis.Constants.XSD_STRING);
+		while (null == xml && retriesLeft > 0) {
+			
+			boolean sessionOK = false;
+			
+			while (!sessionOK) {
 				
-				call.addParameter("session", Constants.XSD_STRING, ParameterMode.IN);
-				call.addParameter("URI", Constants.XSD_STRING, ParameterMode.IN);
-		        
-		        xml = (String) call.invoke(new Object[] { sessionId, dataSetId });
-			} catch (Exception e) {
-
-				// If the session is invalid, get a new one and try again
-				if (e.getMessage().equals(EXPIRED_SESSION_ERROR)) {
-					try {
-						getNewSession();
-						retry = true;
-					} catch (ImporterException e2) {
-						// If that fails, throw the resulting exception
-						throw e2;
+				// Start by assuming we have a valid session
+				sessionOK = true;
+				
+				try {
+					Call call = (Call) service.createCall();
+					call.setTargetEndpointAddress(new java.net.URL(END_POINT));
+					call.setOperationName(new QName(OPERATION_NAME_URI, OPERATION_METADATA));
+					call.setReturnType(org.apache.axis.Constants.XSD_STRING);
+					
+					call.addParameter("session", Constants.XSD_STRING, ParameterMode.IN);
+					call.addParameter("URI", Constants.XSD_STRING, ParameterMode.IN);
+			        
+			        xml = (String) call.invoke(new Object[] { sessionId, dataSetId });
+				} catch (Exception e) {
+	
+					// If the session is invalid, get a new one and try again
+					if (e.getMessage().equals(EXPIRED_SESSION_ERROR)) {
+						try {
+							getNewSession();
+							sessionOK = false;
+						} catch (ImporterException e2) {
+							// If that fails, throw the resulting exception
+							throw e2;
+						}
+					} else if (e.getMessage().startsWith(DATASET_NOT_FOUND_ERROR)) {
+						throw new DataSetNotFoundException(dataSetId);
+					} else {
+						// Otherwise we log the error and retry
+						getLogger().warning("Metadata retrieval attempt failed");
+						getLogger().throwing(this.getClass().getName(), "getMetadataXML", e);
 					}
-				} else if (e.getMessage().startsWith(DATASET_NOT_FOUND_ERROR)) {
-					throw new DataSetNotFoundException(dataSetId);
-				} else {
-					// Otherwise we just throw the exception
-					throw new ImporterException("Error while retrieving metadata", e);
+				}
+			}
+			
+			if (null == xml) {
+				retriesLeft--;
+				
+				int waitCount = config.getRetryWaitTime();
+				while (waitCount > 0) {
+					generator.setProgressMessage("Metadata retrieval failed. Retrying in " + waitCount + " seconds (" + retriesLeft + " attempts remaining)");
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// We don't care
+					}
+					waitCount--;
 				}
 			}
 		}
@@ -212,39 +243,60 @@ public abstract class PangaVistaImporter extends Importer {
 	protected String getDataSetData(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		String result = null;
 		
-		HttpsURLConnection conn = null;
-		InputStream stream = null;
-		StringWriter writer = null;
+		int retriesLeft = config.getNetworkRetries();
 		
-		try {
-			URL url = makeUrl(dataSetId);
-			conn = (HttpsURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.connect();
+		while (null == result && retriesLeft > 0) {
+		
+			HttpsURLConnection conn = null;
+			InputStream stream = null;
+			StringWriter writer = null;
 			
-			stream = conn.getInputStream();
-			writer = new StringWriter();
-			IOUtils.copy(stream, writer, StandardCharsets.UTF_8);
-			result = writer.toString();
-		} catch (FileNotFoundException e) {
-			throw new DataSetNotFoundException(dataSetId);
-		} catch (Exception e) {
-			throw new ImporterException("Error while retrieving data set", e);
-		} finally {
 			try {
-				if (null != writer) {
-					writer.close();
-				}
+				URL url = makeUrl(dataSetId);
+				conn = (HttpsURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");
+				conn.connect();
 				
-				if (null != stream) {
-					stream.close();
+				stream = conn.getInputStream();
+				writer = new StringWriter();
+				IOUtils.copy(stream, writer, StandardCharsets.UTF_8);
+				result = writer.toString();
+			} catch (FileNotFoundException e) {
+				throw new DataSetNotFoundException(dataSetId);
+			} catch (Exception e) {
+				getLogger().warning("Data retrieval attempt failed");
+				getLogger().throwing(this.getClass().getName(), "getDataSetData", e);
+			} finally {
+				try {
+					if (null != writer) {
+						writer.close();
+					}
+					
+					if (null != stream) {
+						stream.close();
+					}
+					
+					if (null != conn) {
+						conn.disconnect();
+					}
+				} catch (IOException e) {
+					// Do nothing - we can say that we tried.
 				}
+			}
+			
+			if (null == result) {
+				retriesLeft--;
 				
-				if (null != conn) {
-					conn.disconnect();
+				int waitCount = config.getRetryWaitTime();
+				while (waitCount > 0) {
+					generator.setProgressMessage("Data retrieval failed. Retrying in " + waitCount + " seconds (" + retriesLeft + " attempts remaining)");
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// We don't care
+					}
+					waitCount--;
 				}
-			} catch (IOException e) {
-				// Do nothing - we can say that we tried.
 			}
 		}
 		

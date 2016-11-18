@@ -1,6 +1,6 @@
 package no.bcdc.cdigenerator.importers;
 
-public class NemoTemplateException extends Exception {
+public class NemoTemplateException extends ImporterException {
 	
 	private static final long serialVersionUID = -8184505709001633446L;
 

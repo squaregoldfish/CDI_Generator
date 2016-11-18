@@ -2,14 +2,19 @@ package no.bcdc.cdigenerator.generators;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.IOUtils;
+
 import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
+import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
 
 /**
@@ -28,12 +33,7 @@ public abstract class Generator {
 	 * The importer being used
 	 */
 	protected Importer importer;
-	
-	/**
-	 * The list of data set IDs to be processed
-	 */
-	protected List<String> dataSetIds = null;
-	
+
 	/**
 	 * The maximum value for the progress monitor
 	 */
@@ -76,10 +76,12 @@ public abstract class Generator {
 		boolean quit = false;
 		
 		while (!quit) {
-			quit = getImporterChoice();
-			if (!quit) {
+			importer = getImporterChoice();
+			if (null == importer) {
+				quit = true;
+			} else {
 				importer.setGenerator(this);
-				dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
+				List<String> dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
 				if (null != dataSetIds) {
 	
 					int idsComplete = 0;
@@ -100,13 +102,17 @@ public abstract class Generator {
 								modelsProcessed++;
 								setProgressMessage("Generating model " + modelsProcessed + " of " + models.size());
 								
+								// Populate the model
 								String modelTemplate = new String(Files.readAllBytes(modelFile.toPath()));
 								String populatedTemplate = importer.populateModelTemplate(modelTemplate);
 								
-								File nemoTemplateFile = new File(config.getTempDir(), id + "_nemoModel.xml");
+								// Write the model file to disk
+								File nemoTemplateFile = getNemoModelFile(id);
 								PrintWriter templateOut = new PrintWriter(nemoTemplateFile);
 								templateOut.print(populatedTemplate);
 								templateOut.close();
+								
+								runNemo(id);
 							}
 						}
 						
@@ -121,7 +127,7 @@ public abstract class Generator {
 		}
 	}
 	
-	protected abstract boolean getImporterChoice() throws Exception;
+	protected abstract Importer getImporterChoice() throws Exception;
 	
 	/**
 	 * Get the list of IDs for the data sets that are to be imported
@@ -172,5 +178,73 @@ public abstract class Generator {
 	 */
 	protected Logger getLogger() {
 		return CDIGenerator.getLogger();
+	}
+	
+	/**
+	 * Execute NEMO for the given data set
+	 * @param dataSetId The current data set ID
+	 * @throws ImporterException If the NEMO command could not be created
+	 */
+	private void runNemo(String dataSetId) throws ImporterException {
+		ProcessBuilder processBuilder = new ProcessBuilder(buildNemoCommand(dataSetId));
+		processBuilder.directory(config.getNemoWorkingDir());
+		
+		try {
+			Process process = processBuilder.start();
+			String stdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+			String stderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8);
+			int processResult = process.waitFor();
+			
+			if (processResult == 0) {
+				System.out.println("NEMO COMPLETED SUCCESSFULLY");
+			} else {
+				System.out.println("NEMO FAILED");
+			}
+			
+			System.out.println("NEMO STDOUT");
+			System.out.println(stdout);
+			System.out.println("NEMO STDERR");
+			System.out.println(stderr);
+			
+		} catch (Exception e) {
+			System.out.println("EXCEPTION RUNNING NEMO");
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Create the NEMO command for the given data set
+	 * @param dataSetId The ID of the data set
+	 * @return The NEMO command line
+	 * @throws ImporterException If the command line cannot be created
+	 */
+	private List<String> buildNemoCommand(String dataSetId) throws ImporterException {
+		
+		List<String> command = new ArrayList<String>();
+		
+		//command.add(config.getNemoWorkingDir().getAbsolutePath());
+		command.add("./nemo_batch");
+		command.add("-i");
+		command.add('"' + importer.getDataFile(dataSetId).getAbsolutePath() + '"');
+		command.add("-m");
+		command.add('"' + getNemoModelFile(dataSetId).getAbsolutePath() + '"');
+		command.add("-o");
+		command.add('"' + importer.getNemoOutputFile().getAbsolutePath() + '"');
+		command.add("-c");
+		command.add(importer.getNemoOutputFormat());
+		command.add("-multi");
+		command.add("-cdiSummary");
+		command.add('"' + importer.getNemoSummaryFile().getAbsolutePath() + '"');
+		
+		return command;		
+	}
+	
+	/**
+	 * Get the File representing the NEMO model for a data set
+	 * @param dataSetId The data set ID
+	 * @return The File for the NEMO model
+	 */
+	private File getNemoModelFile(String dataSetId) {
+		return new File(config.getTempDir(), dataSetId + "_nemoModel.xml");
 	}
 }
