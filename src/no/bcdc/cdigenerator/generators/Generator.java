@@ -86,6 +86,8 @@ public abstract class Generator {
 				if (null != dataSetIds) {
 	
 					int idsComplete = 0;
+					List<String> succeededIds = new ArrayList<String>();
+					List<String> failedIds = new ArrayList<String>();
 					setProgress(idsComplete);
 					for (String id : dataSetIds) {
 	
@@ -115,12 +117,20 @@ public abstract class Generator {
 								
 								// Run NEMO
 								setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
-								runNemo(id);
+								boolean nemoSucceeded = runNemo(id);
+								
+								if (!nemoSucceeded) {
+									failedIds.add(id);
+								} else {
+									succeededIds.add(id);
+								}
 							}
 						}
 						
 						idsComplete++;
 						setProgress(idsComplete);
+						
+						setProgressMessage(succeededIds.size() + " succeeded, " + failedIds.size() + " failed");
 					}
 				
 					setProgressMessage("\nProcessing complete\n");
@@ -188,7 +198,10 @@ public abstract class Generator {
 	 * @param dataSetId The current data set ID
 	 * @throws ImporterException If the NEMO command could not be created
 	 */
-	private void runNemo(String dataSetId) throws ImporterException, ExternalProcessFailedException {
+	private boolean runNemo(String dataSetId) throws ImporterException, ExternalProcessFailedException {
+		
+		boolean nemoOK = true;
+		
 		List<String> nemoCommand = buildNemoCommand(dataSetId);
 		ProcessBuilder processBuilder = new ProcessBuilder(nemoCommand);
 		processBuilder.directory(config.getNemoWorkingDir());
@@ -207,12 +220,22 @@ public abstract class Generator {
 				getLogger().severe(stderr);
 				throw new ExternalProcessFailedException("NEMO");
 			} else {
-				setProgressMessage("NEMO ran.");
+				// See if there's an error in the NEMO output
+				int errorIndex = stdout.indexOf("ERROR");
+				if (errorIndex != -1) {
+					nemoOK = false;
+					String errorString = stdout.substring(errorIndex);
+					
+					setProgressMessage("NEMO Failed. See log file when this program is finished.");
+					getLogger().severe(errorString);
+				}
 			}
 			
 		} catch (IOException|InterruptedException e) {
 			throw new ExternalProcessFailedException("NEMO", e);
 		}
+		
+		return nemoOK;
 	}
 	
 	/**
