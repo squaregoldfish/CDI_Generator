@@ -57,61 +57,61 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	 * Position of the start of the salinity field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String SALINITY_FIRST_CHAR = "44";
+	private static final String SALINITY_FIRST_CHAR = "45";
 	
 	/**
 	 * Position of the end of the salinity field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String SALINITY_LAST_CHAR = "50";
+	private static final String SALINITY_LAST_CHAR = "51";
 	
 	/**
 	 * Position of the start of the SST field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String SST_FIRST_CHAR = "52";
+	private static final String SST_FIRST_CHAR = "53";
 	
 	/**
 	 * Position of the end of the SST field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String SST_LAST_CHAR = "58";
+	private static final String SST_LAST_CHAR = "59";
 	
 	/**
 	 * Position of the start of the Atmospheric Pressure field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String PRESSURE_FIRST_CHAR = "68";
+	private static final String PRESSURE_FIRST_CHAR = "69";
 	
 	/**
 	 * Position of the end of the Atmospheric Pressure field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String PRESSURE_LAST_CHAR = "76";
+	private static final String PRESSURE_LAST_CHAR = "77";
 	
 	/**
 	 * Position of the start of the Bathymetry field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String BATHYMETRY_FIRST_CHAR = "96";
+	private static final String BATHYMETRY_FIRST_CHAR = "98";
 	
 	/**
 	 * Position of the end of the Bathymetry field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String BATHYMETRY_LAST_CHAR = "100";
+	private static final String BATHYMETRY_LAST_CHAR = "102";
 	
 	/**
 	 * Position of the start of the fCO2 field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String FCO2_FIRST_CHAR = "126";
+	private static final String FCO2_FIRST_CHAR = "129";
 	
 	/**
 	 * Position of the end of the fCO2 field.
 	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
 	 */
-	private static final String FCO2_LAST_CHAR = "133";
+	private static final String FCO2_LAST_CHAR = "136";
 	
 	/**
 	 * The line containing the first data record
