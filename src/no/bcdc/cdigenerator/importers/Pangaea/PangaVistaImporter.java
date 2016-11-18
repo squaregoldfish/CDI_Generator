@@ -109,7 +109,7 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 
 	@Override
-	protected String getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException {
+	protected String getDataSetMetadata(String dataSetId) throws ImporterException, DataSetNotFoundException {
 		
 		// Start a new session if required
 		if (null == sessionId) {

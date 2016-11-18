@@ -116,7 +116,7 @@ public abstract class Importer {
 		
 			if (success) {
 				generator.setProgressMessage("Retrieving metadata...");
-				metadata = getDataSetMetaData(dataSetId);
+				metadata = getDataSetMetadata(dataSetId);
 				if (null == metadata) {
 					generator.setProgressMessage("Metadata retrieval failed. Aborting.");
 					generator.logMessage(dataSetId, "Metadata retrieval failed. Aborting");
@@ -187,7 +187,7 @@ public abstract class Importer {
 	 * @param dataSetId The data set ID
 	 * @return The metadata
 	 */
- 	protected abstract String getDataSetMetaData(String dataSetId) throws ImporterException, DataSetNotFoundException;
+ 	protected abstract String getDataSetMetadata(String dataSetId) throws ImporterException, DataSetNotFoundException;
  	
  	/**
  	 * Returns the name of this importer
