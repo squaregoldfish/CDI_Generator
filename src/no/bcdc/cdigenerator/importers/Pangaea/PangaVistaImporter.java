@@ -214,7 +214,7 @@ public abstract class PangaVistaImporter extends Importer {
 						throw new DataSetNotFoundException(dataSetId);
 					} else {
 						// Otherwise we log the error and retry
-						getLogger().warning("Metadata retrieval attempt failed");
+						getLogger().warning("Metadata retrieval attempt failed\n");
 						getLogger().throwing(this.getClass().getName(), "getMetadataXML", e);
 					}
 				}
@@ -264,7 +264,7 @@ public abstract class PangaVistaImporter extends Importer {
 			} catch (FileNotFoundException e) {
 				throw new DataSetNotFoundException(dataSetId);
 			} catch (Exception e) {
-				getLogger().warning("Data retrieval attempt failed");
+				getLogger().warning("Data retrieval attempt failed\n");
 				getLogger().throwing(this.getClass().getName(), "getDataSetData", e);
 			} finally {
 				try {

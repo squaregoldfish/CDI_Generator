@@ -224,7 +224,7 @@ public class CommandLineGenerator extends Generator {
 		output.append(": ");
 		output.append(progressMessage);
 		
-		System.out.print('\r' + output.toString());
+		System.out.print("\033[2K\r" + output.toString());
 		getLogger().info(output.toString() + '\n');
 	}
 }
