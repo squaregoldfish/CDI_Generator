@@ -1,6 +1,7 @@
 package no.bcdc.cdigenerator.generators;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -112,6 +113,8 @@ public abstract class Generator {
 								templateOut.print(populatedTemplate);
 								templateOut.close();
 								
+								// Run NEMO
+								setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
 								runNemo(id);
 							}
 						}
@@ -185,8 +188,9 @@ public abstract class Generator {
 	 * @param dataSetId The current data set ID
 	 * @throws ImporterException If the NEMO command could not be created
 	 */
-	private void runNemo(String dataSetId) throws ImporterException {
-		ProcessBuilder processBuilder = new ProcessBuilder(buildNemoCommand(dataSetId));
+	private void runNemo(String dataSetId) throws ImporterException, ExternalProcessFailedException {
+		List<String> nemoCommand = buildNemoCommand(dataSetId);
+		ProcessBuilder processBuilder = new ProcessBuilder(nemoCommand);
 		processBuilder.directory(config.getNemoWorkingDir());
 		
 		try {
@@ -195,20 +199,19 @@ public abstract class Generator {
 			String stderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8);
 			int processResult = process.waitFor();
 			
-			if (processResult == 0) {
-				System.out.println("NEMO COMPLETED SUCCESSFULLY");
+			if (processResult != 0) {
+				getLogger().severe("NEMO exited with non-zero result. Aborting CDI Generator\n");
+				getLogger().severe("STDOUT:\n");
+				getLogger().severe(stdout);
+				getLogger().severe("STDERR:\n");
+				getLogger().severe(stderr);
+				throw new ExternalProcessFailedException("NEMO");
 			} else {
-				System.out.println("NEMO FAILED");
+				setProgressMessage("NEMO ran.");
 			}
 			
-			System.out.println("NEMO STDOUT");
-			System.out.println(stdout);
-			System.out.println("NEMO STDERR");
-			System.out.println(stderr);
-			
-		} catch (Exception e) {
-			System.out.println("EXCEPTION RUNNING NEMO");
-			e.printStackTrace();
+		} catch (IOException|InterruptedException e) {
+			throw new ExternalProcessFailedException("NEMO", e);
 		}
 	}
 	
