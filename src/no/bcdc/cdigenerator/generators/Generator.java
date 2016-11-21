@@ -5,15 +5,20 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 
 import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
+import no.bcdc.cdigenerator.ConfigException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
@@ -61,6 +66,11 @@ public abstract class Generator {
 	protected String dataSetData = null;
 	
 	/**
+	 * A database connection
+	 */
+	private Connection dbConnection = null;
+	
+	/**
 	 * Base constructor - stores the configuration
 	 * @param config The configuration
 	 */
@@ -75,6 +85,8 @@ public abstract class Generator {
 	public void start() throws Exception {
 		
 		boolean quit = false;
+		
+		initDBConnection();
 		
 		while (!quit) {
 			importer = getImporterChoice();
@@ -272,5 +284,23 @@ public abstract class Generator {
 	 */
 	private File getNemoModelFile(String dataSetId) {
 		return new File(config.getTempDir(), dataSetId + "_nemoModel.xml");
+	}
+	
+	/**
+	 * Connect to the database
+	 */
+	private void initDBConnection() throws ConfigException {
+
+	    StringBuilder connectionString = new StringBuilder();
+	    connectionString.append("jdbc:mysql://");
+	    connectionString.append(config.getDBServer());
+	    connectionString.append(':');
+	    connectionString.append(config.getDBPort());
+	    
+	    try {
+	    	dbConnection = DriverManager.getConnection(connectionString.toString(), config.getDBUser(), config.getDBPassword());
+	    } catch (SQLException e) {
+	    	throw new ConfigException("Could not connect to database", e);
+	    }
 	}
 }

@@ -41,17 +41,17 @@ public class Config extends Properties {
 	/**
 	 * The key for the NEMO models directory
 	 */
-	private static final String NEMO_TEMPLATES_DIR_PROPERTY = "dir.nemoTemplatesDir";
+	private static final String NEMO_TEMPLATES_DIR_PROPERTY = "dir.nemoTemplates";
 	
 	/**
 	 * The key for the NEMO output directory
 	 */
-	private static final String NEMO_OUTPUT_DIR_PROPERTY = "dir.nemoOutputDir";
+	private static final String NEMO_OUTPUT_DIR_PROPERTY = "dir.nemoOutput";
 	
 	/**
 	 * The key for the NEMO working directory
 	 */
-	private static final String NEMO_WORKING_DIR_PROPERTY = "dir.nemoWorkingDir";
+	private static final String NEMO_WORKING_DIR_PROPERTY = "dir.nemoWorking";
 	
 	/**
 	 * The key for the number of network retries
@@ -62,6 +62,26 @@ public class Config extends Properties {
 	 * The key for the retry wait time
 	 */
 	private static final String RETRY_WAIT_TIME_PROPERTY = "network.retryWaitTime";
+	
+	/**
+	 * The key for the database server
+	 */
+	private static final String DB_SERVER_PROPERTY = "db.server";
+	
+	/**
+	 * The key for the database port
+	 */
+	private static final String DB_PORT_PROPERTY = "db.port";
+	
+	/**
+	 * The key for the database user
+	 */
+	private static final String DB_USER_PROPERTY = "db.user";
+	
+	/**
+	 * The key for the database password
+	 */
+	private static final String DB_PASSWORD_PROPERTY = "db.password";
 	
 	/**
 	 * Lookup table of importers
@@ -99,6 +119,26 @@ public class Config extends Properties {
 	private int retryWaitTime;
 	
 	/**
+	 * The database server
+	 */
+	private String dbServer;
+	
+	/**
+	 * The database port
+	 */
+	private int dbPort;
+	
+	/**
+	 * The database user
+	 */
+	private String dbUser;
+	
+	/**
+	 * The database password
+	 */
+	private String dbPassword;
+	
+	/**
 	 * Initialise and load the configuration
 	 * @param configReader A reader for the config file
 	 * @throws IOException If an error occurs while reading the file data
@@ -115,7 +155,12 @@ public class Config extends Properties {
 		
 		networkRetries = extractZeroPositiveInteger(NETWORK_RETRIES_PROPERTY);
 		retryWaitTime = extractZeroPositiveInteger(RETRY_WAIT_TIME_PROPERTY);
-}
+		
+		dbServer = getProperty(DB_SERVER_PROPERTY);
+		dbPort = extractPositiveInteger(DB_PORT_PROPERTY);
+		dbUser = getProperty(DB_USER_PROPERTY);
+		dbPassword = getProperty(DB_PASSWORD_PROPERTY);
+	}
 	
 	/**
 	 * Checks that the configuration is valid.
@@ -281,6 +326,26 @@ public class Config extends Properties {
 		return result;
 	}
 	
+	private int extractPositiveInteger(String propertyKey) throws ConfigException {
+		int result;
+		
+		String propertyValue = getProperty(propertyKey);
+		if (null == propertyValue) {
+			throw new ConfigException(propertyKey + " is missing");
+		} else {
+			try {
+				result = Integer.parseInt(propertyValue);
+				if (result <= 0) {
+					throw new ConfigException(propertyKey + " must be positive");
+				}
+			} catch (NumberFormatException e) {
+				throw new ConfigException(propertyKey + " must be an integer");
+			}
+		}
+		
+		return result;
+	}
+	
 	/**
 	 * Get the temporary directory
 	 * @return The temporary directory
@@ -327,5 +392,37 @@ public class Config extends Properties {
 	 */
 	public int getRetryWaitTime() {
 		return retryWaitTime;
+	}
+	
+	/**
+	 * Get the database server
+	 * @return The database server
+	 */
+	public String getDBServer() {
+		return dbServer;
+	}
+	
+	/**
+	 * Get the database port
+	 * @return The database port
+	 */
+	public int getDBPort() {
+		return dbPort;
+	}
+	
+	/**
+	 * Get the database username
+	 * @return The database username
+	 */
+	public String getDBUser() {
+		return dbUser;
+	}
+	
+	/**
+	 * Get the database password
+	 * @return The databae password
+	 */
+	public String getDBPassword() {
+		return dbPassword;
 	}
 }
