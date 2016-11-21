@@ -36,32 +36,32 @@ public class Config extends Properties {
 	/**
 	 * The key for the temporary/cache directory
 	 */
-	private static final String TEMP_DIR_PROPERTY = "config.tempDir";
+	private static final String TEMP_DIR_PROPERTY = "dir.temp";
 	
 	/**
 	 * The key for the NEMO models directory
 	 */
-	private static final String NEMO_TEMPLATES_DIR_PROPERTY = "config.nemoTemplatesDir";
+	private static final String NEMO_TEMPLATES_DIR_PROPERTY = "dir.nemoTemplatesDir";
 	
 	/**
 	 * The key for the NEMO output directory
 	 */
-	private static final String NEMO_OUTPUT_DIR_PROPERTY = "config.nemoOutputDir";
+	private static final String NEMO_OUTPUT_DIR_PROPERTY = "dir.nemoOutputDir";
 	
 	/**
 	 * The key for the NEMO working directory
 	 */
-	private static final String NEMO_WORKING_DIR_PROPERTY = "config.nemoWorkingDir";
+	private static final String NEMO_WORKING_DIR_PROPERTY = "dir.nemoWorkingDir";
 	
 	/**
 	 * The key for the number of network retries
 	 */
-	private static final String NETWORK_RETRIES_PROPERTY = "config.networkRetries";
+	private static final String NETWORK_RETRIES_PROPERTY = "network.retryCount";
 	
 	/**
 	 * The key for the retry wait time
 	 */
-	private static final String RETRY_WAIT_TIME_PROPERTY = "config.retryWaitTime";
+	private static final String RETRY_WAIT_TIME_PROPERTY = "network.retryWaitTime";
 	
 	/**
 	 * Lookup table of importers
