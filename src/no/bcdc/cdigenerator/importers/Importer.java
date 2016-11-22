@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -144,6 +145,11 @@ public abstract class Importer {
 		return success;
 	}
 	
+	/**
+	 * Returns the location where the data file should be stored on disk for NEMO
+	 * @param dataSetId The data set ID
+	 * @return The data file storage location
+	 */
 	public File getDataFile(String dataSetId) {
 		return new File(config.getTempDir(), dataSetId + "_data");
 	}
@@ -377,11 +383,7 @@ public abstract class Importer {
 	private String getNemoOutputFilename() throws ImporterException {
 		StringBuilder filename = new StringBuilder();
 		
-		filename.append(getDataSetInternalId());
-		filename.append('_');
-		filename.append(stationNumberFormatter.format(getStationNumber()));
-		filename.append('_');
-		filename.append(getNemoDataType());
+		filename.append(getLocalCdiId());
 		filename.append('_');
 		filename.append(getNemoOutputFormat().toLowerCase());
 		filename.append(".txt");
@@ -396,16 +398,29 @@ public abstract class Importer {
 	private String getNemoSummaryFilename() throws ImporterException {
 		StringBuilder filename = new StringBuilder();
 		
-		filename.append(getDataSetInternalId());
-		filename.append('_');
-		filename.append(stationNumberFormatter.format(getStationNumber()));
-		filename.append('_');
-		filename.append(getNemoDataType());
+		filename.append(getLocalCdiId());
 		filename.append('_');
 		filename.append(getNemoOutputFormat().toLowerCase());
 		filename.append("_summary.txt");
 		
 		return filename.toString();
+	}
+	
+	/**
+	 * Generate the Local CDI ID for the current data set
+	 * @return The Local CDI ID
+	 * @throws ImporterException If the components of the ID string cannot be retrieved
+	 */
+	public String getLocalCdiId() throws ImporterException {
+		StringBuilder localCdiId = new StringBuilder();
+		
+		localCdiId.append(getDataSetInternalId());
+		localCdiId.append('_');
+		localCdiId.append(stationNumberFormatter.format(getStationNumber()));
+		localCdiId.append('_');
+		localCdiId.append(getNemoDataType());
+		
+		return localCdiId.toString();
 	}
 
 	/**
@@ -429,4 +444,130 @@ public abstract class Importer {
 	 * @throws ImporterException If the NEMO data type cannot be retrieved
 	 */
 	public abstract String getNemoDataType() throws ImporterException;
+	
+	/**
+	 * Get the code that identifies the platform
+	 * @return The platform code
+	 * @throws ImporterException If the platform code cannot be retrieved
+	 */
+	public abstract String getPlatformCode() throws ImporterException;
+	
+	/**
+	 * Get the start date of the data set, without a time
+	 * @return The start date of the data set
+	 * @throws ImporterException If the start date cannot be retrieved
+	 */
+	public abstract Date getStartDate() throws ImporterException;
+	
+	/**
+	 * Get the start date and time of the data set
+	 * @return The start date
+	 * @throws ImporterException If the start date cannot be retrieved
+	 */
+	public abstract Date getStartDateTime() throws ImporterException;
+	
+	/**
+	 * Get the end date and time of the data set
+	 * @return The end date
+	 * @throws ImporterException If the end date cannot be retrieved
+	 */
+	public abstract Date getEndDateTime() throws ImporterException;
+	
+	/**
+	 * Get the name of the current data set
+	 * @return The data set name
+	 * @throws ImporterException If the name cannot be retrieved
+	 */
+	public abstract String getDataSetName() throws ImporterException;
+	
+	/**
+	 * Get the ID of the current data set
+	 * @return The data set ID
+	 * @throws ImporterException If the ID cannot be retrieved
+	 */
+	public abstract String getDataSetId() throws ImporterException;
+	
+	/**
+	 * Get the DOI for the current data set
+	 * @return The DOI
+	 * @throws ImporterException If the DOI cannot be retrieved
+	 */
+	public abstract String getDoi() throws ImporterException;
+	
+	/**
+	 * Get the full DOI URL for the data set
+	 * @return The DOI URL
+	 * @throws ImporterException If the DOI URL cannot be retrieved
+	 */
+	public abstract String getDoiUrl() throws ImporterException;
+	
+	/**
+	 * Get the abstract of the data set
+	 * @return The abstract
+	 * @throws ImporterException If the abstract cannot be retrieved
+	 */
+	public abstract String getAbstract() throws ImporterException;
+
+	/**
+	 * Get the cruise name for the data set
+	 * @return The cruise name
+	 * @throws ImporterException If the cruise name cannot be retrieved
+	 */
+	public abstract String getCruiseName() throws ImporterException;
+	
+	/**
+	 * Get the western longitude boundary of the data set
+	 * @return The western longitude boundary
+	 * @throws ImporterException If the boundary cannot be retrieved
+	 */
+	public abstract double getWestLongitude() throws ImporterException;
+	
+	/**
+	 * Get the eastern longitude boundary of the data set
+	 * @return The eastern longitude boundary
+	 * @throws ImporterException If the boundary cannot be retrieved
+	 */
+	public abstract double getEastLongitude() throws ImporterException;
+	
+	/**
+	 * Get the southern latitude boundary of the data set
+	 * @return The southern latitude boundary
+	 * @throws ImporterException If the boundary cannot be retrieved
+	 */
+	public abstract double getSouthLatitude() throws ImporterException;
+	
+	/**
+	 * Get the northern latitude boundary of the data set
+	 * @return The northern latitude boundary
+	 * @throws ImporterException If the boundary cannot be retrieved
+	 */
+	public abstract double getNorthLatitude() throws ImporterException;
+	
+	/**
+	 * Get the Cruise Summary Report reference for the data set
+	 * @return The CSR reference
+	 * @throws ImporterException If the CSR reference cannot be extracted
+	 */
+	public abstract String getCsrReference() throws ImporterException;
+
+	/**
+	 * Get the GML Curves Description
+	 * @return The GML Curves description
+	 * @throws ImporterException If the curves description cannot be retrieved
+	 */
+	public abstract String getCurvesDescription() throws ImporterException;
+	
+	/**
+	 * Get the GML Curves Name
+	 * @return The GML Curves Name
+	 * @throws ImporterException If the curves name cannot be retrieved
+	 */
+	public abstract String getCurvesName() throws ImporterException;
+
+	/**
+	 * Get the GML Curves Coordinates string
+	 * @return The GML Curves coordinates
+	 * @throws ImporterException If the curves coordinates cannot be retrieved
+	 */
+	public abstract String getCurvesCoordinates() throws ImporterException;
 }

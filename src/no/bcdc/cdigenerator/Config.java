@@ -74,6 +74,11 @@ public class Config extends Properties {
 	private static final String DB_PORT_PROPERTY = "db.port";
 	
 	/**
+	 * The key for the database name
+	 */
+	private static final String DB_NAME_PROPERTY = "db.database";
+	
+	/**
 	 * The key for the database user
 	 */
 	private static final String DB_USER_PROPERTY = "db.user";
@@ -129,6 +134,11 @@ public class Config extends Properties {
 	private int dbPort;
 	
 	/**
+	 * The database name
+	 */
+	private String dbName;
+	
+	/**
 	 * The database user
 	 */
 	private String dbUser;
@@ -158,6 +168,7 @@ public class Config extends Properties {
 		
 		dbServer = getProperty(DB_SERVER_PROPERTY);
 		dbPort = extractPositiveInteger(DB_PORT_PROPERTY);
+		dbName = getProperty(DB_NAME_PROPERTY);
 		dbUser = getProperty(DB_USER_PROPERTY);
 		dbPassword = getProperty(DB_PASSWORD_PROPERTY);
 	}
@@ -408,6 +419,14 @@ public class Config extends Properties {
 	 */
 	public int getDBPort() {
 		return dbPort;
+	}
+	
+	/**
+	 * Get the database name
+	 * @return The database name
+	 */
+	public String getDBName() {
+		return dbName;
 	}
 	
 	/**

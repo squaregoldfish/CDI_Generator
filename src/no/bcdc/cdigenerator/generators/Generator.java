@@ -5,20 +5,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 
 import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
-import no.bcdc.cdigenerator.ConfigException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
@@ -68,7 +63,7 @@ public abstract class Generator {
 	/**
 	 * A database connection
 	 */
-	private Connection dbConnection = null;
+	private CDIDB cdiDb = null;
 	
 	/**
 	 * Base constructor - stores the configuration
@@ -86,7 +81,7 @@ public abstract class Generator {
 		
 		boolean quit = false;
 		
-		initDBConnection();
+		cdiDb = new CDIDB(config);
 		
 		while (!quit) {
 			importer = getImporterChoice();
@@ -107,8 +102,6 @@ public abstract class Generator {
 						boolean dataRetrieved = importer.retrieveData(id);
 						
 						if (dataRetrieved) {
-							setProgressMessage("Data retrieved");
-
 							ModelFilenameFilter modelFilenameFilter = new ModelFilenameFilter(importer.getName());
 							List<File> models = Arrays.asList(config.getNemoTemplatesDir().listFiles(modelFilenameFilter));
 							int modelsProcessed = 0;
@@ -129,11 +122,20 @@ public abstract class Generator {
 								
 								// Run NEMO
 								setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
-								boolean nemoSucceeded = runNemo(id);
+								//boolean nemoSucceeded = runNemo(id);
+								boolean nemoSucceeded = true;
 								
 								if (!nemoSucceeded) {
 									failedIds.add(id);
 								} else {
+
+									setProgressMessage("Building CDI Summary data");
+									CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer);
+									
+									setProgressMessage("Adding CDI Summary data to database");
+									cdiDb.clearCdiSummary();
+									cdiDb.storeCdiSummary(cdiSummary);
+									
 									succeededIds.add(id);
 								}
 							}
@@ -284,23 +286,5 @@ public abstract class Generator {
 	 */
 	private File getNemoModelFile(String dataSetId) {
 		return new File(config.getTempDir(), dataSetId + "_nemoModel.xml");
-	}
-	
-	/**
-	 * Connect to the database
-	 */
-	private void initDBConnection() throws ConfigException {
-
-	    StringBuilder connectionString = new StringBuilder();
-	    connectionString.append("jdbc:mysql://");
-	    connectionString.append(config.getDBServer());
-	    connectionString.append(':');
-	    connectionString.append(config.getDBPort());
-	    
-	    try {
-	    	dbConnection = DriverManager.getConnection(connectionString.toString(), config.getDBUser(), config.getDBPassword());
-	    } catch (SQLException e) {
-	    	throw new ConfigException("Could not connect to database", e);
-	    }
 	}
 }

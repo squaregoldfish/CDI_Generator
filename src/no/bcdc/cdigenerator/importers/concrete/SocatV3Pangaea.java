@@ -1,7 +1,5 @@
 package no.bcdc.cdigenerator.importers.concrete;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -119,16 +117,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private int firstLineNumber = -1;
 	
 	/**
-	 * The first data line
-	 */
-	private String firstLine = null;
-	
-	/**
-	 * The last data line
-	 */
-	private String lastLine = null;
-	
-	/**
 	 * The list of column padding specs for this importer
 	 */
 	private static HashMap<Integer, ColumnPaddingSpec> columnPaddingSpecs = null;
@@ -142,23 +130,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 
 	@Override
 	public String getName() {
-		return "SOCATv3 from PANGAEA";
-	}
-	
-	@Override
-	protected void preprocessData() throws ImporterException {
-		String[] lines = data.split("\n");
-		
-		// Search for the header
-		for (int i = 0; i < lines.length; i++) {
-			if (lines[i].startsWith(DATA_HEADER_START)) {
-				firstLineNumber = i + 2; // i is zero-based!
-				firstLine = lines[i + 1];
-			}
-		}
-		
-		// Store the last line
-		lastLine = lines[lines.length - 1];
+		return "SOCATv3";
 	}
 	
 	/**
@@ -202,14 +174,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		}
 		case "SHIP_CODE": {
 			tagValue = getShipCode();
-			break;
-		}
-		case "START_DATE_MS": {
-			tagValue = String.valueOf(getStartDateMilliseconds());
-			break;
-		}
-		case "END_DATE_MS": {
-			tagValue = String.valueOf(getEndDateMilliseconds());
 			break;
 		}
 		case "FIRST_LINE": {
@@ -283,43 +247,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		}
 		
 		return tagValue;
-	}
-	
-	/**
-	 * Get the time of the first data record in milliseconds since the epoch
-	 * @return The time of the first data record in milliseconds since the epoch
-	 */
-	private long getStartDateMilliseconds() {
-		return timeToMilliseconds(getDateTimeColumn(firstLine));
-	}
-	
-	/**
-	 * Get the time of the last data record in milliseconds since the epoch
-	 * @return The time of the last data record in milliseconds since the epoch
-	 */
-	private long getEndDateMilliseconds() {
-		return timeToMilliseconds(getDateTimeColumn(lastLine));
-	}
-	
-	/**
-	 * Get the Date/Time column from the given data line
-	 * @param line The line
-	 * @return The contents of the Date/Time column
-	 */
-	private String getDateTimeColumn(String line) {
-		return line.substring(0, 16);
-	}
-	
-	/**
-	 * Take a time string from the SOCAT file and convert it to milliseconds since the epoch.
-	 * The times in these files are of the form "YYYY-MM-DDThh:mm", so we add the seconds and timezone (UTC).
-	 * @param timeString The time string from the file
-	 * @return The time string as milliseconds since the epoch.
-	 */
-	private long timeToMilliseconds(String timeString) {
-		String isoTimeString = timeString + ":00+00:00";
-		ZonedDateTime parsedTime = ZonedDateTime.parse(isoTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-		return parsedTime.toInstant().toEpochMilli();
 	}
 	
 	@Override
@@ -411,5 +338,48 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	@Override
 	protected String getDataSetInternalId() throws ImporterException {
 		return getExpoCode();
+	}
+	
+	@Override
+	public String getPlatformCode() throws ImporterException {
+		return getShipCode();
+	}
+	
+	@Override
+	public String getDataSetName() throws ImporterException {
+		return getName();
+	}
+
+	@Override
+	public String getDataSetId() throws ImporterException {
+		return getExpoCode();
+	}
+	
+	@Override
+	public String getCruiseName() throws ImporterException {
+		return getExpoCode();
+	}
+	
+	@Override
+	public String getCsrReference() throws ImporterException {
+		return null;
+	}
+
+	@Override
+	public String getCurvesDescription() throws ImporterException {
+		// Curves are not yet implemented
+		return null;
+	}
+
+	@Override
+	public String getCurvesName() throws ImporterException {
+		// Curves are not yet implemented
+		return null;
+	}
+
+	@Override
+	public String getCurvesCoordinates() throws ImporterException {
+		// Curves are not yet implemented
+		return null;
 	}
 }

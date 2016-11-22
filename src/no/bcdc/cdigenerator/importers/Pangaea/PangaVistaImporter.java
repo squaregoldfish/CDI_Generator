@@ -7,6 +7,11 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.namespace.QName;
@@ -50,6 +55,46 @@ public abstract class PangaVistaImporter extends Importer {
 	 * XPath for the first author's first name
 	 */
 	private static final String XPATH_AUTHOR_FIRST_NAME = "/Metadata/citation/author/firstName";
+	
+	/**
+	 * XPath for the DOI
+	 */
+	private static final String XPATH_DOI = "/MetaData/citation/URI";
+	
+	/**
+	 * XPath for the abstract
+	 */
+	private static final String XPATH_ABSTRACT = "/MetaData/citation/title";
+	
+	/**
+	 * XPath for west longitude
+	 */
+	private static final String XPATH_WEST_LONGITUDE = "/MetaData/extent/geographic/westBoundLongitude";
+	
+	/**
+	 * XPath for east longitude
+	 */
+	private static final String XPATH_EAST_LONGITUDE = "/MetaData/extent/geographic/eastBoundLongitude";
+	
+	/**
+	 * XPath for south latitude
+	 */
+	private static final String XPATH_SOUTH_LATITUDE = "/MetaData/extent/geographic/southBoundLatitude";
+	
+	/**
+	 * XPath for north latitude
+	 */
+	private static final String XPATH_NORTH_LATITUDE = "/MetaData/extent/geographic/northBoundLatitude";
+	
+	/**
+	 * XPath for the start time
+	 */
+	private static final String XPATH_START_TIME = "/MetaData/extent/temporal/minDateTime";
+	
+	/**
+	 * XPath for the end time
+	 */
+	private static final String XPATH_END_TIME = "/MetaData/extent/temporal/maxDateTime";
 	
 	/**
 	 * The SOAP URI
@@ -347,6 +392,20 @@ public abstract class PangaVistaImporter extends Importer {
 		return result;
 	}
 	
+	/**
+	 * Evaluate an XPath in the metadata, and convert it to a double value
+	 * @param xPath The XPath
+	 * @return The matching value
+	 * @throws ImporterException If the XPath fails or the value is not numeric
+	 */
+	protected double evaluateXPathDouble(String xPath) throws ImporterException {
+		try {
+			return Double.parseDouble(evaluateXPath(xPath));
+		} catch (NumberFormatException e) {
+			throw new ImporterException("Metadata value is not numeric");
+		}
+	}
+	
 	@Override
 	protected String getTemplateTagValue(String tag) throws NemoTemplateException {
 		String tagValue = null;
@@ -358,6 +417,14 @@ public abstract class PangaVistaImporter extends Importer {
 		}
 		case "FIRST_AUTHOR": {
 			tagValue = getFirstAuthor();
+			break;
+		}
+		case "START_DATE_MS": {
+			tagValue = String.valueOf(getStartDateMilliseconds());
+			break;
+		}
+		case "END_DATE_MS": {
+			tagValue = String.valueOf(getEndDateMilliseconds());
 			break;
 		}
 		}
@@ -381,5 +448,88 @@ public abstract class PangaVistaImporter extends Importer {
 		return output.toString();
 	}
 	
+	@Override
+	public String getDoi() throws ImporterException {
+		String xPathValue = evaluateXPath(XPATH_DOI);
+		if (xPathValue.startsWith("doi:")) {
+			xPathValue = xPathValue.substring(4);
+		}
+		
+		return xPathValue;
+	}
 	
+	@Override
+	public String getDoiUrl() throws ImporterException {
+		return "https://doi.pangaea.de/" + getDoi();
+	}
+	
+	@Override
+	public String getAbstract() throws ImporterException {
+		return evaluateXPath(XPATH_ABSTRACT);
+	}
+	
+	@Override
+	public double getWestLongitude() throws ImporterException {
+		return evaluateXPathDouble(XPATH_WEST_LONGITUDE);
+	}
+	
+	@Override
+	public double getEastLongitude() throws ImporterException {
+		return evaluateXPathDouble(XPATH_EAST_LONGITUDE);
+	}
+	
+	@Override
+	public double getSouthLatitude() throws ImporterException {
+		return evaluateXPathDouble(XPATH_SOUTH_LATITUDE);
+	}
+	
+	@Override
+	public double getNorthLatitude() throws ImporterException {
+		return evaluateXPathDouble(XPATH_NORTH_LATITUDE);
+	}
+
+	@Override
+	public Date getStartDate() throws ImporterException {
+		Instant dateTime = Instant.ofEpochMilli(getStartDateMilliseconds());
+		Instant dateOnly = dateTime.truncatedTo(ChronoUnit.DAYS);
+		return new Date(dateOnly.toEpochMilli());
+	}
+	
+	@Override
+	public Date getStartDateTime() throws ImporterException {
+		return new Date(getStartDateMilliseconds());
+	}
+	
+	@Override
+	public Date getEndDateTime() throws ImporterException {
+		return new Date(getEndDateMilliseconds());
+	}
+
+	/**
+	 * Get the time of the first data record in milliseconds since the epoch
+	 * @return The time of the first data record in milliseconds since the epoch
+	 */
+	private long getStartDateMilliseconds() throws NemoTemplateException {
+		return timeToMilliseconds(evaluateXPath(XPATH_START_TIME));
+	}
+	
+	/**
+	 * Get the time of the last data record in milliseconds since the epoch
+	 * @return The time of the last data record in milliseconds since the epoch
+	 */
+	private long getEndDateMilliseconds() throws NemoTemplateException {
+		return timeToMilliseconds(evaluateXPath(XPATH_END_TIME));
+	}
+
+	/**
+	 * Take a time string from the SOCAT file and convert it to milliseconds since the epoch.
+	 * The times in these files are of the form "YYYY-MM-DDThh:mm", so we add the seconds and timezone (UTC).
+	 * @param timeString The time string from the file
+	 * @return The time string as milliseconds since the epoch.
+	 */
+	private long timeToMilliseconds(String timeString) {
+		String isoTimeString = timeString + "+00:00";
+		ZonedDateTime parsedTime = ZonedDateTime.parse(isoTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+		return parsedTime.toInstant().toEpochMilli();
+	}
 }
