@@ -135,8 +135,8 @@ public class CDIDB {
 			stmt.setDouble(11, summary.getEastLongitude());
 			stmt.setDouble(12, summary.getSouthLatitude());
 			stmt.setDouble(13, summary.getNorthLatitude());
-			stmt.setTimestamp(14, new Timestamp(summary.getStartDateTime().getTime()));
-			stmt.setTimestamp(15, new Timestamp(summary.getEndDateTime().getTime()));
+			stmt.setLong(14, summary.getStartDateTime() / 1000);
+			stmt.setLong(15, summary.getEndDateTime() / 1000);
 			stmt.setString(16, summary.getDistributionDataSize());
 			stmt.setString(17, summary.getCurvesDescription());
 			stmt.setString(18, summary.getCurvesName());

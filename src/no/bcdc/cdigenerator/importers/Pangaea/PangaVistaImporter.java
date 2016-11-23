@@ -407,7 +407,7 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 	
 	@Override
-	protected String getTemplateTagValue(String tag) throws NemoTemplateException {
+	protected String getTemplateTagValue(String tag) throws ImporterException {
 		String tagValue = null;
 		
 		switch (tag) {
@@ -420,11 +420,11 @@ public abstract class PangaVistaImporter extends Importer {
 			break;
 		}
 		case "START_DATE_MS": {
-			tagValue = String.valueOf(getStartDateMilliseconds());
+			tagValue = String.valueOf(getStartDateTime());
 			break;
 		}
 		case "END_DATE_MS": {
-			tagValue = String.valueOf(getEndDateMilliseconds());
+			tagValue = String.valueOf(getEndDateTime());
 			break;
 		}
 		}
@@ -490,34 +490,18 @@ public abstract class PangaVistaImporter extends Importer {
 
 	@Override
 	public Date getStartDate() throws ImporterException {
-		Instant dateTime = Instant.ofEpochMilli(getStartDateMilliseconds());
+		Instant dateTime = Instant.ofEpochMilli(getStartDateTime());
 		Instant dateOnly = dateTime.truncatedTo(ChronoUnit.DAYS);
 		return new Date(dateOnly.toEpochMilli());
 	}
 	
 	@Override
-	public Date getStartDateTime() throws ImporterException {
-		return new Date(getStartDateMilliseconds());
-	}
-	
-	@Override
-	public Date getEndDateTime() throws ImporterException {
-		return new Date(getEndDateMilliseconds());
-	}
-
-	/**
-	 * Get the time of the first data record in milliseconds since the epoch
-	 * @return The time of the first data record in milliseconds since the epoch
-	 */
-	private long getStartDateMilliseconds() throws NemoTemplateException {
+	public long getStartDateTime() throws ImporterException {
 		return timeToMilliseconds(evaluateXPath(XPATH_START_TIME));
 	}
 	
-	/**
-	 * Get the time of the last data record in milliseconds since the epoch
-	 * @return The time of the last data record in milliseconds since the epoch
-	 */
-	private long getEndDateMilliseconds() throws NemoTemplateException {
+	@Override
+	public long getEndDateTime() throws ImporterException {
 		return timeToMilliseconds(evaluateXPath(XPATH_END_TIME));
 	}
 

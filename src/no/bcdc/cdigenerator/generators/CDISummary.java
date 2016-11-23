@@ -181,7 +181,7 @@ public class CDISummary {
 	 * @return The start date
 	 * @throws ImporterException If the start date cannot be retrieved
 	 */
-	public Date getStartDateTime() throws ImporterException {
+	public long getStartDateTime() throws ImporterException {
 		return importer.getStartDateTime();
 	}
 	
@@ -190,7 +190,7 @@ public class CDISummary {
 	 * @return The end date
 	 * @throws ImporterException If the end date cannot be retrieved
 	 */
-	public Date getEndDateTime() throws ImporterException {
+	public long getEndDateTime() throws ImporterException {
 		return importer.getEndDateTime();
 	}
 	

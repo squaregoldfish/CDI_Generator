@@ -163,7 +163,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 	
 	@Override
-	protected String getTemplateTagValue(String tag) throws NemoTemplateException {
+	protected String getTemplateTagValue(String tag) throws ImporterException {
 		
 		String tagValue = null;
 		

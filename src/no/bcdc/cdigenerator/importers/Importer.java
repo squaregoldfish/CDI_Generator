@@ -223,7 +223,7 @@ public abstract class Importer {
 	 * @return The populated model
 	 * @throws NemoModelException If the template cannot be populated
 	 */
-	public String populateModelTemplate(String modelTemplate) throws NemoTemplateException {
+	public String populateModelTemplate(String modelTemplate) throws ImporterException {
 	
 		StringBuilder output = new StringBuilder();
 		
@@ -283,7 +283,7 @@ public abstract class Importer {
 	 * @param tag The tag
 	 * @return The value
 	 */
-	protected abstract String getTemplateTagValue(String tag) throws NemoTemplateException;
+	protected abstract String getTemplateTagValue(String tag) throws ImporterException;
 	
 	/**
 	 * Get the separator for the data file
@@ -460,18 +460,18 @@ public abstract class Importer {
 	public abstract Date getStartDate() throws ImporterException;
 	
 	/**
-	 * Get the start date and time of the data set
+	 * Get the start date and time of the data set in milliseconds since the epoch
 	 * @return The start date
 	 * @throws ImporterException If the start date cannot be retrieved
 	 */
-	public abstract Date getStartDateTime() throws ImporterException;
+	public abstract long getStartDateTime() throws ImporterException;
 	
 	/**
-	 * Get the end date and time of the data set
+	 * Get the end date and time of the data set in milliseconds since the epoch
 	 * @return The end date
 	 * @throws ImporterException If the end date cannot be retrieved
 	 */
-	public abstract Date getEndDateTime() throws ImporterException;
+	public abstract long getEndDateTime() throws ImporterException;
 	
 	/**
 	 * Get the name of the current data set
