@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -135,8 +134,8 @@ public class CDIDB {
 			stmt.setDouble(11, summary.getEastLongitude());
 			stmt.setDouble(12, summary.getSouthLatitude());
 			stmt.setDouble(13, summary.getNorthLatitude());
-			stmt.setLong(14, summary.getStartDateTime() / 1000);
-			stmt.setLong(15, summary.getEndDateTime() / 1000);
+			stmt.setLong(14, javaMstoMySqlMs(summary.getStartDateTime()));
+			stmt.setLong(15, javaMstoMySqlMs(summary.getEndDateTime()));
 			stmt.setString(16, summary.getDistributionDataSize());
 			stmt.setString(17, summary.getCurvesDescription());
 			stmt.setString(18, summary.getCurvesName());
@@ -202,5 +201,14 @@ public class CDIDB {
 				}
 			}
 		}			
+	}
+	
+	/**
+	 * Convert a Jave date numeric value to a MySQL date numeric value
+	 * @param javaMs The Java value
+	 * @return The MySQL value
+	 */
+	private long javaMstoMySqlMs(long javaMs) {
+		return javaMs / 1000;
 	}
 }
