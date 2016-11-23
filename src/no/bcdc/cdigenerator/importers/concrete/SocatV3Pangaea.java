@@ -382,4 +382,20 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		// Curves are not yet implemented
 		return null;
 	}
+	
+	@Override
+ 	protected void preprocessData() throws ImporterException {
+		
+		// Find the first data line
+		String[] lines = data.split("\n");
+		
+		// Search for the header
+		for (int i = 0; i < lines.length; i++) {
+			if (lines[i].startsWith(DATA_HEADER_START)) {
+				firstLineNumber = i + 2; // i is zero-based!
+				break;
+			}
+		}
+	}
+
 }
