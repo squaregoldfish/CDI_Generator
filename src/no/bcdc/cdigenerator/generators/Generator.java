@@ -122,13 +122,11 @@ public abstract class Generator {
 								
 								// Run NEMO
 								setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
-								//boolean nemoSucceeded = runNemo(id);
-								boolean nemoSucceeded = true;
+								boolean nemoSucceeded = runNemo(id);
 								
 								if (!nemoSucceeded) {
 									failedIds.add(id);
 								} else {
-
 									setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + models.size() + ')');
 									CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer);
 									
@@ -145,11 +143,9 @@ public abstract class Generator {
 						
 						idsComplete++;
 						setProgress(idsComplete);
-						
-						setProgressMessage(succeededIds.size() + " succeeded, " + failedIds.size() + " failed");
 					}
 				
-					setProgressMessage("\nProcessing complete\n");
+					setProgressMessage("\nProcessing complete. " + succeededIds.size() + " succeeded, " + failedIds.size() + " failed\n");
 					quit = true;
 				}
 			}
