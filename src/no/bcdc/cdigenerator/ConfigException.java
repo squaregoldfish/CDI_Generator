@@ -1,5 +1,7 @@
 package no.bcdc.cdigenerator;
 
+import java.io.File;
+
 /**
  * Exception for the CDI Generator configuration
  * @author Steve Jones
@@ -29,4 +31,12 @@ public class ConfigException extends Exception {
 		super(message, cause);
 	}
 	
+	/**
+	 * A configuration exception related to a file or directory.
+	 * @param file The file or directory where the problem was found
+	 * @param message The description of the problem
+	 */
+	public ConfigException(File file, String message) {
+		super(file.getAbsolutePath() + ": " + message);
+	}
 }
