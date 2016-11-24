@@ -52,7 +52,7 @@ public abstract class PangaVistaImporter extends Importer {
 	/**
 	 * XPath for ship name through event name
 	 */
-	private static final String XPATH_EVENT_NAME = "/MetaData/event/name";
+	private static final String XPATH_EVENT_NAME = "/MetaData/event/campaign/name";
 	
 	/**
 	 * XPath for the first author's last name
