@@ -6,7 +6,7 @@ import java.util.Iterator;
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.ColumnPaddingSpec;
 import no.bcdc.cdigenerator.importers.ImporterException;
-import no.bcdc.cdigenerator.importers.NemoTemplateException;
+import no.bcdc.cdigenerator.importers.ValueLookupException;
 import no.bcdc.cdigenerator.importers.PaddingException;
 import no.bcdc.cdigenerator.importers.Pangaea.PangaVistaImporter;
 
@@ -134,22 +134,32 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 	
 	/**
-	 * Get the EXPO Code from the metadata
+	 * Get the EXPO Code from the metadata.
+	 * 
+	 * PANGAEA appends '-track' to all EXPO Codes, so we remove it.
+	 * 
 	 * @return The EXPO Code
 	 * @throws Exception If the XPath lookup fails
 	 */
-	private String getExpoCode() throws NemoTemplateException {
-		String eventLabel = evaluateXPath(XPATH_EXPOCODE);
-		return eventLabel.replaceAll("([^-]*)-.*", "$1");
+	private String getExpoCode() {
+		
+		String result = null;
+		
+		String eventLabel = evaluateXPath("EXPOCODE", XPATH_EXPOCODE);
+		if (null != eventLabel) {
+			result = eventLabel.replaceAll("(.*)-track$", "$1");
+		}
+		
+		return result;
 	}
 	
 	/**
 	 * Get the Ship Code.
 	 * The EXPO code is of the form <Ship Code>YYYYMMDD[-...] so we can regex it
 	 * @return
-	 * @throws NemoTemplateException
+	 * @throws ValueLookupException
 	 */
-	private String getShipCode() throws NemoTemplateException {
+	private String getShipCode() {
 		String expoCode = getExpoCode();
 		String shipCode = null;
 		
@@ -163,7 +173,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 	
 	@Override
-	protected String getTemplateTagValue(String tag) throws ImporterException {
+	protected String lookupTemplateTagValue(String tag) throws ImporterException, ValueLookupException {
 		
 		String tagValue = null;
 		
@@ -197,7 +207,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			break;
 		}
 		case "SENSOR_DEPTH": {
-			tagValue = evaluateXPath(XPATH_SENSOR_DEPTH);
+			tagValue = evaluateXPath("SENSOR_DEPTH", XPATH_SENSOR_DEPTH);
 			break;
 		}
 		case "SALINITY_FIRST_CHAR": {
@@ -241,7 +251,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			break;
 		}
 		default: {
-			tagValue = super.getTemplateTagValue(tag);
+			tagValue = super.lookupTemplateTagValue(tag);
 			break;
 		}
 		}

@@ -5,12 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.ConfigException;
 import no.bcdc.cdigenerator.importers.ImporterException;
+import no.bcdc.cdigenerator.importers.InvalidLookupValueException;
 
 /**
  * Database calls for the CDI Database
@@ -27,7 +27,7 @@ public class CDIDB {
 	/**
 	 * Query for identifying a platform ID
 	 */
-	private static final String GET_PLATFORM_ID_QUERY = "SELECT id FROM cdi_platforms WHERE platform_code = ? AND start_date <= ? LIMIT 1";
+	private static final String GET_PLATFORM_ID_QUERY = "SELECT id, dataset_id FROM cdi_platforms WHERE platform_code = ? AND start_date <= ?";
 
 	/**
 	 * Query for inserting a CDI Summary
@@ -84,7 +84,9 @@ public class CDIDB {
 	 * @throws DatabaseException If a database error occurred 
 	 * @throws MissingDatabaseDataException If the platform ID cannot be determined for the given data. This means information must be added to the database.
 	 */
-	public long getPlatformId(String platformCode, Date startDate) throws DatabaseException, MissingDatabaseDataException {
+	public long getPlatformId(String platformCode, Date startDate, String datasetId) throws DatabaseException, MissingDatabaseDataException {
+		
+		long id = -1;
 		
 		PreparedStatement stmt = null;
 		ResultSet records = null;
@@ -96,14 +98,27 @@ public class CDIDB {
 			
 			records = stmt.executeQuery();
 			if (!records.next()) {
-				StringBuilder message = new StringBuilder("The platform ID for platform ");
-				message.append(platformCode);
-				message.append(" and start date ");
-				message.append(new SimpleDateFormat("yyy-MM-dd").format(startDate));
-				message.append(" is not in the database");
-				throw new MissingDatabaseDataException(message.toString());
+				throw new MissingDatabaseDataException(platformCode, startDate, null);
 			} else {
-				return records.getInt(1);
+				long platformId = records.getLong(1);
+				String dbDatasetId = records.getString(2);
+				
+				if (null == dbDatasetId || dbDatasetId.length() == 0) {
+					id = platformId;
+				} else {
+					while (id == -1 && !records.isAfterLast()) {
+						if (dbDatasetId.equals(datasetId)) {
+							id = platformId;
+						} else {
+							records.next();
+						}
+					}
+				}
+				
+				if (id == -1) {
+					throw new MissingDatabaseDataException(platformCode, startDate, datasetId);
+				}
+				
 			}
 			
 		} catch (SQLException e) {
@@ -112,9 +127,19 @@ public class CDIDB {
 			closeResultSets(records);
 			closeStatements(stmt);
 		}
+		
+		return id;
 	}
 	
-	public void storeCdiSummary(CDISummary summary) throws DatabaseException, ImporterException, MissingDatabaseDataException {
+	/**
+	 * Store a CDI summary in the database ready for processing by MIKADO
+	 * @param summary The CDI Summary object
+	 * @throws DatabaseException If an error occurs while communicating with the database
+	 * @throws ImporterException If an error occurs while looking up a value from the data or metadata
+	 * @throws MissingDatabaseDataException If data required from the database is missing
+	 * @throws InvalidLookupValueException If any of the looked up values are invalid
+	 */
+	public void storeCdiSummary(CDISummary summary) throws DatabaseException, ImporterException, MissingDatabaseDataException, InvalidLookupValueException {
 		
 		PreparedStatement stmt = null;
 		

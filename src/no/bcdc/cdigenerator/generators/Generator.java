@@ -17,6 +17,7 @@ import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
+import no.bcdc.cdigenerator.importers.ValueLookupException;
 
 /**
  * Abstract generator class
@@ -112,31 +113,40 @@ public abstract class Generator {
 								
 								// Populate the model
 								String modelTemplate = new String(Files.readAllBytes(modelFile.toPath()));
-								String populatedTemplate = importer.populateModelTemplate(modelTemplate);
+								String populatedTemplate = null;
+								
+								try {
+									populatedTemplate = importer.populateModelTemplate(modelTemplate);
+								} catch (ValueLookupException e) {
+									setProgressMessage("NEMO template population failed: " + e.getMessage());
+									failedIds.add(id);
+								} // Importer exceptions are fatal, so we just let them get thrown.
 								
 								// Write the model file to disk
-								File nemoTemplateFile = getNemoModelFile(id);
-								PrintWriter templateOut = new PrintWriter(nemoTemplateFile);
-								templateOut.print(populatedTemplate);
-								templateOut.close();
-								
-								// Run NEMO
-								setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
-								boolean nemoSucceeded = runNemo(id);
-								
-								if (!nemoSucceeded) {
-									failedIds.add(id);
-								} else {
-									setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + models.size() + ')');
-									CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer);
+								if (null != populatedTemplate) {
+									File nemoTemplateFile = getNemoModelFile(id);
+									PrintWriter templateOut = new PrintWriter(nemoTemplateFile);
+									templateOut.print(populatedTemplate);
+									templateOut.close();
 									
-									setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + models.size() + ')');
-									cdiDb.clearCdiSummary();
-									cdiDb.storeCdiSummary(cdiSummary);
+									// Run NEMO
+									setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
+									boolean nemoSucceeded = runNemo(id);
 									
-									setProgressMessage("Running MIKADO (Model " + modelsProcessed + " of " + models.size() + ')');
-									runMikado();
-									succeededIds.add(id);
+									if (!nemoSucceeded) {
+										failedIds.add(id);
+									} else {
+										setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + models.size() + ')');
+										CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer);
+										
+										setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + models.size() + ')');
+										cdiDb.clearCdiSummary();
+										cdiDb.storeCdiSummary(cdiSummary);
+										
+										setProgressMessage("Running MIKADO (Model " + modelsProcessed + " of " + models.size() + ')');
+										runMikado();
+										succeededIds.add(id);
+									}
 								}
 							}
 						}

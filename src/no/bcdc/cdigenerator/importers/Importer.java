@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.generators.Generator;
-import no.bcdc.cdigenerator.importers.NemoTemplateException;
+import no.bcdc.cdigenerator.importers.ValueLookupException;
 
 /**
  * Parent class of all importers. Lists the required methods
@@ -221,9 +221,10 @@ public abstract class Importer {
 	 * Populate the supplied model template with values from the data set
 	 * @param modelTemplate The model template
 	 * @return The populated model
-	 * @throws NemoModelException If the template cannot be populated
+	 * @throws ImporterException If the template cannot be populated
+	 * @throws MissingLookupValueException 
 	 */
-	public String populateModelTemplate(String modelTemplate) throws ImporterException {
+	public String populateModelTemplate(String modelTemplate) throws ImporterException, ValueLookupException {
 	
 		StringBuilder output = new StringBuilder();
 		
@@ -251,12 +252,12 @@ public abstract class Importer {
 				int closePos = modelTemplate.indexOf(DELIMITER, currentPos);
 				String tag = modelTemplate.substring(currentPos, closePos).trim();
 				if (tag.length() == 0) {
-					throw new NemoTemplateException("Empty tag found at position " + currentPos);
+					throw new ImporterException("Empty NEMO template tag found at position " + currentPos);
 				}
 				
-				String tagValue = getTemplateTagValue(tag);
-				if (null == tagValue || tagValue.length() == 0) {
-					throw new UnrecognisedNemoTagException(tag);
+				String tagValue = lookupTemplateTagValue(tag);
+				if (null == tagValue || tagValue.trim().length() == 0) {
+					throw new MissingLookupValueException(tag);
 				}
 				
 				output.append(tagValue);
@@ -265,25 +266,27 @@ public abstract class Importer {
 				break;
 			}
 			default: {
-				throw new NemoTemplateException("Illegal template state!");
+				throw new ImporterException("Illegal NEMO template state!");
 			}
 			}
 			
 		}
 		
 		if (state == STATE_TAG) {
-			throw new NemoTemplateException("Template ends in the middle of a tag!");
+			throw new ImporterException("Template ends in the middle of a tag!");
 		}
 		
 		return output.toString();
 	}
 
 	/**
-	 * Retrieve the value for a given template tag
+	 * Lookup the value for a given tag. If the tag cannot be found, returns null
 	 * @param tag The tag
-	 * @return The value
+	 * @return The found value
+	 * @throws ValueLookupException If the value is missing or invalid
+	 * @throws ImporterException
 	 */
-	protected abstract String getTemplateTagValue(String tag) throws ImporterException;
+	protected abstract String lookupTemplateTagValue(String tag) throws ValueLookupException, ImporterException;
 	
 	/**
 	 * Get the separator for the data file
@@ -455,23 +458,23 @@ public abstract class Importer {
 	/**
 	 * Get the start date of the data set, without a time
 	 * @return The start date of the data set
-	 * @throws ImporterException If the start date cannot be retrieved
+	 * @throws InvalidLookupValueException If the start date is invalid
 	 */
-	public abstract Date getStartDate() throws ImporterException;
+	public abstract Date getStartDate() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the start date and time of the data set in milliseconds since the epoch
 	 * @return The start date
-	 * @throws ImporterException If the start date cannot be retrieved
+	 * @throws InvalidLookupValueException If the start date is invalid
 	 */
-	public abstract long getStartDateTime() throws ImporterException;
+	public abstract long getStartDateTime() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the end date and time of the data set in milliseconds since the epoch
 	 * @return The end date
-	 * @throws ImporterException If the end date cannot be retrieved
+	 * @throws InvalidLookupValueException If the end date is invalid
 	 */
-	public abstract long getEndDateTime() throws ImporterException;
+	public abstract long getEndDateTime() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the name of the current data set
@@ -518,30 +521,30 @@ public abstract class Importer {
 	/**
 	 * Get the western longitude boundary of the data set
 	 * @return The western longitude boundary
-	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the boundary value is invalid
 	 */
-	public abstract double getWestLongitude() throws ImporterException;
+	public abstract double getWestLongitude() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the eastern longitude boundary of the data set
 	 * @return The eastern longitude boundary
-	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the boundary value is invalid
 	 */
-	public abstract double getEastLongitude() throws ImporterException;
+	public abstract double getEastLongitude() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the southern latitude boundary of the data set
 	 * @return The southern latitude boundary
-	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the boundary value is invalid
 	 */
-	public abstract double getSouthLatitude() throws ImporterException;
+	public abstract double getSouthLatitude() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the northern latitude boundary of the data set
 	 * @return The northern latitude boundary
-	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the boundary value is invalid
 	 */
-	public abstract double getNorthLatitude() throws ImporterException;
+	public abstract double getNorthLatitude() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the Cruise Summary Report reference for the data set

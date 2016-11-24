@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -32,7 +33,9 @@ import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.DataSetNotFoundException;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
-import no.bcdc.cdigenerator.importers.NemoTemplateException;
+import no.bcdc.cdigenerator.importers.InvalidLookupValueException;
+import no.bcdc.cdigenerator.importers.UnrecognisedNemoTagException;
+import no.bcdc.cdigenerator.importers.ValueLookupException;
 
 public abstract class PangaVistaImporter extends Importer {
 
@@ -42,9 +45,14 @@ public abstract class PangaVistaImporter extends Importer {
 	protected static final String END_POINT = "https://ws.pangaea.de/ws/services/PangaVista";
 	
 	/**
-	 * XPath for ship name
+	 * XPath for ship name through event basis
 	 */
-	private static final String XPATH_SHIP_NAME = "/MetaData/event/basis";
+	private static final String XPATH_EVENT_BASIS = "/MetaData/event/basis/name";
+	
+	/**
+	 * XPath for ship name through event name
+	 */
+	private static final String XPATH_EVENT_NAME = "/MetaData/event/name";
 	
 	/**
 	 * XPath for the first author's last name
@@ -375,44 +383,71 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 
 	/**
-	 * Evaluate an XPath in the metadata
-	 * @param xPath The XPath to evaluate
+	 * Evaluate an XPath in the metadata.
+	 * 
+	 * A set of XPaths can be supplied, which will be evaluated in turn until a match is found.
+	 * If no match is found, a null value will be returned.
+	 * 
+	 * @param xPath The XPath(s) to evaluate
 	 * @return The matching string
-	 * @throws Exception If the XPath fails
+	 * @throws ValueLookupException If the XPath fails
 	 */
-	protected String evaluateXPath(String xPath) throws NemoTemplateException {
+	protected String evaluateXPath(String tagName, String... xPaths) {
 		String result = null;
 		
-		try {
-			result = xPathResolver.evaluate(xPath, metadataXML).trim();
-		} catch (XPathExpressionException e) {
-			throw new NemoTemplateException("Error extracting XPath from metadata", e);
+		for (String xPath : xPaths) {
+			try {
+				result = xPathResolver.evaluate(xPath, metadataXML);
+				if (null != result) {
+					result = result.trim();
+					if (result.length() > 0) {
+						break;
+					}
+				}
+			} catch (XPathExpressionException e) {
+				// Do nothing - we'll try the next one
+			}
 		}
 		
 		return result;
 	}
 	
 	/**
-	 * Evaluate an XPath in the metadata, and convert it to a double value
-	 * @param xPath The XPath
-	 * @return The matching value
-	 * @throws ImporterException If the XPath fails or the value is not numeric
+	 * Evaluate an XPath in the metadata, and convert it to a double value. If the value is empty, defaults to zero.
+	 * 
+	 * A set of XPaths can be supplied, which will be evaluated in turn until a match is found.
+	 * If no match is found, a zero value will be returned.
+	 * 
+	 * @param xPaths The XPath
+	 * @return The matching value, or zero if a value is not found
+	 * @throws InvalidLookupValueException If the value is not numeric
 	 */
-	protected double evaluateXPathDouble(String xPath) throws ImporterException {
-		try {
-			return Double.parseDouble(evaluateXPath(xPath));
-		} catch (NumberFormatException e) {
-			throw new ImporterException("Metadata value is not numeric");
+	protected double evaluateXPathDouble(String tagName, String... xPaths) throws InvalidLookupValueException {
+
+		double result;
+		
+		String stringValue = evaluateXPath(tagName, xPaths);
+		if (null == stringValue || stringValue.trim().length() == 0) {
+			result = 0;
+		} else {
+			try {
+				result = Double.parseDouble(evaluateXPath(tagName, xPaths));
+			} catch (NumberFormatException e) {
+				throw new InvalidLookupValueException(tagName, e);
+			}
 		}
+		
+		return result;
 	}
 	
 	@Override
-	protected String getTemplateTagValue(String tag) throws ImporterException {
+	protected String lookupTemplateTagValue(String tag) throws ValueLookupException, ImporterException {
 		String tagValue = null;
 		
 		switch (tag) {
+
 		case "SHIP_NAME": {
-			tagValue = evaluateXPath(XPATH_SHIP_NAME);
+			tagValue = evaluateXPath("SHIP_NAME", XPATH_EVENT_BASIS, XPATH_EVENT_NAME);
 			break;
 		}
 		case "FIRST_AUTHOR": {
@@ -427,6 +462,9 @@ public abstract class PangaVistaImporter extends Importer {
 			tagValue = String.valueOf(getEndDateTime());
 			break;
 		}
+		default: {
+			throw new UnrecognisedNemoTagException("Unrecognised lookup tag " + tag);
+		}
 		}
 		
 		return tagValue;
@@ -436,21 +474,24 @@ public abstract class PangaVistaImporter extends Importer {
 	 * Get the first author of this data set, in the form <Last Name>, <First Name>
 	 * The author's last name and first name(s) are stored in two elements of the XML
 	 * @return The first author's name
-	 * @throws NemoTemplateException If the XPath lookups fail
 	 */
-	private String getFirstAuthor() throws NemoTemplateException {
-		StringBuilder output = new StringBuilder();
+	private String getFirstAuthor() {
 		
-		output.append(evaluateXPath(XPATH_AUTHOR_LAST_NAME));
-		output.append(", ");
-		output.append(evaluateXPath(XPATH_AUTHOR_FIRST_NAME));
+		String result = null;
 		
-		return output.toString();
+		String lastName = evaluateXPath("Author Last Name", XPATH_AUTHOR_LAST_NAME);
+		String firstName = evaluateXPath("Author First Name", XPATH_AUTHOR_FIRST_NAME);
+		
+		if (null != lastName && null != firstName) {
+			result = lastName+ ", " + firstName;
+		}
+		
+		return result;
 	}
 	
 	@Override
 	public String getDoi() throws ImporterException {
-		String xPathValue = evaluateXPath(XPATH_DOI);
+		String xPathValue = evaluateXPath("DOI", XPATH_DOI);
 		if (xPathValue.startsWith("doi:")) {
 			xPathValue = xPathValue.substring(4);
 		}
@@ -465,44 +506,44 @@ public abstract class PangaVistaImporter extends Importer {
 	
 	@Override
 	public String getAbstract() throws ImporterException {
-		return evaluateXPath(XPATH_ABSTRACT);
+		return evaluateXPath("Abstract", XPATH_ABSTRACT);
 	}
 	
 	@Override
-	public double getWestLongitude() throws ImporterException {
-		return evaluateXPathDouble(XPATH_WEST_LONGITUDE);
+	public double getWestLongitude() throws InvalidLookupValueException {
+		return evaluateXPathDouble("West Longitude", XPATH_WEST_LONGITUDE);
 	}
 	
 	@Override
-	public double getEastLongitude() throws ImporterException {
-		return evaluateXPathDouble(XPATH_EAST_LONGITUDE);
+	public double getEastLongitude() throws InvalidLookupValueException {
+		return evaluateXPathDouble("East Longitude", XPATH_EAST_LONGITUDE);
 	}
 	
 	@Override
-	public double getSouthLatitude() throws ImporterException {
-		return evaluateXPathDouble(XPATH_SOUTH_LATITUDE);
+	public double getSouthLatitude() throws InvalidLookupValueException {
+		return evaluateXPathDouble("South Latitude", XPATH_SOUTH_LATITUDE);
 	}
 	
 	@Override
-	public double getNorthLatitude() throws ImporterException {
-		return evaluateXPathDouble(XPATH_NORTH_LATITUDE);
+	public double getNorthLatitude() throws InvalidLookupValueException {
+		return evaluateXPathDouble("North Latitude", XPATH_NORTH_LATITUDE);
 	}
 
 	@Override
-	public Date getStartDate() throws ImporterException {
+	public Date getStartDate() throws InvalidLookupValueException {
 		Instant dateTime = Instant.ofEpochMilli(getStartDateTime());
 		Instant dateOnly = dateTime.truncatedTo(ChronoUnit.DAYS);
 		return new Date(dateOnly.toEpochMilli());
 	}
 	
 	@Override
-	public long getStartDateTime() throws ImporterException {
-		return timeToMilliseconds(evaluateXPath(XPATH_START_TIME));
+	public long getStartDateTime() throws InvalidLookupValueException {
+		return timeToMilliseconds("Start Time", evaluateXPath("Start Time", XPATH_START_TIME));
 	}
 	
 	@Override
-	public long getEndDateTime() throws ImporterException {
-		return timeToMilliseconds(evaluateXPath(XPATH_END_TIME));
+	public long getEndDateTime() throws InvalidLookupValueException {
+		return timeToMilliseconds("End Time", evaluateXPath("End Time", XPATH_END_TIME));
 	}
 
 	/**
@@ -511,9 +552,14 @@ public abstract class PangaVistaImporter extends Importer {
 	 * @param timeString The time string from the file
 	 * @return The time string as milliseconds since the epoch.
 	 */
-	private long timeToMilliseconds(String timeString) {
-		String isoTimeString = timeString + "+00:00";
-		ZonedDateTime parsedTime = ZonedDateTime.parse(isoTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-		return parsedTime.toInstant().toEpochMilli();
+	private long timeToMilliseconds(String valueName, String timeString) throws InvalidLookupValueException {
+		
+		try {
+			String isoTimeString = timeString + "+00:00";
+			ZonedDateTime parsedTime = ZonedDateTime.parse(isoTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+			return parsedTime.toInstant().toEpochMilli();
+		} catch (DateTimeParseException e) {
+			throw new InvalidLookupValueException(valueName, e);
+		}
 	}
 }

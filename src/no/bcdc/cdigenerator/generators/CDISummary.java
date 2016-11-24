@@ -7,6 +7,7 @@ import java.util.Date;
 
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
+import no.bcdc.cdigenerator.importers.InvalidLookupValueException;
 
 /**
  * Simple object to hold all the details to be added to the CDI summary in the database
@@ -68,15 +69,12 @@ public class CDISummary {
 	 * @throws ImporterException If the details required for the database search cannot be retrieved
 	 * @throws DatabaseException If an error occurs while looking up the platform ID
 	 * @throws MissingDatabaseDataException If the platform details are missing from the database
+	 * @throws InvalidLookupValueException If any of the looked up values are invalid
 	 */
-	public long getPlatformId() throws ImporterException, DatabaseException, MissingDatabaseDataException {
-		
-		String platformCode = importer.getPlatformCode();
-		Date startDate = importer.getStartDate();
-		
-		return cdiDb.getPlatformId(platformCode, startDate);
+	public long getPlatformId() throws ImporterException, DatabaseException, MissingDatabaseDataException, InvalidLookupValueException {
+		return cdiDb.getPlatformId(importer.getPlatformCode(), importer.getStartDate(), importer.getDataSetId());
 	}
-	
+
 	/**
 	 * Retrieve the data set name
 	 * @return The data set name
@@ -94,7 +92,7 @@ public class CDISummary {
 	public String getDataSetId() throws ImporterException {
 		return importer.getDataSetId();
 	}
-	
+
 	/**
 	 * Retrieve the data set's DOI
 	 * @return The data set' DOI
@@ -135,8 +133,9 @@ public class CDISummary {
 	 * Retrieve the start date of the cruise
 	 * @return The cruise start date
 	 * @throws ImporterException If the start date cannot be retrieved
+	 * @throws InvalidLookupValueException If the date is invalid
 	 */
-	public Date getStartDate() throws ImporterException {
+	public Date getStartDate() throws ImporterException, InvalidLookupValueException {
 		return importer.getStartDate();
 	}
 	
@@ -144,8 +143,9 @@ public class CDISummary {
 	 * Retrieve the western longitude boundary of the data set
 	 * @return The western longitude boundary
 	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the retrieved value is invalid
 	 */
-	public double getWestLongitude() throws ImporterException {
+	public double getWestLongitude() throws ImporterException, InvalidLookupValueException {
 		return importer.getWestLongitude();
 	}
 	
@@ -153,8 +153,9 @@ public class CDISummary {
 	 * Retrieve the eastern longitude boundary of the data set
 	 * @return The eastern longitude boundary
 	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the retrieved value is invalid
 	 */
-	public double getEastLongitude() throws ImporterException {
+	public double getEastLongitude() throws ImporterException, InvalidLookupValueException {
 		return importer.getEastLongitude();
 	}
 	
@@ -162,8 +163,9 @@ public class CDISummary {
 	 * Retrieve the southern latitude boundary of the data set
 	 * @return The southern latitude boundary
 	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the retrieved value is invalid
 	 */
-	public double getSouthLatitude() throws ImporterException {
+	public double getSouthLatitude() throws ImporterException, InvalidLookupValueException {
 		return importer.getSouthLatitude();
 	}
 	
@@ -171,8 +173,9 @@ public class CDISummary {
 	 * Retrieve the northern latitude boundary of the data set
 	 * @return The northern latitude boundary
 	 * @throws ImporterException If the boundary cannot be retrieved
+	 * @throws InvalidLookupValueException If the retrieved value is invalid
 	 */
-	public double getNorthLatitude() throws ImporterException {
+	public double getNorthLatitude() throws ImporterException, InvalidLookupValueException {
 		return importer.getNorthLatitude();
 	}
 	
@@ -180,8 +183,9 @@ public class CDISummary {
 	 * Get the start date and time of the data set
 	 * @return The start date
 	 * @throws ImporterException If the start date cannot be retrieved
+	 * @throws InvalidLookupValueException If the date is invalid
 	 */
-	public long getStartDateTime() throws ImporterException {
+	public long getStartDateTime() throws ImporterException, InvalidLookupValueException {
 		return importer.getStartDateTime();
 	}
 	
@@ -189,8 +193,9 @@ public class CDISummary {
 	 * Get the end date and time of the data set
 	 * @return The end date
 	 * @throws ImporterException If the end date cannot be retrieved
+	 * @throws InvalidLookupValueException If the date is invalid
 	 */
-	public long getEndDateTime() throws ImporterException {
+	public long getEndDateTime() throws ImporterException, InvalidLookupValueException {
 		return importer.getEndDateTime();
 	}
 	
