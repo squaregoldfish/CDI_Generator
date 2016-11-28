@@ -273,7 +273,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			columnPaddingSpecs.put(1, new ColumnPaddingSpec(9, 5));
 			
 			// Longitude
-			columnPaddingSpecs.put(2, new ColumnPaddingSpec( 10, 5));
+			columnPaddingSpecs.put(2, new ColumnPaddingSpec(10, 5));
 			
 			// Water depth
 			columnPaddingSpecs.put(3, new ColumnPaddingSpec(3, 0));
