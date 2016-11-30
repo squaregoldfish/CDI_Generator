@@ -67,9 +67,7 @@ public class ColumnsFinder {
 		List<Integer> columnCountsFound = new ArrayList<Integer>();
 		
 		File[] inFiles = inDir.listFiles();
-		for (int i = 0; i < inFiles.length; i++) {
-			System.out.println((i + 1) + " of " + inFiles.length);
-			
+		for (int i = 0; i < inFiles.length; i++) {			
 			String fileData = FileUtils.readFileToString(inFiles[i], StandardCharsets.UTF_8);
 			String[] headerAndFirstDataLine = getHeaderAndFirstDataLine(fileData);
 
@@ -92,7 +90,7 @@ public class ColumnsFinder {
 				}
 				
 				File outputFile = new File(outDir, columns.length + ".txt");
-				FileUtils.writeStringToFile(outputFile, reformattedHeader.toString() + "\n" + reformattedLine.toString(), StandardCharsets.UTF_8);
+				FileUtils.writeStringToFile(outputFile, inFiles[i].getName() + "\n" + reformattedHeader.toString() + "\n" + reformattedLine.toString(), StandardCharsets.UTF_8);
 			}
 		}
 	}
