@@ -117,9 +117,14 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private int firstLineNumber = -1;
 	
 	/**
+	 * The number of columns in the file
+	 */
+	private int columnCount = -1;
+	
+	/**
 	 * The list of column padding specs for this importer
 	 */
-	private static HashMap<Integer, ColumnPaddingSpec> columnPaddingSpecs = null;
+	private static HashMap<String, ColumnPaddingSpec> columnPaddingSpecs = null;
 	
 	/**
 	 * Invoke the parent constructor.
@@ -265,62 +270,68 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 	
 	@Override
-	protected ColumnPaddingSpec getColumnPaddingSpec(int columnIndex) throws PaddingException {
+	protected ColumnPaddingSpec getColumnPaddingSpec(String columnName) throws PaddingException {
 		if (null == columnPaddingSpecs) {
-			columnPaddingSpecs = new HashMap<Integer, ColumnPaddingSpec>();
+			columnPaddingSpecs = new HashMap<String, ColumnPaddingSpec>();
 			
-			// Latitude
-			columnPaddingSpecs.put(1, new ColumnPaddingSpec(9, 5));
+			// Non-reformatted fields. They must be added so we know that the column
+			// is known. If you see what I mean. If you don't the logic below will help you.
+			columnPaddingSpecs.put("Date/Time", null);
+			columnPaddingSpecs.put("Algorithm", null);
+			columnPaddingSpecs.put("Flag [#]", null);
 			
-			// Longitude
-			columnPaddingSpecs.put(2, new ColumnPaddingSpec(10, 5));
-			
-			// Water depth
-			columnPaddingSpecs.put(3, new ColumnPaddingSpec(3, 0));
-			
-			// Salinity
-			columnPaddingSpecs.put(4, new ColumnPaddingSpec(7, 3));
-			
-			// SST
-			columnPaddingSpecs.put(5, new ColumnPaddingSpec(7, 3));
-			
-			// Equilibrator Temp
-			columnPaddingSpecs.put(6, new ColumnPaddingSpec(7, 3));
-			
-			// Atmospheric Pressure
-			columnPaddingSpecs.put(7, new ColumnPaddingSpec(9, 3));
-			
-			// Interpolated Salinity
-			columnPaddingSpecs.put(8, new ColumnPaddingSpec(7, 3));
-			
-			// Interpolated Atmospheric Pressure
-			columnPaddingSpecs.put(9, new ColumnPaddingSpec(9, 3));
-			
-			// Bathymetry Depth
-			columnPaddingSpecs.put(10, new ColumnPaddingSpec(5, 0));
+			columnPaddingSpecs.put("Latitude", new ColumnPaddingSpec(9, 5));
 
-			// Distance from land
-			columnPaddingSpecs.put(11, new ColumnPaddingSpec(5, 0));
+			columnPaddingSpecs.put("Longitude", new ColumnPaddingSpec(10, 5));
 			
-			// CO2 values
-			columnPaddingSpecs.put(12, new ColumnPaddingSpec(8, 3));
-			columnPaddingSpecs.put(13, new ColumnPaddingSpec(8, 3));
-			columnPaddingSpecs.put(14, new ColumnPaddingSpec(8, 3));
+			columnPaddingSpecs.put("Depth water [m]", new ColumnPaddingSpec(3, 0));
+
+			ColumnPaddingSpec tempAndSalPadding = new ColumnPaddingSpec(7, 3);
+			columnPaddingSpecs.put("Sal", tempAndSalPadding);
+			columnPaddingSpecs.put("Sal interp", tempAndSalPadding);
+			columnPaddingSpecs.put("Temp [°C]", tempAndSalPadding);
+			columnPaddingSpecs.put("Tequ [°C]", tempAndSalPadding);
+			
+			
+			ColumnPaddingSpec pressurePadding = new ColumnPaddingSpec(9, 3);
+			columnPaddingSpecs.put("Pequ [hPa]", pressurePadding);
+			columnPaddingSpecs.put("PPPP [hPa]", pressurePadding);
+			columnPaddingSpecs.put("PPPP interp [hPa]", pressurePadding);
+			
+			ColumnPaddingSpec distanceAndDepthPadding = new ColumnPaddingSpec(5, 0);
+			columnPaddingSpecs.put("Bathy depth interp/grid [m]", distanceAndDepthPadding);
+			columnPaddingSpecs.put("Distance [km]", distanceAndDepthPadding);
+			
+			ColumnPaddingSpec co2Padding = new ColumnPaddingSpec(8, 3);
+			columnPaddingSpecs.put("fCO2water_equ_wet [µatm]", co2Padding);
+			columnPaddingSpecs.put("fCO2water_SST_wet [µatm]", co2Padding);
+			columnPaddingSpecs.put("fCO2water_SST_wet [µatm] (Recomputed after SOCAT (Pfeil...)", co2Padding);
+			columnPaddingSpecs.put("pCO2water_equ_wet [µatm]", co2Padding);
+			columnPaddingSpecs.put("pCO2water_SST_wet [µatm]", co2Padding);
+			columnPaddingSpecs.put("xCO2air_interp [µmol/mol]", co2Padding);
+			columnPaddingSpecs.put("xCO2water_equ_dry [µmol/mol]", co2Padding);
+			columnPaddingSpecs.put("xCO2water_SST_dry [µmol/mol]", co2Padding);
 		}
 		
-		return columnPaddingSpecs.get(columnIndex);
+		if (!columnPaddingSpecs.containsKey(columnName)) {
+			throw new PaddingException("Unrecognised column name " + columnName);
+		}
+		
+		return columnPaddingSpecs.get(columnName);
 	}
 	
 	@Override
-	protected void copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException {
+	protected String[] copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException {
 		
 		boolean headerFinished = false;
+		String[] columnHeadings = null;
 		
 		while (iterator.hasNext() && !headerFinished) {
 			String headerLine = iterator.next();
 			output.append(headerLine);
 			output.append('\n');
 			if (headerLine.startsWith(DATA_HEADER_START)) {
+				columnHeadings = headerLine.split("\t");
 				headerFinished = true;
 			}
 		}
@@ -328,6 +339,8 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		if (!headerFinished) {
 			throw new ImporterException("EOF before end of header");
 		}
+		
+		return columnHeadings;
 	}
 	
 	@Override
@@ -403,6 +416,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		for (int i = 0; i < lines.length; i++) {
 			if (lines[i].startsWith(DATA_HEADER_START)) {
 				firstLineNumber = i + 2; // i is zero-based!
+				columnCount = lines[i].split("\t").length;
 				break;
 			}
 		}
