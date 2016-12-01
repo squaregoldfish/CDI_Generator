@@ -117,11 +117,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private int firstLineNumber = -1;
 	
 	/**
-	 * The number of columns in the file
-	 */
-	private int columnCount = -1;
-	
-	/**
 	 * The list of column padding specs for this importer
 	 */
 	private static HashMap<String, ColumnPaddingSpec> columnPaddingSpecs = null;
@@ -416,7 +411,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		for (int i = 0; i < lines.length; i++) {
 			if (lines[i].startsWith(DATA_HEADER_START)) {
 				firstLineNumber = i + 2; // i is zero-based!
-				columnCount = lines[i].split("\t").length;
 				break;
 			}
 		}
