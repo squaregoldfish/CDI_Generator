@@ -298,7 +298,7 @@ public abstract class Importer {
 	 * Get the list of column padding specs for this data format
 	 * @return
 	 */
-	protected abstract ColumnPaddingSpec getColumnPaddingSpec(int columnIndex) throws PaddingException;
+	protected abstract ColumnPaddingSpec getColumnPaddingSpec(String columnName) throws PaddingException;
 	
 	/**
 	 * Reformat the data for compatibility with NEMO using the defined column padding specs
@@ -310,7 +310,7 @@ public abstract class Importer {
 		
 		String[] lines = data.split("\n");
 		Iterator<String> lineIterator = Arrays.asList(lines).iterator();
-		copyHeader(lineIterator, reformattedData);
+		String[] columnHeadings = copyHeader(lineIterator, reformattedData);
 		
 		while (lineIterator.hasNext()) {
 			String line = lineIterator.next();
@@ -319,7 +319,7 @@ public abstract class Importer {
 			for (int i = 0; i < fields.length; i++) {
 				
 				// Pad the field if required
-				ColumnPaddingSpec columnPaddingSpec = getColumnPaddingSpec(i);
+				ColumnPaddingSpec columnPaddingSpec = getColumnPaddingSpec(columnHeadings[i]);
 				if (columnPaddingSpec != null) {
 					reformattedData.append(columnPaddingSpec.pad(fields[i]));
 				} else {
@@ -345,7 +345,7 @@ public abstract class Importer {
 	 * @param output The destination output
 	 * @throws ImporterException If the header cannot be identified
 	 */
-	protected abstract void copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException;
+	protected abstract String[] copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException;
 	
 	/**
 	 * Get the application logger
