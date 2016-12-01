@@ -18,7 +18,7 @@ import no.bcdc.cdigenerator.importers.PaddingException;
  * @author Steve Jones
  *
  */
-public class ColumnsFinder {
+public class ColumnCountsFinder {
 
 	private static final String IN_DIR = "/Users/zuj007/Documents/SOCAT/v4Zip/SOCAT_v4/datasets";
 	
@@ -32,13 +32,13 @@ public class ColumnsFinder {
 	
 	public static void main(String[] args) {
 		try {
-			new ColumnsFinder().start();
+			new ColumnCountsFinder().start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public ColumnsFinder() throws ConfigException {
+	public ColumnCountsFinder() throws ConfigException {
 		inDir = new File(IN_DIR);
 		checkDir(inDir, false);
 		
