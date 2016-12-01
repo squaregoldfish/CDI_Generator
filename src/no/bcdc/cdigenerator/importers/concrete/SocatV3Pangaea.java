@@ -24,9 +24,49 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private static final String XPATH_SENSOR_DEPTH = "/MetaData/extent/elevation/min";
 	
 	/**
-	 * The text used to identify the start of the column header line
+	 * The name of the Date/Time column
 	 */
-	private static final String DATA_HEADER_START = "Date/Time";
+	private static final String COL_DATE_TIME = "Date/Time";
+	
+	/**
+	 * The name of the Latitude column
+	 */
+	private static final String COL_LATITUDE = "Latitude";
+	
+	/**
+	 * The name of the longitude column
+	 */
+	private static final String COL_LONGITUDE = "Date/Time";
+	
+	/**
+	 * The name of the SST Column
+	 */
+	private static final String COL_SST = "Temp [°C]";
+	
+	/**
+	 * The name of the SST Column
+	 */
+	private static final String COL_SALINITY = "Sal";
+	
+	/**
+	 * The preferred name of the fCO2 Column
+	 */
+	private static final String COL_PREFERRED_FCO2 = "fCO2water_SST_wet [µatm] (Recomputed after SOCAT (Pfeil...)";
+	
+	/**
+	 * The fallback fCO2 column name
+	 */
+	private static final String COL_FALLBACK_FCO2 = "fCO2water_SST_wet [µatm]";
+	
+	/**
+	 * The name of the atmospheric pressure column
+	 */
+	private static final String COL_ATMOSPHERIC_PRESSURE = "PPPP [hPa]";
+	
+	/**
+	 * The name of the WOCE Flag column
+	 */
+	private static final String COL_WOCE_FLAG = "Flag [#]";
 	
 	/**
 	 * Position of the start of the latitude field.
@@ -282,24 +322,24 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			
 			// Non-reformatted fields. They must be added so we know that the column
 			// is known. If you see what I mean. If you don't the logic below will help you.
-			columnPaddingSpecs.put("Date/Time", null);
-			columnPaddingSpecs.put("Flag [#]", null);
+			columnPaddingSpecs.put(COL_DATE_TIME, null);
+			columnPaddingSpecs.put(COL_WOCE_FLAG, null);
 			
-			columnPaddingSpecs.put("Latitude", new ColumnPaddingSpec(9, 5));
+			columnPaddingSpecs.put(COL_LATITUDE, new ColumnPaddingSpec(9, 5));
 
-			columnPaddingSpecs.put("Longitude", new ColumnPaddingSpec(10, 5));
+			columnPaddingSpecs.put(COL_LONGITUDE, new ColumnPaddingSpec(10, 5));
 			
 			ColumnPaddingSpec tempAndSalPadding = new ColumnPaddingSpec(7, 3);
-			columnPaddingSpecs.put("Sal", tempAndSalPadding);
-			columnPaddingSpecs.put("Temp [°C]", tempAndSalPadding);
+			columnPaddingSpecs.put(COL_SALINITY, tempAndSalPadding);
+			columnPaddingSpecs.put(COL_SST, tempAndSalPadding);
 			
 			
 			ColumnPaddingSpec pressurePadding = new ColumnPaddingSpec(9, 3);
-			columnPaddingSpecs.put("PPPP [hPa]", pressurePadding);
+			columnPaddingSpecs.put(COL_ATMOSPHERIC_PRESSURE, pressurePadding);
 			
 			ColumnPaddingSpec co2Padding = new ColumnPaddingSpec(8, 3);
-			columnPaddingSpecs.put("fCO2water_SST_wet [µatm]", co2Padding);
-			columnPaddingSpecs.put("fCO2water_SST_wet [µatm] (Recomputed after SOCAT (Pfeil...)", co2Padding);
+			columnPaddingSpecs.put(COL_FALLBACK_FCO2, co2Padding);
+			columnPaddingSpecs.put(COL_PREFERRED_FCO2, co2Padding);
 		}
 		
 		if (!columnPaddingSpecs.containsKey(columnName)) {
@@ -380,7 +420,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		
 		// Search for the header
 		for (int i = 0; i < lines.length; i++) {
-			if (lines[i].startsWith(DATA_HEADER_START)) {
+			if (lines[i].startsWith(COL_DATE_TIME)) {
 				firstLineNumber = i + 2; // i is zero-based!
 				break;
 			}
@@ -389,7 +429,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	
 	@Override
 	protected String getColumnHeaderStart() {
-		return DATA_HEADER_START;
+		return COL_DATE_TIME;
 	}
 
 	@Override
@@ -402,13 +442,13 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		result.add(1);
 		result.add(2);
 		
-		int sstCol = columnNames.indexOf("Temp [°C]");
+		int sstCol = columnNames.indexOf(COL_SST);
 		if (sstCol == -1) {
 			throw new ImporterException("Cannot find SST column");
 		}
 		result.add(sstCol);
 		
-		int salCol = columnNames.indexOf("Sal");
+		int salCol = columnNames.indexOf(COL_SALINITY);
 		if (salCol == -1) {
 			hasSalinityColumn = false;
 		} else {
@@ -416,18 +456,18 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			result.add(salCol);
 		}
 		
-		int fCo2Col = columnNames.indexOf("fCO2water_SST_wet [µatm] (Recomputed after SOCAT (Pfeil...)");
+		int fCo2Col = columnNames.indexOf(COL_PREFERRED_FCO2);
 		if (fCo2Col != -1) {
 			result.add(fCo2Col);
 		} else {
-			fCo2Col = columnNames.indexOf("fCO2water_SST_wet [µatm]");
+			fCo2Col = columnNames.indexOf(COL_FALLBACK_FCO2);
 			if (fCo2Col == -1) {
 				throw new ImporterException("Cannot find fCO2 column");
 			}
 		}
 		result.add(fCo2Col);
 		
-		int pressureCol = columnNames.indexOf("PPPP [hPa]");
+		int pressureCol = columnNames.indexOf(COL_ATMOSPHERIC_PRESSURE);
 		if (pressureCol == -1) {
 			hasAtmosphericPressure = false;
 		} else {
@@ -435,8 +475,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			result.add(pressureCol);
 		}
 		
-		
-		int flagCol = columnNames.indexOf("Flag [#]");
+		int flagCol = columnNames.indexOf(COL_WOCE_FLAG);
 		if (flagCol == -1) {
 			throw new ImporterException("Cannot find WOCE Flag column");
 		}
