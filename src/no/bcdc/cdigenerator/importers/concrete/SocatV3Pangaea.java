@@ -1,7 +1,8 @@
 package no.bcdc.cdigenerator.importers.concrete;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.ColumnPaddingSpec;
@@ -115,6 +116,16 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	 * The line containing the first data record
 	 */
 	private int firstLineNumber = -1;
+	
+	/**
+	 * Indicates whether or not the data contains a salinity column
+	 */
+	private boolean hasSalinityColumn = true;
+	
+	/**
+	 * Indicates whether or not the data includes atmospheric pressure measurements
+	 */
+	private boolean hasAtmosphericPressure = true;
 	
 	/**
 	 * The list of column padding specs for this importer
@@ -272,40 +283,23 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			// Non-reformatted fields. They must be added so we know that the column
 			// is known. If you see what I mean. If you don't the logic below will help you.
 			columnPaddingSpecs.put("Date/Time", null);
-			columnPaddingSpecs.put("Algorithm", null);
 			columnPaddingSpecs.put("Flag [#]", null);
 			
 			columnPaddingSpecs.put("Latitude", new ColumnPaddingSpec(9, 5));
 
 			columnPaddingSpecs.put("Longitude", new ColumnPaddingSpec(10, 5));
 			
-			columnPaddingSpecs.put("Depth water [m]", new ColumnPaddingSpec(3, 0));
-
 			ColumnPaddingSpec tempAndSalPadding = new ColumnPaddingSpec(7, 3);
 			columnPaddingSpecs.put("Sal", tempAndSalPadding);
-			columnPaddingSpecs.put("Sal interp", tempAndSalPadding);
 			columnPaddingSpecs.put("Temp [°C]", tempAndSalPadding);
-			columnPaddingSpecs.put("Tequ [°C]", tempAndSalPadding);
 			
 			
 			ColumnPaddingSpec pressurePadding = new ColumnPaddingSpec(9, 3);
-			columnPaddingSpecs.put("Pequ [hPa]", pressurePadding);
 			columnPaddingSpecs.put("PPPP [hPa]", pressurePadding);
-			columnPaddingSpecs.put("PPPP interp [hPa]", pressurePadding);
-			
-			ColumnPaddingSpec distanceAndDepthPadding = new ColumnPaddingSpec(5, 0);
-			columnPaddingSpecs.put("Bathy depth interp/grid [m]", distanceAndDepthPadding);
-			columnPaddingSpecs.put("Distance [km]", distanceAndDepthPadding);
 			
 			ColumnPaddingSpec co2Padding = new ColumnPaddingSpec(8, 3);
-			columnPaddingSpecs.put("fCO2water_equ_wet [µatm]", co2Padding);
 			columnPaddingSpecs.put("fCO2water_SST_wet [µatm]", co2Padding);
 			columnPaddingSpecs.put("fCO2water_SST_wet [µatm] (Recomputed after SOCAT (Pfeil...)", co2Padding);
-			columnPaddingSpecs.put("pCO2water_equ_wet [µatm]", co2Padding);
-			columnPaddingSpecs.put("pCO2water_SST_wet [µatm]", co2Padding);
-			columnPaddingSpecs.put("xCO2air_interp [µmol/mol]", co2Padding);
-			columnPaddingSpecs.put("xCO2water_equ_dry [µmol/mol]", co2Padding);
-			columnPaddingSpecs.put("xCO2water_SST_dry [µmol/mol]", co2Padding);
 		}
 		
 		if (!columnPaddingSpecs.containsKey(columnName)) {
@@ -313,29 +307,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		}
 		
 		return columnPaddingSpecs.get(columnName);
-	}
-	
-	@Override
-	protected String[] copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException {
-		
-		boolean headerFinished = false;
-		String[] columnHeadings = null;
-		
-		while (iterator.hasNext() && !headerFinished) {
-			String headerLine = iterator.next();
-			output.append(headerLine);
-			output.append('\n');
-			if (headerLine.startsWith(DATA_HEADER_START)) {
-				columnHeadings = headerLine.split("\t");
-				headerFinished = true;
-			}
-		}
-		
-		if (!headerFinished) {
-			throw new ImporterException("EOF before end of header");
-		}
-		
-		return columnHeadings;
 	}
 	
 	@Override
@@ -415,5 +386,62 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			}
 		}
 	}
+	
+	@Override
+	protected String getColumnHeaderStart() {
+		return DATA_HEADER_START;
+	}
 
+	@Override
+	protected List<Integer> getColumnsToUse(List<String> columnNames) throws ImporterException {
+
+		List<Integer> result = new ArrayList<Integer>();
+		
+		// The Date/Time, Latitude and Longitude are in fixed positions
+		result.add(0);
+		result.add(1);
+		result.add(2);
+		
+		int sstCol = columnNames.indexOf("Temp [°C]");
+		if (sstCol == -1) {
+			throw new ImporterException("Cannot find SST column");
+		}
+		result.add(sstCol);
+		
+		int salCol = columnNames.indexOf("Sal");
+		if (salCol == -1) {
+			hasSalinityColumn = false;
+		} else {
+			hasSalinityColumn = true;
+			result.add(salCol);
+		}
+		
+		int fCo2Col = columnNames.indexOf("fCO2water_SST_wet [µatm] (Recomputed after SOCAT (Pfeil...)");
+		if (fCo2Col != -1) {
+			result.add(fCo2Col);
+		} else {
+			fCo2Col = columnNames.indexOf("fCO2water_SST_wet [µatm]");
+			if (fCo2Col == -1) {
+				throw new ImporterException("Cannot find fCO2 column");
+			}
+		}
+		result.add(fCo2Col);
+		
+		int pressureCol = columnNames.indexOf("PPPP [hPa]");
+		if (pressureCol == -1) {
+			hasAtmosphericPressure = false;
+		} else {
+			hasAtmosphericPressure = true;
+			result.add(pressureCol);
+		}
+		
+		
+		int flagCol = columnNames.indexOf("Flag [#]");
+		if (flagCol == -1) {
+			throw new ImporterException("Cannot find WOCE Flag column");
+		}
+		result.add(flagCol);
+		
+		return result;
+	}
 }

@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import no.bcdc.cdigenerator.CDIGenerator;
@@ -301,37 +302,54 @@ public abstract class Importer {
 	protected abstract ColumnPaddingSpec getColumnPaddingSpec(String columnName) throws PaddingException;
 	
 	/**
-	 * Reformat the data for compatibility with NEMO using the defined column padding specs
+	 * Reformat the data for compatibility with NEMO
 	 * @throws ImporterException If the reformatting fails
 	 */
 	private void reformatData() throws ImporterException {
-		
 		StringBuilder reformattedData = new StringBuilder();
 		
 		String[] lines = data.split("\n");
 		Iterator<String> lineIterator = Arrays.asList(lines).iterator();
-		String[] columnHeadings = copyHeader(lineIterator, reformattedData);
 		
+		// Locate the column headings
+		boolean headerFinished = false;
+		List<String> columnNames = null;
+		
+		while (lineIterator.hasNext() && !headerFinished) {
+			String headerLine = lineIterator.next();
+			if (headerLine.startsWith(getColumnHeaderStart())) {
+				columnNames = Arrays.asList(headerLine.split(getSeparator()));
+				headerFinished = true;
+			}
+		}
+		
+		// Get the set of column headings we're interested in
+		List<Integer> columnsToUse = getColumnsToUse(columnNames);
+		
+		// Write the column headers
+		for (int i = 0; i < columnsToUse.size(); i++) {
+			reformattedData.append(columnNames.get(columnsToUse.get(i)));
+			if (i < columnsToUse.size() - 2) {
+				reformattedData.append(';');
+			}
+		}
+		reformattedData.append('\n');
+		
+		// Now copy the data. Only copy the columns we need, and pad them
 		while (lineIterator.hasNext()) {
-			String line = lineIterator.next();
-			String[] fields = line.split(getSeparator());
-			
-			for (int i = 0; i < fields.length; i++) {
-				
-				// Pad the field if required
-				ColumnPaddingSpec columnPaddingSpec = getColumnPaddingSpec(columnHeadings[i]);
-				if (columnPaddingSpec != null) {
-					reformattedData.append(columnPaddingSpec.pad(fields[i]));
+			String[] lineFields = lineIterator.next().split(getSeparator());
+			for (int i = 0; i < columnsToUse.size(); i++) {
+				ColumnPaddingSpec padder = getColumnPaddingSpec(columnNames.get(columnsToUse.get(i)));
+				if (null == padder) {
+					reformattedData.append(lineFields[columnsToUse.get(i)]);
 				} else {
-					reformattedData.append(fields[i]);
+					reformattedData.append(padder.pad(lineFields[columnsToUse.get(i)]));
 				}
 				
-				// We always use semicolon in the reformatted data
-				if (i < (fields.length - 1)) {
+				if (i < columnsToUse.size() - 2) {
 					reformattedData.append(';');
 				}
 			}
-			
 			reformattedData.append('\n');
 		}
 		
@@ -339,13 +357,18 @@ public abstract class Importer {
 	}
 	
 	/**
-	 * Copy the header lines from the data to the output. The data is supplied as
-	 * an iterator of lines, and is assumed to be at the start of the file.
-	 * @param iterator The data iterator
-	 * @param output The destination output
-	 * @throws ImporterException If the header cannot be identified
+	 * Get the String that identifies the start of the column headings line
+	 * @return The String that identifies the start of the column headings line
 	 */
-	protected abstract String[] copyHeader(Iterator<String> iterator, StringBuilder output) throws ImporterException;
+	protected abstract String getColumnHeaderStart();
+	
+	/**
+	 * Determine which columns from the input data should be used by NEMO.
+	 * Only these will be copied to the reformatted data
+	 * @param columnNames The list of column names in the input
+	 * @return The indices of the columns to be used
+	 */
+	protected abstract List<Integer> getColumnsToUse(List<String> columnNames) throws ImporterException;
 	
 	/**
 	 * Get the application logger
