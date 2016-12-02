@@ -6,13 +6,11 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeMap;
 
 import no.bcdc.cdigenerator.importers.Importer;
-import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
 
 /**
  * Configuration for the CDI Generator
@@ -263,10 +261,18 @@ public class Config extends Properties {
 				Constructor<?> constructor = clazz.getConstructor(Config.class);
 				Importer importer = (Importer) constructor.newInstance(this);
 				
-				ModelFilenameFilter modelFilenameFilter = new ModelFilenameFilter(importer.getName());
-				List<File> models = Arrays.asList(getNemoTemplatesDir().listFiles(modelFilenameFilter));
-				if (models.size() == 0) {
-					throw new ConfigException("There are no NEMO models for importer " + importer.getName());
+				File modelsDir = importer.getModelsDir();
+				if (!modelsDir.exists()) {
+					throw new ConfigException("The NEMO models directory for " + importer.getName() + " is missing");
+				}
+				if (!modelsDir.isDirectory()) {
+					throw new ConfigException("The NEMO models directory for " + importer.getName() + " is not a directory");
+				}
+				if (!modelsDir.canRead()) {
+					throw new ConfigException("Cannot access the NEMO models directory for " + importer.getName());
+				}
+				if (modelsDir.listFiles().length == 0) {
+					throw new ConfigException("The NEMO models directory for " + importer.getName() + " is empty");
 				}
 				
 				// Store the importer

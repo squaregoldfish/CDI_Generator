@@ -8,6 +8,7 @@ import java.util.Date;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.InvalidLookupValueException;
+import no.bcdc.cdigenerator.importers.NemoModel;
 
 /**
  * Simple object to hold all the details to be added to the CDI summary in the database
@@ -33,17 +34,23 @@ public class CDISummary {
 	private String localCdiId;
 	
 	/**
-	 * Constructor builds and populates the whole object
-	 * @param localCdiId The Local CDI ID of the data set
-	 * @param importer The importer object for the data set
-	 * @throws ImporterException If the required data cannot be extracted from the importer
-	 * @throws MissingDatabaseDataException  If required data is missing from the database
-	 * @throws DatabaseException If an error occurs while accessing the database
+	 * The NEMO model
 	 */
-	public CDISummary(String localCdiId, CDIDB cdiDb, Importer importer) {
+	private NemoModel nemoModel;
+	
+	/**
+	 * Constructor puts everything in place to retrieve the required information
+	 * 
+	 * @param localCdiId The Local CDI ID of the data set
+	 * @param cdiDb The database utility object
+	 * @param importer The importer for this data set
+	 * @param model The NEMO model for this data set
+	 */
+	public CDISummary(String localCdiId, CDIDB cdiDb, Importer importer, NemoModel model) {
 		this.localCdiId = localCdiId;
 		this.cdiDb = cdiDb;
 		this.importer = importer;
+		this.nemoModel = model;
 	}
 	
 	/**
@@ -206,7 +213,7 @@ public class CDISummary {
 	 * @throws ImporterException If the NEMO output file is missing
 	 */
 	public String getDistributionDataSize() throws ImporterException {
-		File nemoOutputFile = importer.getNemoOutputFile();
+		File nemoOutputFile = nemoModel.getOutputFile(localCdiId);
 		if (!nemoOutputFile.exists()) {
 			throw new ImporterException("Cannot find NEMO output file");
 		}

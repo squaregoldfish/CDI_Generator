@@ -4,19 +4,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import no.bcdc.cdigenerator.CDIGenerator;
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
-import no.bcdc.cdigenerator.importers.ModelFilenameFilter;
+import no.bcdc.cdigenerator.importers.NemoModel;
 import no.bcdc.cdigenerator.importers.ValueLookupException;
 
 /**
@@ -103,16 +102,14 @@ public abstract class Generator {
 						boolean dataRetrieved = importer.retrieveData(id);
 						
 						if (dataRetrieved) {
-							ModelFilenameFilter modelFilenameFilter = new ModelFilenameFilter(importer.getName());
-							List<File> models = Arrays.asList(config.getNemoTemplatesDir().listFiles(modelFilenameFilter));
-							int modelsProcessed = 0;
+							List<NemoModel> modelsToRun = importer.getModelsToRun();
 							
-							for (File modelFile : models) {
+							int modelsProcessed = 0;
+							for (NemoModel model : modelsToRun) {
 								modelsProcessed++;
-								setProgressMessage("Generating model " + modelsProcessed + " of " + models.size());
-								
-								// Populate the model
-								String modelTemplate = new String(Files.readAllBytes(modelFile.toPath()));
+								setProgressMessage("Generating model " + modelsProcessed + " of " + modelsToRun.size());
+																
+								String modelTemplate = FileUtils.readFileToString(model.getModelFile(), StandardCharsets.UTF_8);
 								String populatedTemplate = null;
 								
 								try {
@@ -124,26 +121,26 @@ public abstract class Generator {
 								
 								// Write the model file to disk
 								if (null != populatedTemplate) {
-									File nemoTemplateFile = getNemoModelFile(id);
-									PrintWriter templateOut = new PrintWriter(nemoTemplateFile);
-									templateOut.print(populatedTemplate);
-									templateOut.close();
+									File modelFile = model.getPopulatedTemplateFile(id);
+									PrintWriter modelOut = new PrintWriter(modelFile);
+									modelOut.print(populatedTemplate);
+									modelOut.close();
 									
 									// Run NEMO
-									setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + models.size() + ')');
-									boolean nemoSucceeded = runNemo(id);
+									setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
+									boolean nemoSucceeded = runNemo(id, model);
 									
 									if (!nemoSucceeded) {
 										failedIds.add(id);
 									} else {
-										setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + models.size() + ')');
-										CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer);
+										setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
+										CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer, model);
 										
-										setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + models.size() + ')');
+										setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
 										cdiDb.clearCdiSummary();
 										cdiDb.storeCdiSummary(cdiSummary);
 										
-										setProgressMessage("Running MIKADO (Model " + modelsProcessed + " of " + models.size() + ')');
+										setProgressMessage("Running MIKADO (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
 										runMikado();
 										succeededIds.add(id);
 									}
@@ -220,11 +217,11 @@ public abstract class Generator {
 	 * @param dataSetId The current data set ID
 	 * @throws ImporterException If the NEMO command could not be created
 	 */
-	private boolean runNemo(String dataSetId) throws ImporterException, ExternalProcessFailedException {
+	private boolean runNemo(String dataSetId, NemoModel model) throws ImporterException, ExternalProcessFailedException {
 		
 		boolean nemoOK = true;
 		
-		List<String> nemoCommand = buildNemoCommand(dataSetId);
+		List<String> nemoCommand = buildNemoCommand(dataSetId, model);
 		ProcessBuilder processBuilder = new ProcessBuilder(nemoCommand);
 		processBuilder.directory(config.getNemoWorkingDir());
 		
@@ -288,7 +285,7 @@ public abstract class Generator {
 	 * @return The NEMO command line
 	 * @throws ImporterException If the command line cannot be created
 	 */
-	private List<String> buildNemoCommand(String dataSetId) throws ImporterException {
+	private List<String> buildNemoCommand(String dataSetId, NemoModel model) throws ImporterException {
 		
 		List<String> command = new ArrayList<String>();
 		
@@ -297,25 +294,16 @@ public abstract class Generator {
 		command.add("-i");
 		command.add('"' + importer.getDataFile(dataSetId).getAbsolutePath() + '"');
 		command.add("-m");
-		command.add('"' + getNemoModelFile(dataSetId).getAbsolutePath() + '"');
+		command.add('"' + model.getPopulatedTemplateFile(dataSetId).getAbsolutePath() + '"');
 		command.add("-o");
-		command.add('"' + importer.getNemoOutputFile().getAbsolutePath() + '"');
+		command.add('"' + model.getOutputFile(importer.getLocalCdiId()).getAbsolutePath() + '"');
 		command.add("-c");
-		command.add(importer.getNemoOutputFormat());
+		command.add(model.getOutputFormat());
 		command.add("-multi");
 		command.add("-cdiSummary");
-		command.add('"' + importer.getNemoSummaryFile().getAbsolutePath() + '"');
+		command.add('"' + model.getSummaryFile(importer.getLocalCdiId()).getAbsolutePath() + '"');
 		
 		return command;		
-	}
-	
-	/**
-	 * Get the File representing the NEMO model for a data set
-	 * @param dataSetId The data set ID
-	 * @return The File for the NEMO model
-	 */
-	private File getNemoModelFile(String dataSetId) {
-		return new File(config.getTempDir(), dataSetId + "_nemoModel.xml");
 	}
 	
 	private List<String> buildMikadoCommand() {

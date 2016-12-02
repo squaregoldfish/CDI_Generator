@@ -1,12 +1,14 @@
 package no.bcdc.cdigenerator.importers.concrete;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.ColumnPaddingSpec;
 import no.bcdc.cdigenerator.importers.ImporterException;
+import no.bcdc.cdigenerator.importers.NemoModel;
 import no.bcdc.cdigenerator.importers.ValueLookupException;
 import no.bcdc.cdigenerator.importers.PaddingException;
 import no.bcdc.cdigenerator.importers.Pangaea.PangaVistaImporter;
@@ -350,8 +352,8 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 	
 	@Override
-	public String getNemoOutputFormat() {
-		return "ODV";
+	public List<String> getNemoOutputFormats() {
+		return Arrays.asList(new String[] {"ODV"});
 	}
 	
 	@Override
@@ -480,6 +482,38 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			throw new ImporterException("Cannot find WOCE Flag column");
 		}
 		result.add(flagCol);
+		
+		return result;
+	}
+	
+	@Override
+	public List<NemoModel> getModelsToRun() throws ImporterException {
+		
+		List<NemoModel> result = new ArrayList<NemoModel>();
+		
+		for (String outputFormat : getNemoOutputFormats()) {
+			String identifier;
+			
+			if (hasSalinityColumn) {
+				identifier = "Sal-";
+				
+				if (hasAtmosphericPressure) {
+					identifier += "Atm";
+				} else {
+					identifier += "NoAtm";
+				}
+			} else {
+				identifier = "NoSal-";
+				
+				if (hasAtmosphericPressure) {
+					identifier = "Atm";
+				} else {
+					identifier = "NoAtm";
+				}
+			}
+			
+			result.add(new NemoModel(config, identifier, outputFormat));
+		}
 		
 		return result;
 	}

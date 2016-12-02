@@ -379,58 +379,10 @@ public abstract class Importer {
 	}
 	
 	/**
-	 * Get the File object representing the NEMO output file
-	 * @return The NEMO output file
-	 * @throws ImporterException If the file generation fails
-	 */
-	public File getNemoOutputFile() throws ImporterException {
-		return new File(config.getNemoOutputDir(), getNemoOutputFilename());
-	}
-	
-	/**
-	 * Get the File object representing the NEMO summary file
-	 * @return The NEMO summary file
-	 * @throws ImporterException If the file generation fails
-	 */
-	public File getNemoSummaryFile() throws ImporterException {
-		return new File(config.getNemoOutputDir(), getNemoSummaryFilename());
-	}
-	
-	/**
 	 * Get the NEMO output format of this importer
 	 * @return The NEMO output format
 	 */
-	public abstract String getNemoOutputFormat();
-	
-	/**
-	 * Get the name of the NEMO output file
-	 * @return The filename
-	 */
-	private String getNemoOutputFilename() throws ImporterException {
-		StringBuilder filename = new StringBuilder();
-		
-		filename.append(getLocalCdiId());
-		filename.append('_');
-		filename.append(getNemoOutputFormat().toLowerCase());
-		filename.append(".txt");
-		
-		return filename.toString();
-	}
-	
-	/**
-	 * Get the name of the NEMO summary file
-	 * @return The filename
-	 */
-	private String getNemoSummaryFilename() throws ImporterException {
-		StringBuilder filename = new StringBuilder();
-		
-		filename.append(getLocalCdiId());
-		filename.append('_');
-		filename.append(getNemoOutputFormat().toLowerCase());
-		filename.append("_summary.txt");
-		
-		return filename.toString();
-	}
+	public abstract List<String> getNemoOutputFormats();
 	
 	/**
 	 * Generate the Local CDI ID for the current data set
@@ -596,4 +548,19 @@ public abstract class Importer {
 	 * @throws ImporterException If the curves coordinates cannot be retrieved
 	 */
 	public abstract String getCurvesCoordinates() throws ImporterException;
+	
+	/**
+	 * Return the list of NEMO model files to be run
+	 * @return The list of NEMO model files
+	 * @throws ImporterException If the model files cannot be retrieved
+	 */
+	public abstract List<NemoModel> getModelsToRun() throws ImporterException;
+	
+	/**
+	 * Get the directory that contains the NEMO models for this importer
+	 * @return The directory that contains the NEMO models
+	 */
+	public File getModelsDir() {
+		return new File(config.getNemoTemplatesDir(), getName());
+	}
 }
