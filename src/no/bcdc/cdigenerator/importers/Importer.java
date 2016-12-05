@@ -329,7 +329,7 @@ public abstract class Importer {
 		// Write the column headers
 		for (int i = 0; i < columnsToUse.size(); i++) {
 			reformattedData.append(columnNames.get(columnsToUse.get(i)));
-			if (i < columnsToUse.size() - 2) {
+			if (i < columnsToUse.size() - 1) {
 				reformattedData.append(';');
 			}
 		}
@@ -346,7 +346,7 @@ public abstract class Importer {
 					reformattedData.append(padder.pad(lineFields[columnsToUse.get(i)]));
 				}
 				
-				if (i < columnsToUse.size() - 2) {
+				if (i < columnsToUse.size() - 1) {
 					reformattedData.append(';');
 				}
 			}
