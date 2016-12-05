@@ -38,7 +38,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	/**
 	 * The name of the longitude column
 	 */
-	private static final String COL_LONGITUDE = "Date/Time";
+	private static final String COL_LONGITUDE = "Longitude";
 	
 	/**
 	 * The name of the SST Column
