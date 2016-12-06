@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.ColumnPaddingSpec;
@@ -410,5 +411,30 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		}
 		
 		return result;
+	}
+	
+	@Override
+	protected String getDateTimeColumn() {
+		return COL_DATE_TIME;
+	}
+	
+	@Override
+	protected String formatDateTime(String inputDateTime) {
+		StringBuilder output = new StringBuilder(inputDateTime);
+		
+		/*
+		 * Dates and Times are either of the form
+		 * YYYY-MM-DDTHH:MM
+		 * or
+		 * YYYY-MM-DDTHH:MM:SS
+		 * 
+		 * We add the seconds if they aren't there
+		 */
+		boolean hasSeconds = Pattern.matches("[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]", inputDateTime);
+		if (!hasSeconds) {
+			output.append(":00");
+		}
+		
+		return output.toString();
 	}
 }

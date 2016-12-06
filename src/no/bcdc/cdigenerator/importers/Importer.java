@@ -339,11 +339,17 @@ public abstract class Importer {
 		while (lineIterator.hasNext()) {
 			String[] lineFields = lineIterator.next().split(getSeparator());
 			for (int i = 0; i < columnsToUse.size(); i++) {
-				ColumnPaddingSpec padder = getColumnPaddingSpec(columnNames.get(columnsToUse.get(i)));
-				if (null == padder) {
-					reformattedData.append(lineFields[columnsToUse.get(i)]);
+				String columnName = columnNames.get(columnsToUse.get(i));
+				
+				if (columnName.equals(getDateTimeColumn())) {
+					reformattedData.append(formatDateTime(lineFields[columnsToUse.get(i)]));
 				} else {
-					reformattedData.append(padder.pad(lineFields[columnsToUse.get(i)]));
+					ColumnPaddingSpec padder = getColumnPaddingSpec(columnName);
+					if (null == padder) {
+						reformattedData.append(lineFields[columnsToUse.get(i)]);
+					} else {
+						reformattedData.append(padder.pad(lineFields[columnsToUse.get(i)]));
+					}
 				}
 				
 				if (i < columnsToUse.size() - 1) {
@@ -563,4 +569,17 @@ public abstract class Importer {
 	public File getModelsDir() {
 		return new File(config.getNemoTemplatesDir(), getName());
 	}
+	
+	/**
+	 * Get the name of the date/time column
+	 * @return The name of the date/time column
+	 */
+	protected abstract String getDateTimeColumn();
+	
+	/**
+	 * Reformat the date/time field
+	 * @param inputDateTime The date/time field from the input file
+	 * @return The reformatted date/time
+	 */
+	protected abstract String formatDateTime(String inputDateTime);
 }
