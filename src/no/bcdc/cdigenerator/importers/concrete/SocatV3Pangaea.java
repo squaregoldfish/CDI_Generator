@@ -26,6 +26,11 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private static final String XPATH_SENSOR_DEPTH = "/MetaData/extent/elevation/min";
 	
 	/**
+	 * The default sensor depth
+	 */
+	private static final String DEFAULT_SENSOR_DEPTH = "5";
+	
+	/**
 	 * The name of the Date/Time column
 	 */
 	private static final String COL_DATE_TIME = "Date/Time";
@@ -71,88 +76,9 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private static final String COL_WOCE_FLAG = "Flag [#]";
 	
 	/**
-	 * Position of the start of the latitude field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
+	 * The name of the water depth column
 	 */
-	private static final String LATITUDE_FIRST_CHAR = "19";
-	
-	/**
-	 * Position of the end of the latitude field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String LATITUDE_LAST_CHAR = "27";
-	
-	/**
-	 * Position of the start of the longitude field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String LONGITUDE_FIRST_CHAR = "29";
-	
-	/**
-	 * Position of the end of the longitude field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String LONGITUDE_LAST_CHAR = "38";
-	
-	/**
-	 * Position of the start of the salinity field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String SALINITY_FIRST_CHAR = "45";
-	
-	/**
-	 * Position of the end of the salinity field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String SALINITY_LAST_CHAR = "51";
-	
-	/**
-	 * Position of the start of the SST field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String SST_FIRST_CHAR = "53";
-	
-	/**
-	 * Position of the end of the SST field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String SST_LAST_CHAR = "59";
-	
-	/**
-	 * Position of the start of the Atmospheric Pressure field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String PRESSURE_FIRST_CHAR = "69";
-	
-	/**
-	 * Position of the end of the Atmospheric Pressure field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String PRESSURE_LAST_CHAR = "77";
-	
-	/**
-	 * Position of the start of the Bathymetry field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String BATHYMETRY_FIRST_CHAR = "98";
-	
-	/**
-	 * Position of the end of the Bathymetry field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String BATHYMETRY_LAST_CHAR = "102";
-	
-	/**
-	 * Position of the start of the fCO2 field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String FCO2_FIRST_CHAR = "129";
-	
-	/**
-	 * Position of the end of the fCO2 field.
-	 * Note we have an offset of one because NEMO inserts a space at the start of each line.
-	 */
-	private static final String FCO2_LAST_CHAR = "136";
+	private static final String COL_WATER_DEPTH = "Depth water [m]";
 	
 	/**
 	 * The line containing the first data record
@@ -225,6 +151,21 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		return shipCode;
 	}
 	
+	/**
+	 * Get the sensor depth. First try looking it up in the metadata.
+	 * If it is not present, use the default value.
+	 * 
+	 * @return The sensor depth
+	 */
+	private String getSensorDepth() {
+		String sensorDepth = evaluateXPath("SENSOR_DEPTH", XPATH_SENSOR_DEPTH);
+		if (null == sensorDepth) {
+			sensorDepth = DEFAULT_SENSOR_DEPTH;
+		}
+		
+		return sensorDepth;
+	}
+	
 	@Override
 	protected String lookupTemplateTagValue(String tag) throws ImporterException, ValueLookupException {
 		
@@ -243,64 +184,8 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			tagValue = String.valueOf(firstLineNumber);
 			break;
 		}
-		case "LATITUDE_FIRST_CHAR": {
-			tagValue = LATITUDE_FIRST_CHAR;
-			break;
-		}
-		case "LATITUDE_LAST_CHAR": {
-			tagValue = LATITUDE_LAST_CHAR;
-			break;
-		}
-		case "LONGITUDE_FIRST_CHAR": {
-			tagValue = LONGITUDE_FIRST_CHAR;
-			break;
-		}
-		case "LONGITUDE_LAST_CHAR": {
-			tagValue = LONGITUDE_LAST_CHAR;
-			break;
-		}
 		case "SENSOR_DEPTH": {
-			tagValue = evaluateXPath("SENSOR_DEPTH", XPATH_SENSOR_DEPTH);
-			break;
-		}
-		case "SALINITY_FIRST_CHAR": {
-			tagValue = SALINITY_FIRST_CHAR;
-			break;
-		}
-		case "SALINITY_LAST_CHAR": {
-			tagValue = SALINITY_LAST_CHAR;
-			break;
-		}
-		case "SST_FIRST_CHAR": {
-			tagValue = SST_FIRST_CHAR;
-			break;
-		}
-		case "SST_LAST_CHAR": {
-			tagValue = SST_LAST_CHAR;
-			break;
-		}
-		case "PRESSURE_FIRST_CHAR": {
-			tagValue = PRESSURE_FIRST_CHAR;
-			break;
-		}
-		case "PRESSURE_LAST_CHAR": {
-			tagValue = PRESSURE_LAST_CHAR;
-			break;
-		}
-		case "BATHYMETRY_FIRST_CHAR": {
-			tagValue = BATHYMETRY_FIRST_CHAR;
-			break;
-		}
-		case "BATHYMETRY_LAST_CHAR": {
-			tagValue = BATHYMETRY_LAST_CHAR;
-			break;
-		}
-		case "FCO2_FIRST_CHAR": {
-			tagValue = FCO2_FIRST_CHAR;
-			break;
-		}
-		case "FCO2_LAST_CHAR": {
-			tagValue = FCO2_LAST_CHAR;
+			tagValue = getSensorDepth();
 			break;
 		}
 		default: {
@@ -342,6 +227,9 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			ColumnPaddingSpec co2Padding = new ColumnPaddingSpec(8, 3);
 			columnPaddingSpecs.put(COL_FALLBACK_FCO2, co2Padding);
 			columnPaddingSpecs.put(COL_PREFERRED_FCO2, co2Padding);
+			
+			ColumnPaddingSpec waterDepthPadding = new ColumnPaddingSpec(6, 0);
+			columnPaddingSpecs.put(COL_WATER_DEPTH, waterDepthPadding);
 		}
 		
 		if (!columnPaddingSpecs.containsKey(columnName)) {
@@ -444,6 +332,12 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		result.add(1);
 		result.add(2);
 		
+		int depthCol = columnNames.indexOf(COL_WATER_DEPTH);
+		if (depthCol == -1) {
+			throw new ImporterException("Cannot find water depth column");
+		}
+		result.add(depthCol);
+		
 		int sstCol = columnNames.indexOf(COL_SST);
 		if (sstCol == -1) {
 			throw new ImporterException("Cannot find SST column");
@@ -512,7 +406,7 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 				}
 			}
 			
-			result.add(new NemoModel(config, identifier, outputFormat));
+			result.add(new NemoModel(config, getName(), identifier, outputFormat));
 		}
 		
 		return result;

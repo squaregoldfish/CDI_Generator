@@ -60,8 +60,8 @@
           <DateTimeFormat formatString="hh24:mm"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>%%FIRST_LINE%%</firstLine>
-          <lastLine>%%FIRST_LINE%%</lastLine>
+          <firstLine>2</firstLine>
+          <lastLine>2</lastLine>
           <firstCharOffset>13</firstCharOffset>
           <lastCharOffset>17</lastCharOffset>
         </HeaderFragment>
@@ -71,8 +71,8 @@
           <DateTimeFormat formatString="YYYY-MM-DD"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>%%FIRST_LINE%%</firstLine>
-          <lastLine>%%FIRST_LINE%%</lastLine>
+          <firstLine>2</firstLine>
+          <lastLine>2</lastLine>
           <firstCharOffset>2</firstCharOffset>
           <lastCharOffset>11</lastCharOffset>
         </HeaderFragment>
@@ -82,10 +82,10 @@
           <LatitudeFormat formatString="+DD.ddddd"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>%%FIRST_LINE%%</firstLine>
-          <lastLine>%%FIRST_LINE%%</lastLine>
-          <firstCharOffset>%%LATITUDE_FIRST_CHAR%%</firstCharOffset>
-          <lastCharOffset>%%LATITUDE_LAST_CHAR%%</lastCharOffset>
+          <firstLine>2</firstLine>
+          <lastLine>2</lastLine>
+          <firstCharOffset>19</firstCharOffset>
+          <lastCharOffset>27</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="longitude" userProvided="false">
@@ -93,10 +93,10 @@
           <LongitudeFormat formatString="+DDD.ddddd"/>
         </format>
         <HeaderFragment isSingleLine="true" isVariable="false">
-          <firstLine>%%FIRST_LINE%%</firstLine>
-          <lastLine>%%FIRST_LINE%%</lastLine>
-          <firstCharOffset>%%LONGITUDE_FIRST_CHAR%%</firstCharOffset>
-          <lastCharOffset>%%LONGITUDE_LAST_CHAR%%</lastCharOffset>
+          <firstLine>2</firstLine>
+          <lastLine>2</lastLine>
+          <firstCharOffset>29</firstCharOffset>
+          <lastCharOffset>38</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="bottomDepth" userProvided="true">
@@ -126,17 +126,8 @@
       </PropertyModel>
       <PropertyModel property="endLatitude" userProvided="false"/>
       <PropertyModel property="endLongitude" userProvided="false"/>
-      <PropertyModel property="endDepth" userProvided="false">
-        <format>
-          <FloatFormat formatString="%4.0f"/>
-        </format>
-      </PropertyModel>
-      <PropertyModel property="magneticDeclination" userProvided="true">
-        <format>
-          <FloatFormat formatString="%4.1f"/>
-        </format>
-        <userValue>-999</userValue>
-      </PropertyModel>
+      <PropertyModel property="endDepth" userProvided="false"/>
+      <PropertyModel property="magneticDeclination" userProvided="false"/>
     </properties>
     <DataType code="H71">
       <profiles>0</profiles>
@@ -164,64 +155,13 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="%%SALINITY_FIRST_CHAR%%" lastCharOffset="%%SALINITY_LAST_CHAR%%"/>
-        <Parameter code="PSAL">
-          <fullName>Salinity of the water column</fullName>
-          <unit>Dimensionless</unit>
-          <unitCode>UUUU</unitCode>
-          <default></default>
-          <format>%6.3f</format>
-          <CodeP011>PSLTZZ01</CodeP011>
-          <NameP011>Practical salinity of the water body</NameP011>
-          <IsP011>true</IsP011>
-          <instrument></instrument>
-          <instrumentCode></instrumentCode>
-        </Parameter>
-      </ParameterModel>
-      <ParameterModel>
-        <conversionFormula>x*1</conversionFormula>
-        <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="%%SST_FIRST_CHAR%%" lastCharOffset="%%SST_LAST_CHAR%%"/>
-        <Parameter code="TEMP">
-          <fullName>Temperature of the water column</fullName>
-          <unit>Degrees Celsius</unit>
-          <unitCode>UPAA</unitCode>
-          <default></default>
-          <format>%6.3f</format>
-          <CodeP011>TEMPP901</CodeP011>
-          <NameP011>Temperature (ITS-90) of the water body</NameP011>
-          <IsP011>true</IsP011>
-          <instrument></instrument>
-          <instrumentCode></instrumentCode>
-        </Parameter>
-      </ParameterModel>
-      <ParameterModel>
-        <conversionFormula>x*1</conversionFormula>
-        <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="%%PRESSURE_FIRST_CHAR%%" lastCharOffset="%%PRESSURE_LAST_CHAR%%"/>
-        <Parameter code="CAPH">
-          <fullName>Air pressure</fullName>
-          <unit>Hectopascals</unit>
-          <unitCode>HPAX</unitCode>
-          <default></default>
-          <format>%8.3f</format>
-          <CodeP011>CAPHZZ01</CodeP011>
-          <NameP011>Pressure (measured variable) exerted by the atmosphere</NameP011>
-          <IsP011>true</IsP011>
-          <instrument></instrument>
-          <instrumentCode></instrumentCode>
-        </Parameter>
-      </ParameterModel>
-      <ParameterModel>
-        <conversionFormula>x*1</conversionFormula>
-        <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="%%BATHYMETRY_FIRST_CHAR%%" lastCharOffset="%%BATHYMETRY_LAST_CHAR%%"/>
+        <LineFragment firstCharOffset="42" lastCharOffset="46"/>
         <Parameter code="MBAN">
           <fullName>Bathymetry and Elevation</fullName>
           <unit>Metres</unit>
           <unitCode>ULAA</unitCode>
           <default></default>
-          <format>%4d</format>
+          <format>%05d</format>
           <CodeP011>MBANZZZZ</CodeP011>
           <NameP011>Sea-floor depth (below instantaneous sea level) {bathymetric depth} in the water body</NameP011>
           <IsP011>true</IsP011>
@@ -232,15 +172,67 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="%%FCO2_FIRST_CHAR%%" lastCharOffset="%%FCO2_LAST_CHAR%%"/>
+        <LineFragment firstCharOffset="48" lastCharOffset="54"/>
+        <Parameter code="TEMP">
+          <fullName>Temperature of the water column</fullName>
+          <unit>Degrees Celsius</unit>
+          <unitCode>UPAA</unitCode>
+          <default></default>
+          <format>%+6.3f</format>
+          <CodeP011>TEMPP901</CodeP011>
+          <NameP011>Temperature (ITS-90) of the water body</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="56" lastCharOffset="62"/>
+        <Parameter code="PSAL">
+          <fullName>Salinity of the water column</fullName>
+          <unit>Dimensionless</unit>
+          <unitCode>UUUU</unitCode>
+          <default></default>
+          <format>%+6.3f</format>
+          <CodeP011>PSLTZZ01</CodeP011>
+          <NameP011>Practical salinity of the water body</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="64" lastCharOffset="71"/>
+        <Flag firstCharOffset="84" lastCharOffset="84"/>
         <Parameter code="PCO2">
           <fullName>Partial pressure (pCO2) and fugacity (fCO2) of carbon dioxide in the water column</fullName>
           <unit>Microatmospheres</unit>
           <unitCode>UATM</unitCode>
           <default></default>
-          <format>%7.3f</format>
+          <format>%+7.3f</format>
           <CodeP011>FCO2EQTX</CodeP011>
           <NameP011>Fugacity of carbon dioxide {fCO2 CAS 124-38-9} in the water body by equilibration with air, drying and constant temperature non-dispersive infra-red gas analysis and computation from pCO2 corrected to 1 bar at 100% humidity</NameP011>
+          <IsP011>true</IsP011>
+          <instrument></instrument>
+          <instrumentCode></instrumentCode>
+        </Parameter>
+      </ParameterModel>
+      <ParameterModel>
+        <conversionFormula>x*1</conversionFormula>
+        <inputDefault></inputDefault>
+        <LineFragment firstCharOffset="73" lastCharOffset="81"/>
+        <Parameter code="CAPH">
+          <fullName>Air pressure</fullName>
+          <unit>Hectopascals</unit>
+          <unitCode>HPAX</unitCode>
+          <default></default>
+          <format>%+8.3f</format>
+          <CodeP011>CAPHZZ01</CodeP011>
+          <NameP011>Pressure (measured variable) exerted by the atmosphere</NameP011>
           <IsP011>true</IsP011>
           <instrument></instrument>
           <instrumentCode></instrumentCode>

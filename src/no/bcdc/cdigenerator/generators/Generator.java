@@ -109,7 +109,7 @@ public abstract class Generator {
 								modelsProcessed++;
 								setProgressMessage("Generating model " + modelsProcessed + " of " + modelsToRun.size());
 																
-								String modelTemplate = FileUtils.readFileToString(model.getModelFile(), StandardCharsets.UTF_8);
+								String modelTemplate = FileUtils.readFileToString(model.getModelTemplateFile(), StandardCharsets.UTF_8);
 								String populatedTemplate = null;
 								
 								try {
@@ -222,6 +222,8 @@ public abstract class Generator {
 		boolean nemoOK = true;
 		
 		List<String> nemoCommand = buildNemoCommand(dataSetId, model);
+		logCommand("NEMO", nemoCommand);
+		
 		ProcessBuilder processBuilder = new ProcessBuilder(nemoCommand);
 		processBuilder.directory(config.getNemoWorkingDir());
 		
@@ -263,6 +265,8 @@ public abstract class Generator {
 	 */
 	private void runMikado() throws ExternalProcessFailedException {
 		List<String> command = buildMikadoCommand();
+		logCommand("MIKADO", command);
+
 		ProcessBuilder builder = new ProcessBuilder(command);
 		
 		try {
@@ -289,7 +293,6 @@ public abstract class Generator {
 		
 		List<String> command = new ArrayList<String>();
 		
-		//command.add(config.getNemoWorkingDir().getAbsolutePath());
 		command.add("./nemo_batch");
 		command.add("-i");
 		command.add('"' + importer.getDataFile(dataSetId).getAbsolutePath() + '"');
@@ -321,5 +324,25 @@ public abstract class Generator {
 		command.add("continue-when-error=false");
 		
 		return command;
+	}
+	
+	/**
+	 * Log a command line
+	 * @param programName The name of the program being run
+	 * @param command The command line
+	 */
+	private void logCommand(String programName, List<String> command) {
+		StringBuilder logMessage = new StringBuilder();
+		
+		logMessage.append("Running ");
+		logMessage.append(programName);
+		logMessage.append(": ");
+		
+		for (String commandArg : command) {
+			logMessage.append(commandArg);
+			logMessage.append(' ');
+		}
+		
+		getLogger().info(logMessage.toString());
 	}
 }
