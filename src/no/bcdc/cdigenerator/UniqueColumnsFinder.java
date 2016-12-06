@@ -78,10 +78,10 @@ public class UniqueColumnsFinder {
 
 		StringBuilder output = new StringBuilder();
 		for (String header : uniqueHeaders.keySet()) {
+			output.append(uniqueHeaders.get(header));
+			output.append(':');
 			output.append(header);
 			output.append('\n');
-			//output.append(uniqueHeaders.get(header));
-			//output.append('\n');
 		}
 		
 		File outputFile = new File(outDir, "unique_columns.txt");
