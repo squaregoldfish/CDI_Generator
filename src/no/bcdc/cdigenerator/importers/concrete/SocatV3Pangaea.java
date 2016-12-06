@@ -400,9 +400,9 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 				identifier = "NoSal-";
 				
 				if (hasAtmosphericPressure) {
-					identifier = "Atm";
+					identifier += "Atm";
 				} else {
-					identifier = "NoAtm";
+					identifier += "NoAtm";
 				}
 			}
 			
