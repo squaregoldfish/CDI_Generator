@@ -360,8 +360,8 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			if (fCo2Col == -1) {
 				throw new ImporterException("Cannot find fCO2 column");
 			}
+			result.add(fCo2Col);
 		}
-		result.add(fCo2Col);
 		
 		int pressureCol = columnNames.indexOf(COL_ATMOSPHERIC_PRESSURE);
 		if (pressureCol == -1) {
