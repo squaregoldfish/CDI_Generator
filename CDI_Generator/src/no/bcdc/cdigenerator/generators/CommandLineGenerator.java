@@ -227,4 +227,11 @@ public class CommandLineGenerator extends Generator {
 		System.out.print("\033[2K\r" + output.toString());
 		getLogger().info(output.toString() + '\n');
 	}
+	
+	@Override
+	protected boolean clearCdiDb() {
+		System.out.print("Do you want to clear the CDI Summary database (y/n)? ");
+		String userInput = inputScanner.next().trim();
+		return userInput.equalsIgnoreCase("y");
+	}
 }

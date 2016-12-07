@@ -83,6 +83,10 @@ public abstract class Generator {
 		
 		cdiDb = new CDIDB(config);
 		
+		if (clearCdiDb()) {
+			cdiDb.clearCdiSummary();
+		}
+		
 		while (!quit) {
 			importer = getImporterChoice();
 			if (null == importer) {
@@ -137,7 +141,6 @@ public abstract class Generator {
 										CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer, model);
 										
 										setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
-										cdiDb.clearCdiSummary();
 										cdiDb.storeCdiSummary(cdiSummary);
 										
 										succeededIds.add(id);
@@ -302,4 +305,10 @@ public abstract class Generator {
 		
 		getLogger().info(logMessage.toString());
 	}
+	
+	/**
+	 * Determine whether or not the CDI database should be cleared, usually by asking the user
+	 * @return {@code true} if the database should be cleared; {@code false} if it should be left as it is.
+	 */
+	protected abstract boolean clearCdiDb();
 }
