@@ -140,8 +140,6 @@ public abstract class Generator {
 										cdiDb.clearCdiSummary();
 										cdiDb.storeCdiSummary(cdiSummary);
 										
-										setProgressMessage("Running MIKADO (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
-										runMikado();
 										succeededIds.add(id);
 									}
 								}
@@ -260,30 +258,6 @@ public abstract class Generator {
 	}
 	
 	/**
-	 * Execute MIKADO
-	 * @throws ImporterException If MIKADO fails - this can only happen if MIKADO is badly configured
-	 */
-	private void runMikado() throws ExternalProcessFailedException {
-		List<String> command = buildMikadoCommand();
-		logCommand("MIKADO", command);
-
-		ProcessBuilder builder = new ProcessBuilder(command);
-		
-		try {
-			Process process = builder.start();
-			int processResult = process.waitFor();
-
-			if (processResult != 0) {
-				getLogger().severe("MIKADO exited with non-zero result. Aborting CDI Generator\n");
-				getLogger().severe("Look at the MIKADO log file");
-				throw new ExternalProcessFailedException("MIKADO");
-			}
-		} catch (IOException|InterruptedException e) {
-			throw new ExternalProcessFailedException("MIKADO", e);
-		}
-	}
-	
-	/**
 	 * Create the NEMO command for the given data set
 	 * @param dataSetId The ID of the data set
 	 * @return The NEMO command line
@@ -307,23 +281,6 @@ public abstract class Generator {
 		command.add('"' + model.getSummaryFile(importer.getLocalCdiId()).getAbsolutePath() + '"');
 		
 		return command;		
-	}
-	
-	private List<String> buildMikadoCommand() {
-		List<String> command = new ArrayList<String>();
-		
-		command.add("java");
-		command.add("-Djava.endorsed.dirs=\"" + config.getMikadoLibraryDir() + '"');
-		command.add("-jar");
-		command.add(config.getMikadoJarFile());
-		command.add("mikado-home=" + config.getMikadoHomeDir());
-		command.add("batch-mode=CDI19139");
-		command.add("batch-type=XmlFiles");
-		command.add("conf-file=" + config.getMikadoTemplateFile());
-		command.add("output-dir=" + config.getMikadoOutputDir());
-		command.add("continue-when-error=false");
-		
-		return command;
 	}
 	
 	/**
