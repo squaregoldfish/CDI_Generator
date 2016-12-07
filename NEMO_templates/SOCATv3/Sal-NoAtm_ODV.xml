@@ -63,7 +63,7 @@
           <firstLine>2</firstLine>
           <lastLine>2</lastLine>
           <firstCharOffset>13</firstCharOffset>
-          <lastCharOffset>17</lastCharOffset>
+          <lastCharOffset>20</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="date" userProvided="false">
@@ -84,8 +84,8 @@
         <HeaderFragment isSingleLine="true" isVariable="false">
           <firstLine>2</firstLine>
           <lastLine>2</lastLine>
-          <firstCharOffset>19</firstCharOffset>
-          <lastCharOffset>27</lastCharOffset>
+          <firstCharOffset>22</firstCharOffset>
+          <lastCharOffset>30</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="longitude" userProvided="false">
@@ -95,8 +95,8 @@
         <HeaderFragment isSingleLine="true" isVariable="false">
           <firstLine>2</firstLine>
           <lastLine>2</lastLine>
-          <firstCharOffset>29</firstCharOffset>
-          <lastCharOffset>38</lastCharOffset>
+          <firstCharOffset>32</firstCharOffset>
+          <lastCharOffset>41</lastCharOffset>
         </HeaderFragment>
       </PropertyModel>
       <PropertyModel property="bottomDepth" userProvided="true">
@@ -155,7 +155,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="42" lastCharOffset="46"/>
+        <LineFragment firstCharOffset="45" lastCharOffset="49"/>
         <Parameter code="MBAN">
           <fullName>Bathymetry and Elevation</fullName>
           <unit>Metres</unit>
@@ -172,7 +172,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="48" lastCharOffset="54"/>
+        <LineFragment firstCharOffset="51" lastCharOffset="57"/>
         <Parameter code="TEMP">
           <fullName>Temperature of the water column</fullName>
           <unit>Degrees Celsius</unit>
@@ -189,7 +189,7 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="56" lastCharOffset="62"/>
+        <LineFragment firstCharOffset="59" lastCharOffset="65"/>
         <Parameter code="PSAL">
           <fullName>Salinity of the water column</fullName>
           <unit>Dimensionless</unit>
@@ -206,8 +206,8 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault></inputDefault>
-        <LineFragment firstCharOffset="68" lastCharOffset="75"/>
-        <Flag firstCharOffset="78" lastCharOffset="78"/>
+        <LineFragment firstCharOffset="71" lastCharOffset="78"/>
+        <Flag firstCharOffset="81" lastCharOffset="81"/>
         <Parameter code="PCO2">
           <fullName>Partial pressure (pCO2) and fugacity (fCO2) of carbon dioxide in the water column</fullName>
           <unit>Microatmospheres</unit>
