@@ -28,6 +28,8 @@ public class CDIDB {
 	 * Query for identifying a platform ID
 	 */
 	private static final String GET_PLATFORM_ID_QUERY = "SELECT id, dataset_id FROM cdi_platforms WHERE platform_code = ? AND start_date <= ?";
+	
+	private static final String DELETE_CDI_STATEMENT = "DELETE FROM cdi_summary WHERE local_cdi_id = ?";
 
 	/**
 	 * Query for inserting a CDI Summary
@@ -142,9 +144,11 @@ public class CDIDB {
 	 */
 	public void storeCdiSummary(CDISummary summary) throws DatabaseException, ImporterException, MissingDatabaseDataException, InvalidLookupValueException {
 		
+		deleteExistingRecord(summary);
 		PreparedStatement stmt = null;
 		
 		try {
+			
 			stmt = dbConnection.prepareStatement(STORE_CDI_SUMMARY_STATEMENT);
 			
 			stmt.setString(1, summary.getLocalCdiId());
@@ -173,6 +177,25 @@ public class CDIDB {
 			
 		} catch (SQLException e) {
 			throw new DatabaseException("Error while storing CDI Summary", e);
+		} finally {
+			closeStatements(stmt);
+		}
+	}
+	
+	/**
+	 * Delete a pre-existing record for a CDI summary, if it exists
+	 * @param summary The CDI summary
+	 */
+	private void deleteExistingRecord(CDISummary summary) throws DatabaseException {
+		
+		PreparedStatement stmt = null;
+		
+		try {
+			stmt = dbConnection.prepareStatement(DELETE_CDI_STATEMENT);
+			stmt.setString(1, summary.getLocalCdiId());
+			stmt.execute();
+		} catch (SQLException e) {
+			throw new DatabaseException("Error deleting existing CDI Summary", e);
 		} finally {
 			closeStatements(stmt);
 		}
