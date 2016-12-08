@@ -87,31 +87,6 @@ public class Config extends Properties {
 	private static final String DB_PASSWORD_PROPERTY = "db.password";
 	
 	/**
-	 * The key for the MIKADO library directory
-	 */
-	private static final String MIKADO_LIBRARY_DIR_PROPERTY = "mikado.libraryDir";
-	
-	/**
-	 * The key for the MIKADO JAR file location
-	 */
-	private static final String MIKADO_JAR_PROPERTY = "mikado.jarFile";
-	
-	/**
-	 * The key for the MIKADO home directory
-	 */
-	private static final String MIKADO_HOME_PROPERTY = "mikado.homeDir";
-	
-	/**
-	 * The key for the MIKADO template file location
-	 */
-	private static final String MIKADO_TEMPLATE_PROPERTY = "mikado.templateFile";
-	
-	/**
-	 * The ket for the MIKADO output directory
-	 */
-	private static final String MIKADO_OUTPUT_PROPERTY = "mikado.outputDir";
-	
-	/**
 	 * Lookup table of importers
 	 */
 	private TreeMap<String, Importer> importers = null;
@@ -172,36 +147,6 @@ public class Config extends Properties {
 	private String dbPassword;
 	
 	/**
-	 * The MIKADO library directory.
-	 * Only ever used as a path, so we only store the String
-	 */
-	private String mikadoLibraryDir;
-	
-	/**
-	 * The MIKADO JAR file location.
-	 * Only ever used as a path, so we only store the String
-	 */
-	private String mikadoJarFile;
-	
-	/**
-	 * The MIKADO home directory.
-	 * Only ever used as a path, so we only store the String
-	 */
-	private String mikadoHomeDir;
-	
-	/**
-	 * The MIKADO template file.
-	 * Only ever used as a path, so we only store the String
-	 */
-	private String mikadoTemplateFile;
-	
-	/**
-	 * The MIKADO output directory.
-	 * Only ever used as a path, so we only store the String
-	 */
-	private String mikadoOutputDir;
-	
-	/**
 	 * Initialise and load the configuration
 	 * @param configReader A reader for the config file
 	 * @throws IOException If an error occurs while reading the file data
@@ -214,11 +159,6 @@ public class Config extends Properties {
 		checkNemoTemplatesDir();
 		checkNemoOutputDir();
 		checkNemoWorkingDir();
-		checkMikadoLibraryDir();
-		checkMikadoJarFile();
-		checkMikadoHomeDir();
-		checkMikadoTemplateFile();
-		checkMikadoOutputDir();
 		extractImporters();
 		
 		networkRetries = extractZeroPositiveInteger(NETWORK_RETRIES_PROPERTY);
@@ -370,76 +310,6 @@ public class Config extends Properties {
 	}
 	
 	/**
-	 * Set up and check the MIKADO library directory
-	 * @throws ConfigException If the directory is incorrectly configured
-	 */
-	private void checkMikadoLibraryDir() throws ConfigException {
-		mikadoLibraryDir = getProperty(MIKADO_LIBRARY_DIR_PROPERTY);
-		if (null == mikadoLibraryDir) {
-			throw new ConfigException(MIKADO_LIBRARY_DIR_PROPERTY + "not specified");
-		}
-		
-		File testFile = new File(mikadoLibraryDir);
-		checkDir(testFile, false);
-	}
-	
-	/**
-	 * Set up and check the MIKADO JAR file
-	 * @throws ConfigException If the file is incorrectly configured
-	 */
-	private void checkMikadoJarFile() throws ConfigException {
-		mikadoJarFile = getProperty(MIKADO_JAR_PROPERTY);
-		if (null == mikadoJarFile) {
-			throw new ConfigException(MIKADO_JAR_PROPERTY + " not specified");
-		}
-
-		File testFile = new File(mikadoJarFile);
-		checkFile(testFile, false);
-	}
-	
-	/**
-	 * Set up and check the MIKADO home directory
-	 * @throws ConfigException If the directory is incorrectly configured
-	 */
-	private void checkMikadoHomeDir() throws ConfigException {
-		mikadoHomeDir = getProperty(MIKADO_HOME_PROPERTY);
-		if (null == mikadoHomeDir) {
-			throw new ConfigException(MIKADO_HOME_PROPERTY + "not specified");
-		}
-		
-		File testFile = new File(mikadoHomeDir);
-		checkDir(testFile, false);
-	}
-	
-	/**
-	 * Set up and check the MIKADO template file
-	 * @throws ConfigException If the file is incorrectly configured
-	 */
-	private void checkMikadoTemplateFile() throws ConfigException {
-		mikadoTemplateFile = getProperty(MIKADO_TEMPLATE_PROPERTY);
-		if (null == mikadoTemplateFile) {
-			throw new ConfigException(MIKADO_TEMPLATE_PROPERTY + " not specified");
-		}
-		
-		File testFile = new File(mikadoTemplateFile);
-		checkFile(testFile, false);
-	}
-	
-	/**
-	 * Set up and check the MIKADO home directory
-	 * @throws ConfigException If the directory is incorrectly configured
-	 */
-	private void checkMikadoOutputDir() throws ConfigException {
-		mikadoOutputDir = getProperty(MIKADO_OUTPUT_PROPERTY);
-		if (null == mikadoOutputDir) {
-			throw new ConfigException(MIKADO_OUTPUT_PROPERTY + "not specified");
-		}
-		
-		File testFile = new File(mikadoOutputDir);
-		checkDir(testFile, true);
-	}
-	
-	/**
 	 * Check a directory for existence, directoryness, and readability and writeability
 	 * @throws ConfigException If the directory has none of those things.
 	 */
@@ -452,22 +322,6 @@ public class Config extends Properties {
 			throw new ConfigException(directory, "not readable");
 		} else if (mustBeWritable && !directory.canWrite()) {
 			throw new ConfigException(directory, "not writeable");
-		}
-	}
-	
-	/**
-	 * Check a directory for existence, directoryness, and readability and writeability
-	 * @throws ConfigException If the directory has none of those things.
-	 */
-	private void checkFile(File file, boolean mustBeWritable) throws ConfigException {
-		if (!file.exists()) {
-			throw new ConfigException(file, "does not exist");
-		} else if (!file.isFile()) {
-			throw new ConfigException(file, "not a file");
-		} else if (!file.canRead()) {
-			throw new ConfigException(file, "not readable");
-		} else if (mustBeWritable && !file.canWrite()) {
-			throw new ConfigException(file, "not writeable");
 		}
 	}
 	
@@ -606,49 +460,9 @@ public class Config extends Properties {
 	
 	/**
 	 * Get the database password
-	 * @return The databae password
+	 * @return The database password
 	 */
 	public String getDBPassword() {
 		return dbPassword;
-	}
-	
-	/**
-	 * Get the path to the MIKADO library directory
-	 * @return The path to the MIKADO library directory
-	 */
-	public String getMikadoLibraryDir() {
-		return mikadoLibraryDir;
-	}
-	
-	/**
-	 * Get path to the the MIKADO JAR file
-	 * @return The path to the MIKADO JAR file
-	 */
-	public String getMikadoJarFile() {
-		return mikadoJarFile;
-	}
-	
-	/**
-	 * Get path to the the MIKADO home directory
-	 * @return The path to the MIKADO home directory
-	 */
-	public String getMikadoHomeDir() {
-		return mikadoHomeDir;
-	}
-	
-	/**
-	 * Get path to the the MIKADO template file
-	 * @return The path to the MIKADO template file
-	 */
-	public String getMikadoTemplateFile() {
-		return mikadoTemplateFile;
-	}
-	
-	/**
-	 * Get path to the the MIKADO output directory
-	 * @return The path to the MIKADO output directory
-	 */
-	public String getMikadoOutputDir() {
-		return mikadoOutputDir;
 	}
 }

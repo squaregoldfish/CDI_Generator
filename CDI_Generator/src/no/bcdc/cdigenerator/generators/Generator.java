@@ -154,7 +154,6 @@ public abstract class Generator {
 					}
 				
 					setProgressMessage("\nProcessing complete. " + succeededIds.size() + " succeeded, " + failedIds.size() + " failed\n");
-					quit = true;
 				}
 			}
 		}
