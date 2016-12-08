@@ -582,4 +582,6 @@ public abstract class Importer {
 	 * @return The reformatted date/time
 	 */
 	protected abstract String formatDateTime(String inputDateTime);
+	
+	public abstract String getDocumentationUrl() throws ImporterException;
 }

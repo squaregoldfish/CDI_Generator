@@ -400,8 +400,8 @@
                   <sql />
                </col>
             </select>
-            <from />
-            <where />
+            <from>cdi_summary</from>
+            <where>local_cdi_id = &apos;:$&apos;</where>
             <orderBy />
          </query>
       </multiFixed>

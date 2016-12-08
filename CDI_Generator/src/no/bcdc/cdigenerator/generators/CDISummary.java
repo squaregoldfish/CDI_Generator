@@ -260,4 +260,13 @@ public class CDISummary {
 	public String getCsrReference() throws ImporterException {
 		return importer.getCsrReference();
 	}
+	
+	/**
+	 * Get the URL containing further documentation for the data set
+	 * @return The documentation URL
+	 * @throws ImporterException If the documentation URL cannot be extracted
+	 */
+	public String getDocumentationUrl() throws ImporterException {
+		return importer.getDocumentationUrl();
+	}
 }

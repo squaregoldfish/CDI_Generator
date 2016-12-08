@@ -27,6 +27,11 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private static final String XPATH_SENSOR_DEPTH = "/MetaData/extent/elevation/min";
 	
 	/**
+	 * The XPath for the documentation URL
+	 */
+	private static final String XPATH_DOCUMENTATION_URL = "/MetaData/reference[@relationType=\"Other version\"]/URI";
+	
+	/**
 	 * The default sensor depth
 	 */
 	private static final String DEFAULT_SENSOR_DEPTH = "5";
@@ -436,5 +441,10 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		}
 		
 		return output.toString();
+	}
+	
+	@Override
+	public String getDocumentationUrl() throws ImporterException {
+		return evaluateXPath("Documentation URL", XPATH_DOCUMENTATION_URL);
 	}
 }
