@@ -103,7 +103,7 @@
         <format>
           <FloatFormat formatString="%4.0f"/>
         </format>
-        <userValue>-9999</userValue>
+        <userValue></userValue>
       </PropertyModel>
       <PropertyModel property="sensorDepth" userProvided="true">
         <format>

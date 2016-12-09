@@ -179,7 +179,7 @@
             <select>
                <col>
                   <var>var28</var>
-                  <sql>DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(start_date), @@session.time_zone, &apos;+00:00&apos;), &apos;%Y-%m-%dT%k:%i:%S.000Z&apos;)</sql>
+                  <sql>DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(start_date), @@session.time_zone, &apos;+00:00&apos;), &apos;%Y-%m-%dT%H:%i:%S.000Z&apos;)</sql>
                </col>
             </select>
             <from>cdi_summary</from>
@@ -192,7 +192,7 @@
             <select>
                <col>
                   <var>var29</var>
-                  <sql>DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(end_date), @@session.time_zone, &apos;+00:00&apos;), &apos;%Y-%m-%dT%k:%i:%S.000Z&apos;)</sql>
+                  <sql>DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(end_date), @@session.time_zone, &apos;+00:00&apos;), &apos;%Y-%m-%dT%H:%i:%S.000Z&apos;)</sql>
                </col>
             </select>
             <from>cdi_summary</from>
