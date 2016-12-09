@@ -153,7 +153,8 @@ public abstract class Generator {
 						setProgress(idsComplete);
 					}
 				
-					setProgressMessage("\nProcessing complete. " + succeededIds.size() + " succeeded, " + failedIds.size() + " failed\n");
+					setProgressMessage("\nProcessing complete. " + succeededIds.size() + " succeeded, " + failedIds.size() + " failed. See log for full list.\n");
+					logProcessedIds(succeededIds, failedIds);
 				}
 			}
 		}
@@ -310,4 +311,27 @@ public abstract class Generator {
 	 * @return {@code true} if the database should be cleared; {@code false} if it should be left as it is.
 	 */
 	protected abstract boolean clearCdiDb();
+	
+	/**
+	 * Log the sets of succeeded and failed IDs
+	 * @param succeded The succeeded IDs
+	 * @param failed The failed IDs
+	 */
+	private void logProcessedIds(List<String> succeeded, List<String> failed) {
+		StringBuilder message = new StringBuilder();
+		
+		message.append("SUCCEEDED IDS:\n");
+		for (String id : succeeded) {
+			message.append(id);
+			message.append('\n');
+		}
+		
+		message.append("FAILED IDS:\n");
+		for (String id : failed) {
+			message.append(id);
+			message.append('\n');
+		}
+		
+		getLogger().info(message.toString());
+	}
 }
