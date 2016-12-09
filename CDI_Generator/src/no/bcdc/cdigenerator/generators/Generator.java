@@ -94,6 +94,7 @@ public abstract class Generator {
 			} else {
 				importer.setGenerator(this);
 				List<String> dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
+				progressMax = dataSetIds.size();
 				if (null != dataSetIds) {
 	
 					int idsComplete = 0;
@@ -167,7 +168,7 @@ public abstract class Generator {
 	 * @param dataSetIdsDescriptor The descriptive name for the data set IDs (e.g. "DOIs")
 	 * @return The list of data set IDs, or {@code null} if we are aborting the process
 	 */
-	public abstract List<String> getDataSetIds(String dataSetIdsDescriptor);
+	public abstract List<String> getDataSetIds(String dataSetIdsDescriptor) throws Exception;
 	
 	/**
 	 * Log a message for viewing after the processing is completed.

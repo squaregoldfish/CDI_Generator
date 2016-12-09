@@ -1,8 +1,14 @@
 package no.bcdc.cdigenerator.generators;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+
+import org.apache.commons.io.FileUtils;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.Importer;
@@ -114,7 +120,7 @@ public class CommandLineGenerator extends Generator {
 	}
 	
 	@Override
-	public List<String> getDataSetIds(String dataSetIdsDescriptor) {
+	public List<String> getDataSetIds(String dataSetIdsDescriptor) throws IOException {
 		
 		List<String> ids = null;
 		
@@ -133,8 +139,9 @@ public class CommandLineGenerator extends Generator {
 			}
 			break;
 		}
-		default: {
-			System.out.println("Next up: Do whatever the choice required");
+		case SOURCE_OPTION_FILE: {
+			ids = getIdsFromFile();
+			break;
 		}
 		}
 		
@@ -233,5 +240,49 @@ public class CommandLineGenerator extends Generator {
 		System.out.print("Do you want to clear the CDI Summary database (y/n)? ");
 		String userInput = inputScanner.next().trim();
 		return userInput.equalsIgnoreCase("y");
+	}
+	
+	private List<String> getIdsFromFile() throws IOException {
+		
+		List<String> ids = null;
+		
+		boolean done = false;
+		
+		while (!done) {
+			System.out.print("Enter filename (or b to go back): ");
+			String userInput = inputScanner.next().trim();
+			
+			if (userInput.equalsIgnoreCase("b")) {
+				done = true;
+			} else {
+				File idFile = new File(userInput);
+				if (!idFile.exists()) {
+					System.out.println("File does not exist!");
+				} else if (!idFile.isFile()) {
+					System.out.println("That is not a file!");
+				} else if (!idFile.canRead()) {
+					System.out.println("Cannot access file!");
+				} else {
+					String fileContents = FileUtils.readFileToString(idFile, StandardCharsets.UTF_8);
+					ids = Arrays.asList(fileContents.split("\n"));
+					
+					boolean idsOK = true;
+					for (String id : ids) {
+						if (!importer.validateIdFormat(id)) {
+							idsOK = false;
+							System.out.println("ID '" + id + "' is not a valid id - must be of the form '" + importer.getDataSetIdFormat() + "'");
+						}
+					}
+					
+					if (!idsOK) {
+						ids = null;
+					} else {
+						done = true;
+					}
+				}
+			}
+		}
+		
+		return ids;
 	}
 }
