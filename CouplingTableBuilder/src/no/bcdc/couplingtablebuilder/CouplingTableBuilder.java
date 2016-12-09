@@ -6,8 +6,15 @@ import java.io.IOException;
 
 public class CouplingTableBuilder {
 
-	private static Config configuration;
+	/**
+	 * The application configuration
+	 */
+	private static Config configuration = null;
 	
+	/**
+	 * The database connection
+	 */
+	private static CouplingDB db = null;
 	
 	/**
 	 * Main method
@@ -35,7 +42,13 @@ public class CouplingTableBuilder {
 			if (!loadConfig(configFile)) {
 				System.exit(0);
 			}
-
+			
+			db = new CouplingDB(configuration);
+			
+			start();
+			
+			db.close();
+			
 		} catch (Exception e) {
 			System.out.println("A terrible thing has occurred, and it shouldn't have done.");
 			System.out.println("Please copy and paste the stuff below, and send it to someone");
@@ -88,5 +101,24 @@ public class CouplingTableBuilder {
 		return ok;
 	}
 
+	/**
+	 * Do the stuff
+	 * @throws Exception If something nasty happens
+	 */
+	private static void start() throws Exception {
+		
+		// Empty the coupling table
+		db.emptyCouplingTable();
+		
+		// Find the list of files to process
+		DataFileFilter filter = new DataFileFilter(configuration);
+		
+		File[] fileList = configuration.getFilesDir().listFiles(filter);
+		
+		for (File dataFile : fileList) {
+			db.addFile(dataFile.getName());
+		}
+	}
+	
 	
 }
