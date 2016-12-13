@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -104,56 +105,63 @@ public abstract class Generator {
 					for (String id : dataSetIds) {
 	
 						currentDataSetId = id;
-						boolean dataRetrieved = importer.retrieveData(id);
 						
-						if (dataRetrieved) {
-							List<NemoModel> modelsToRun = importer.getModelsToRun();
+						try {
+						
+							boolean dataRetrieved = importer.retrieveData(id);
 							
-							int modelsProcessed = 0;
-							for (NemoModel model : modelsToRun) {
-								modelsProcessed++;
-								setProgressMessage("Generating model " + modelsProcessed + " of " + modelsToRun.size());
-																
-								String modelTemplate = FileUtils.readFileToString(model.getModelTemplateFile(), StandardCharsets.UTF_8);
-								String populatedTemplate = null;
+							if (dataRetrieved) {
+								List<NemoModel> modelsToRun = importer.getModelsToRun();
 								
-								try {
-									populatedTemplate = importer.populateModelTemplate(modelTemplate);
-								} catch (ValueLookupException e) {
-									setProgressMessage("NEMO template population failed: " + e.getMessage());
-									failedIds.add(id);
-								} // Importer exceptions are fatal, so we just let them get thrown.
-								
-								// Write the model file to disk
-								if (null != populatedTemplate) {
-									File modelFile = model.getPopulatedTemplateFile(id);
-									PrintWriter modelOut = new PrintWriter(modelFile);
-									modelOut.print(populatedTemplate);
-									modelOut.close();
+								int modelsProcessed = 0;
+								for (NemoModel model : modelsToRun) {
+									modelsProcessed++;
+									setProgressMessage("Generating model " + modelsProcessed + " of " + modelsToRun.size());
+																	
+									String modelTemplate = FileUtils.readFileToString(model.getModelTemplateFile(), StandardCharsets.UTF_8);
+									String populatedTemplate = null;
 									
-									// Run NEMO
-									setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
-									boolean nemoSucceeded = runNemo(id, model);
-									
-									if (!nemoSucceeded) {
+									try {
+										populatedTemplate = importer.populateModelTemplate(modelTemplate);
+									} catch (ValueLookupException e) {
+										setProgressMessage("NEMO template population failed: " + e.getMessage());
 										failedIds.add(id);
-									} else {
-										setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
-										CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer, model);
+									} // Importer exceptions are fatal, so we just let them get thrown.
+									
+									// Write the model file to disk
+									if (null != populatedTemplate) {
+										File modelFile = model.getPopulatedTemplateFile(id);
+										PrintWriter modelOut = new PrintWriter(modelFile);
+										modelOut.print(populatedTemplate);
+										modelOut.close();
 										
-										setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
-										cdiDb.storeCdiSummary(cdiSummary);
+										// Run NEMO
+										setProgressMessage("Running NEMO (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
+										boolean nemoSucceeded = runNemo(id, model);
 										
-										succeededIds.add(id);
+										if (!nemoSucceeded) {
+											failedIds.add(id);
+										} else {
+											setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
+											CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer, model);
+											
+											setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
+											cdiDb.storeCdiSummary(cdiSummary);
+											
+											succeededIds.add(id);
+										}
 									}
 								}
 							}
+							
+							idsComplete++;
+							setProgress(idsComplete);
+
+						} catch (Exception e) {
+							getLogger().log(Level.WARNING, "Error while processing '" + currentDataSetId + "'", e);
 						}
-						
-						idsComplete++;
-						setProgress(idsComplete);
 					}
-				
+					
 					setProgressMessage("\nProcessing complete. " + succeededIds.size() + " succeeded, " + failedIds.size() + " failed. See log for full list.\n");
 					logProcessedIds(succeededIds, failedIds);
 				}
