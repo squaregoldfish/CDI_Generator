@@ -464,4 +464,13 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 		
 		return result;
 	}
+	
+	@Override
+	public String getAbstract() throws ImporterException {
+		StringBuilder result = new StringBuilder(super.getAbstract());
+		
+		result.append(" Part of SOCAT Version 3 - A multi-decade record of high-quality surface ocean fCO2 data, doi:10.5194/essd-8-383-2016 (http://www.socat.info)");
+		
+		return result.toString();
+	}
 }
