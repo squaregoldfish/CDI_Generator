@@ -583,5 +583,17 @@ public abstract class Importer {
 	 */
 	protected abstract String formatDateTime(String inputDateTime);
 	
+	/**
+	 * Get the URL containing further documentation for the data set
+	 * @return The documentation URL
+	 * @throws ImporterException If the documentation URL cannot be extracted
+	 */
 	public abstract String getDocumentationUrl() throws ImporterException;
+	
+	/**
+	 * Get the QC comment for the data set
+	 * @return The QC comment
+	 * @throws ImporterException If the QC comment cannot be extracted
+	 */
+	public abstract String getQcComment() throws ImporterException;
 }

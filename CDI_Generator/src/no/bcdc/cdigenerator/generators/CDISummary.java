@@ -269,4 +269,13 @@ public class CDISummary {
 	public String getDocumentationUrl() throws ImporterException {
 		return importer.getDocumentationUrl();
 	}
+	
+	/**
+	 * Get the QC comment for the data set
+	 * @return The QC comment
+	 * @throws ImporterException If the QC comment cannot be extracted
+	 */
+	public String getQcComment() throws ImporterException {
+		return importer.getQcComment();
+	}
 }

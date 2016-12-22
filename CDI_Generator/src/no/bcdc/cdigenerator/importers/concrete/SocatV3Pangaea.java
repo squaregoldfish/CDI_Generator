@@ -32,6 +32,11 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	private static final String XPATH_DOCUMENTATION_URL = "/MetaData/reference[@relationType=\"Other version\"]/URI";
 	
 	/**
+	 * The XPath for the comment
+	 */
+	private static final String XPATH_COMMENT = "/MetaData/comment";
+	
+	/**
 	 * The default sensor depth
 	 */
 	private static final String DEFAULT_SENSOR_DEPTH = "5";
@@ -446,5 +451,17 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	@Override
 	public String getDocumentationUrl() throws ImporterException {
 		return evaluateXPath("Documentation URL", XPATH_DOCUMENTATION_URL);
+	}
+	
+	@Override
+	public String getQcComment() throws ImporterException {
+		String result = "";
+		
+		String comment = evaluateXPath("Comment", XPATH_COMMENT);
+		if (comment.startsWith("Cruise QC flag")) {
+			result = comment.substring(0, 17);
+		}
+		
+		return result;
 	}
 }
