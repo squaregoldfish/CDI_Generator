@@ -159,6 +159,7 @@ public abstract class Generator {
 
 						} catch (Exception e) {
 							getLogger().log(Level.WARNING, "Error while processing '" + currentDataSetId + "'", e);
+							e.printStackTrace();
 						}
 					}
 					

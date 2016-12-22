@@ -54,6 +54,8 @@ south_latitude         Metadata           `/md:MetaData/md:extent/md:geographic/
 north_latitude         Metadata           `/md:MetaData/md:extent/md:geographic/md:northBoundLongitude`
 start_date             Data               Date and time from first record *(check format)*
 end_date               Data               Date and time from last record *(check format)*
+min_depth              Metadata           `/md:MetaData/md:extent/md:elevation/md:min`
+max_depth              Metadata           `/md:MetaData/md:extent/md:elevation/md:max`
 distribution_data_size After NEMO run     Size of NEMO data file, in Mb
 documentation_url      Metadata           `/md:MetaData/md:reference[@relationType="Other version"]/md:URI`
 qc_comment             Metadata           `/md:MetaData/md:comment` - First portion of string equating to `Cruise QC flag: *x*`

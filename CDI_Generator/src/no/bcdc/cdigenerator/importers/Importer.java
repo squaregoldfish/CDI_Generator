@@ -596,4 +596,18 @@ public abstract class Importer {
 	 * @throws ImporterException If the QC comment cannot be extracted
 	 */
 	public abstract String getQcComment() throws ImporterException;
+	
+	/**
+	 * Get the minimum measurement depth for the data set
+	 * @return The minimum measurement depth for the data set
+	 * @throws ImporterException If the minimum measurement depth cannot be retrieved
+	 */
+	public abstract double getMinDepth() throws ImporterException;
+	
+	/**
+	 * Get the maximum measurement depth for the data set
+	 * @return The maximum measurement depth for the data set
+	 * @throws ImporterException If the maximum measurement depth cannot be retrieved
+	 */
+	public abstract double getMaxDepth() throws ImporterException;
 }
