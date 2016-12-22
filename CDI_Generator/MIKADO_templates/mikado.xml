@@ -355,23 +355,23 @@
             <select>
                <col>
                   <var>var95</var>
-                  <sql>qc_name</sql>
+                  <sql>cdi_fixed_values.qc_name</sql>
                </col>
                <col>
                   <var>var96</var>
-                  <sql>qc_date</sql>
+                  <sql>cdi_fixed_values.qc_date</sql>
                </col>
                <col>
                   <var>var97</var>
-                  <sql>qc_comment</sql>
+                  <sql>cdi_summary.qc_comment</sql>
                </col>
                <col>
                   <var>var98</var>
                   <sql>1</sql>
                </col>
             </select>
-            <from>cdi_fixed_values</from>
-            <where>dataset = (select dataset_name from cdi_summary where local_cdi_id = &apos;:$&apos;)</where>
+            <from>cdi_summary INNER JOIN cdi_fixed_values ON cdi_summary.dataset_name = cdi_fixed_values.dataset</from>
+            <where>cdi_summary.local_cdi_id = &apos;:$&apos;</where>
             <orderBy />
          </query>
          <query>
