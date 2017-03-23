@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.importers.ColumnPaddingSpec;
+import no.bcdc.cdigenerator.importers.UsedColumns;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.InvalidLookupValueException;
 import no.bcdc.cdigenerator.importers.NemoModel;
@@ -353,44 +354,44 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 
 	@Override
-	protected List<Integer> getColumnsToUse(List<String> columnNames) throws ImporterException {
+	protected UsedColumns getColumnsToUse(List<String> columnNames) throws ImporterException {
 
-		List<Integer> result = new ArrayList<Integer>();
+		UsedColumns result = new UsedColumns();
 		
 		// The Date/Time, Latitude and Longitude are in fixed positions
-		result.add(0);
-		result.add(1);
-		result.add(2);
+		result.add("Date/Time", 0, false);
+		result.add("Longitude", 1, true);
+		result.add("Latitude", 2, true);
 		
 		int depthCol = columnNames.indexOf(COL_WATER_DEPTH);
 		if (depthCol == -1) {
 			throw new ImporterException("Cannot find water depth column");
 		}
-		result.add(depthCol);
+		result.add(COL_WATER_DEPTH, depthCol, true);
 		
 		int sstCol = columnNames.indexOf(COL_SST);
 		if (sstCol == -1) {
 			throw new ImporterException("Cannot find SST column");
 		}
-		result.add(sstCol);
+		result.add(COL_SST, sstCol, true);
 		
 		int salCol = columnNames.indexOf(COL_SALINITY);
 		if (salCol == -1) {
 			hasSalinityColumn = false;
 		} else {
 			hasSalinityColumn = true;
-			result.add(salCol);
+			result.add(COL_SALINITY, salCol, true);
 		}
 		
 		int fCo2Col = columnNames.indexOf(COL_PREFERRED_FCO2);
 		if (fCo2Col != -1) {
-			result.add(fCo2Col);
+			result.add(COL_PREFERRED_FCO2, fCo2Col, true);
 		} else {
 			fCo2Col = columnNames.indexOf(COL_FALLBACK_FCO2);
 			if (fCo2Col == -1) {
 				throw new ImporterException("Cannot find fCO2 column");
 			}
-			result.add(fCo2Col);
+			result.add(COL_FALLBACK_FCO2, fCo2Col, true);
 		}
 		
 		int pressureCol = columnNames.indexOf(COL_ATMOSPHERIC_PRESSURE);
@@ -398,14 +399,14 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 			hasAtmosphericPressure = false;
 		} else {
 			hasAtmosphericPressure = true;
-			result.add(pressureCol);
+			result.add(COL_ATMOSPHERIC_PRESSURE, pressureCol, true);
 		}
 		
 		int flagCol = columnNames.indexOf(COL_WOCE_FLAG);
 		if (flagCol == -1) {
 			throw new ImporterException("Cannot find WOCE Flag column");
 		}
-		result.add(flagCol);
+		result.add(COL_WOCE_FLAG, flagCol, false);
 		
 		return result;
 	}

@@ -324,11 +324,11 @@ public abstract class Importer {
 		}
 		
 		// Get the set of column headings we're interested in
-		List<Integer> columnsToUse = getColumnsToUse(columnNames);
+		UsedColumns columnsToUse = getColumnsToUse(columnNames);
 		
 		// Write the column headers
 		for (int i = 0; i < columnsToUse.size(); i++) {
-			reformattedData.append(columnNames.get(columnsToUse.get(i)));
+			reformattedData.append(columnsToUse.get(i).getName());
 			if (i < columnsToUse.size() - 1) {
 				reformattedData.append(';');
 			}
@@ -339,16 +339,16 @@ public abstract class Importer {
 		while (lineIterator.hasNext()) {
 			String[] lineFields = lineIterator.next().split(getSeparator());
 			for (int i = 0; i < columnsToUse.size(); i++) {
-				String columnName = columnNames.get(columnsToUse.get(i));
+				Column column = columnsToUse.get(i);
 				
-				if (columnName.equals(getDateTimeColumn())) {
-					reformattedData.append(formatDateTime(lineFields[columnsToUse.get(i)]));
+				if (column.getName().equals(getDateTimeColumn())) {
+					reformattedData.append(formatDateTime(lineFields[column.getIndex()]));
 				} else {
-					ColumnPaddingSpec padder = getColumnPaddingSpec(columnName);
+					ColumnPaddingSpec padder = getColumnPaddingSpec(column.getName());
 					if (null == padder) {
-						reformattedData.append(lineFields[columnsToUse.get(i)]);
+						reformattedData.append(lineFields[column.getIndex()]);
 					} else {
-						reformattedData.append(padder.pad(lineFields[columnsToUse.get(i)]));
+						reformattedData.append(padder.pad(lineFields[column.getIndex()], column.isNumeric()));
 					}
 				}
 				
@@ -374,7 +374,7 @@ public abstract class Importer {
 	 * @param columnNames The list of column names in the input
 	 * @return The indices of the columns to be used
 	 */
-	protected abstract List<Integer> getColumnsToUse(List<String> columnNames) throws ImporterException;
+	protected abstract UsedColumns getColumnsToUse(List<String> columnNames) throws ImporterException;
 	
 	/**
 	 * Get the application logger

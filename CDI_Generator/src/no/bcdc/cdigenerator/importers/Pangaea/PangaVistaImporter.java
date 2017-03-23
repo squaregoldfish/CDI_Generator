@@ -182,7 +182,7 @@ public abstract class PangaVistaImporter extends Importer {
 		boolean result = false;
 		
 		if (null != id) {
-			result= id.matches("[0-9]+");
+			result = id.matches("[0-9]+");
 		}
 		
 		return result;
