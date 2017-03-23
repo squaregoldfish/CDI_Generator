@@ -95,9 +95,8 @@ public abstract class Generator {
 			} else {
 				importer.setGenerator(this);
 				List<String> dataSetIds = getDataSetIds(importer.getDataSetIdsDescriptor());
-				progressMax = dataSetIds.size();
 				if (null != dataSetIds) {
-	
+					progressMax = dataSetIds.size();
 					int idsComplete = 0;
 					List<String> succeededIds = new ArrayList<String>();
 					List<String> failedIds = new ArrayList<String>();
