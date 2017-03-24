@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
  */
 public class ColumnPaddingSpec {
 	
-	public static final double MISSING_VALUE = -999.999;
+	public static final double MISSING_VALUE = -99.999;
 
 	/**
 	 * The required total length of the column (including decimal points and signs)
