@@ -189,8 +189,8 @@
       <ParameterModel>
         <conversionFormula>x*1</conversionFormula>
         <inputDefault>-999.999</inputDefault>
-        <LineFragment firstCharOffset="72" lastCharOffset="79"/>
-        <Flag firstCharOffset="82" lastCharOffset="82"/>
+        <LineFragment firstCharOffset="68" lastCharOffset="75"/>
+        <Flag firstCharOffset="78" lastCharOffset="78"/>
         <Parameter code="PCO2">
           <fullName>Partial pressure (pCO2) and fugacity (fCO2) of carbon dioxide in the water column</fullName>
           <unit>Microatmospheres</unit>
