@@ -7,12 +7,10 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.namespace.QName;
@@ -564,10 +562,8 @@ public abstract class PangaVistaImporter extends Importer {
 	}
 
 	@Override
-	public Date getStartDate() throws InvalidLookupValueException {
-		Instant dateTime = Instant.ofEpochMilli(getStartDateTime());
-		Instant dateOnly = dateTime.truncatedTo(ChronoUnit.DAYS);
-		return new Date(dateOnly.toEpochMilli());
+	public LocalDate getStartDate() throws InvalidLookupValueException {
+		return LocalDate.parse(evaluateXPath("Start Time", XPATH_START_TIME).substring(0, 10));
 	}
 	
 	@Override

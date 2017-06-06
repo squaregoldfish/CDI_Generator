@@ -18,6 +18,7 @@ import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.NemoModel;
 import no.bcdc.cdigenerator.importers.ValueLookupException;
+import no.bcdc.cdigenerator.lookups.CSRReferenceLookup;
 
 /**
  * Abstract generator class
@@ -67,6 +68,11 @@ public abstract class Generator {
 	private CDIDB cdiDb = null;
 	
 	/**
+	 * The CSR Reference Lookup
+	 */
+	private CSRReferenceLookup csrLookup = null;
+	
+	/**
 	 * Base constructor - stores the configuration
 	 * @param config The configuration
 	 */
@@ -83,6 +89,7 @@ public abstract class Generator {
 		boolean quit = false;
 		
 		cdiDb = new CDIDB(config);
+		csrLookup = new CSRReferenceLookup(config);
 		
 		if (clearCdiDb()) {
 			cdiDb.clearCdiSummary();
@@ -142,7 +149,7 @@ public abstract class Generator {
 											failedIds.add(id);
 										} else {
 											setProgressMessage("Building CDI Summary data (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
-											CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, importer, model);
+											CDISummary cdiSummary = new CDISummary(importer.getLocalCdiId(), cdiDb, csrLookup, importer, model);
 											
 											setProgressMessage("Adding CDI Summary data to database (Model " + modelsProcessed + " of " + modelsToRun.size() + ')');
 											cdiDb.storeCdiSummary(cdiSummary);

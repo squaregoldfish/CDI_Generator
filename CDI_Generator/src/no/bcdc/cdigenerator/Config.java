@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -87,6 +89,11 @@ public class Config extends Properties {
 	private static final String DB_PASSWORD_PROPERTY = "db.password";
 	
 	/**
+	 * The key for the CSR lookup file
+	 */
+	private static final String CSR_URL_PROPERTY = "url.csrs";
+	
+	/**
 	 * Lookup table of importers
 	 */
 	private TreeMap<String, Importer> importers = null;
@@ -147,6 +154,11 @@ public class Config extends Properties {
 	private String dbPassword;
 	
 	/**
+	 * The URL for downloading CSR data 
+	 */
+	private URL csrDownloadUrl;
+	
+	/**
 	 * Initialise and load the configuration
 	 * @param configReader A reader for the config file
 	 * @throws IOException If an error occurs while reading the file data
@@ -160,6 +172,7 @@ public class Config extends Properties {
 		checkNemoOutputDir();
 		checkNemoWorkingDir();
 		extractImporters();
+		setupCSRUrl();
 		
 		networkRetries = extractZeroPositiveInteger(NETWORK_RETRIES_PROPERTY);
 		retryWaitTime = extractZeroPositiveInteger(RETRY_WAIT_TIME_PROPERTY);
@@ -310,7 +323,24 @@ public class Config extends Properties {
 	}
 	
 	/**
-	 * Check a directory for existence, directoryness, and readability and writeability
+	 * Set up and check the CSR lookups file
+	 * @throws ConfigException If the file is incorrectly configured
+	 */
+	private void setupCSRUrl() throws ConfigException {
+		String csrDownloadUrlString = getProperty(CSR_URL_PROPERTY);
+		if (null == csrDownloadUrlString) {
+			throw new ConfigException(CSR_URL_PROPERTY + "not specified");
+		}
+		
+		try {
+			csrDownloadUrl = new URL(csrDownloadUrlString);
+		} catch (MalformedURLException e) {
+			throw new ConfigException("CSR Download URL is invalid", e);
+		}
+	}
+	
+	/**
+	 * Check a directory for existence, directoryness, readability and (if required) writeability
 	 * @throws ConfigException If the directory has none of those things.
 	 */
 	private void checkDir(File directory, boolean mustBeWritable) throws ConfigException {
@@ -464,5 +494,13 @@ public class Config extends Properties {
 	 */
 	public String getDBPassword() {
 		return dbPassword;
+	}
+	
+	/**
+	 * Get the CSR lookups file
+	 * @return The CSR lookups file
+	 */
+	public URL getCSRDownloadUrl() {
+		return csrDownloadUrl;
 	}
 }

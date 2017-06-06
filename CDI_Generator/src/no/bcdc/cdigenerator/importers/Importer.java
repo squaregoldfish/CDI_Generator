@@ -3,8 +3,8 @@ package no.bcdc.cdigenerator.importers;
 import java.io.File;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -441,7 +441,7 @@ public abstract class Importer {
 	 * @return The start date of the data set
 	 * @throws InvalidLookupValueException If the start date is invalid
 	 */
-	public abstract Date getStartDate() throws InvalidLookupValueException;
+	public abstract LocalDate getStartDate() throws InvalidLookupValueException;
 	
 	/**
 	 * Get the start date and time of the data set in milliseconds since the epoch
@@ -527,13 +527,6 @@ public abstract class Importer {
 	 */
 	public abstract double getNorthLatitude() throws InvalidLookupValueException;
 	
-	/**
-	 * Get the Cruise Summary Report reference for the data set
-	 * @return The CSR reference
-	 * @throws ImporterException If the CSR reference cannot be extracted
-	 */
-	public abstract String getCsrReference() throws ImporterException;
-
 	/**
 	 * Get the GML Curves Description
 	 * @return The GML Curves description

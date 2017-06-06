@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDate;
 
 import no.bcdc.cdigenerator.Config;
 import no.bcdc.cdigenerator.ConfigException;
@@ -87,7 +87,7 @@ public class CDIDB {
 	 * @throws DatabaseException If a database error occurred 
 	 * @throws MissingDatabaseDataException If the platform ID cannot be determined for the given data. This means information must be added to the database.
 	 */
-	public long getPlatformId(String platformCode, Date startDate, String datasetId) throws DatabaseException, MissingDatabaseDataException {
+	public long getPlatformId(String platformCode, LocalDate startDate, String datasetId) throws DatabaseException, MissingDatabaseDataException {
 		
 		long id = -1;
 		
@@ -97,7 +97,7 @@ public class CDIDB {
 		try {
 			stmt = dbConnection.prepareStatement(GET_PLATFORM_ID_QUERY);
 			stmt.setString(1, platformCode);
-			stmt.setDate(2, new java.sql.Date(startDate.getTime()));
+			stmt.setDate(2, java.sql.Date.valueOf(startDate));
 			
 			records = stmt.executeQuery();
 			if (!records.next()) {
@@ -159,7 +159,7 @@ public class CDIDB {
 			stmt.setString(6, summary.getDoiUrl());
 			stmt.setString(7, summary.getAbstract());
 			stmt.setString(8, summary.getCruiseName());
-			stmt.setDate(9, new java.sql.Date(summary.getStartDate().getTime()));
+			stmt.setDate(9, java.sql.Date.valueOf(summary.getStartDate()));
 			stmt.setDouble(10, summary.getWestLongitude());
 			stmt.setDouble(11, summary.getEastLongitude());
 			stmt.setDouble(12, summary.getSouthLatitude());

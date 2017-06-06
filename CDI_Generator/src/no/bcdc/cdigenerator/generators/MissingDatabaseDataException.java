@@ -1,7 +1,7 @@
 package no.bcdc.cdigenerator.generators;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * An exception triggered when required data cannot be found in the database
@@ -34,7 +34,7 @@ public class MissingDatabaseDataException extends Exception {
 	 * @param startDate The start date
 	 * @param datasetId The dataset ID (optionnal)
 	 */
-	public MissingDatabaseDataException(String platformCode, Date startDate, String datasetId) {
+	public MissingDatabaseDataException(String platformCode, LocalDate startDate, String datasetId) {
 		super();
 		
 		StringBuilder message = new StringBuilder("The platform ID for platform ");

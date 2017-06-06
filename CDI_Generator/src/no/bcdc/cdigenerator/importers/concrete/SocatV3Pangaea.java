@@ -311,11 +311,6 @@ public class SocatV3Pangaea extends PangaVistaImporter {
 	}
 	
 	@Override
-	public String getCsrReference() throws ImporterException {
-		return null;
-	}
-
-	@Override
 	public String getCurvesDescription() throws ImporterException {
 		// Curves are not yet implemented
 		return null;

@@ -3,12 +3,13 @@ package no.bcdc.cdigenerator.generators;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
 import no.bcdc.cdigenerator.importers.Importer;
 import no.bcdc.cdigenerator.importers.ImporterException;
 import no.bcdc.cdigenerator.importers.InvalidLookupValueException;
 import no.bcdc.cdigenerator.importers.NemoModel;
+import no.bcdc.cdigenerator.lookups.CSRReferenceLookup;
 
 /**
  * Simple object to hold all the details to be added to the CDI summary in the database
@@ -22,6 +23,11 @@ public class CDISummary {
 	 * The database tools object
 	 */
 	private CDIDB cdiDb;
+	
+	/**
+	 * The CSR Reference Lookup object
+	 */
+	private CSRReferenceLookup csrLookup;
 	
 	/**
 	 * The importer for the current data set
@@ -43,12 +49,14 @@ public class CDISummary {
 	 * 
 	 * @param localCdiId The Local CDI ID of the data set
 	 * @param cdiDb The database utility object
+	 * @param csrLookup The CSR Reference Lookup object
 	 * @param importer The importer for this data set
 	 * @param model The NEMO model for this data set
 	 */
-	public CDISummary(String localCdiId, CDIDB cdiDb, Importer importer, NemoModel model) {
+	public CDISummary(String localCdiId, CDIDB cdiDb, CSRReferenceLookup csrLookup, Importer importer, NemoModel model) {
 		this.localCdiId = localCdiId;
 		this.cdiDb = cdiDb;
+		this.csrLookup = csrLookup;
 		this.importer = importer;
 		this.nemoModel = model;
 	}
@@ -142,7 +150,7 @@ public class CDISummary {
 	 * @throws ImporterException If the start date cannot be retrieved
 	 * @throws InvalidLookupValueException If the date is invalid
 	 */
-	public Date getStartDate() throws ImporterException, InvalidLookupValueException {
+	public LocalDate getStartDate() throws ImporterException, InvalidLookupValueException {
 		return importer.getStartDate();
 	}
 	
@@ -257,8 +265,8 @@ public class CDISummary {
 	 * @return The CSR reference
 	 * @throws ImporterException If the CSR reference cannot be extracted
 	 */
-	public String getCsrReference() throws ImporterException {
-		return importer.getCsrReference();
+	public String getCsrReference() throws ImporterException, InvalidLookupValueException {
+		return csrLookup.getCSRReference(importer.getPlatformCode(), getStartDate());
 	}
 	
 	/**
