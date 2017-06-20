@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 
@@ -30,16 +31,30 @@ public class CSRReferenceLookup {
 	 */
 	private static final int COLUMN_COUNT = 7;
 	
+	/**
+	 * The column containing the platform code
+	 */
 	private static final int COL_PLATFORM_CODE = 4;
 	
+	/**
+	 * The column containing the start date
+	 */
 	private static final int COL_START_DATE = 5;
 	
+	/**
+	 * The column containing the end date
+	 */
+	private static final int COL_END_DATE = 6;
+	
+	/**
+	 * The column containing the CSR reference
+	 */
 	private static final int COL_CSR_REFERENCE = 0;
 	
 	/**
 	 * The parsed data structure
 	 */
-	private Map<String, Map<LocalDate, String>> csrLookups = null;
+	private Map<String, TreeSet<CSREntry>> csrLookups = null;
 	
 	private DateTimeFormatter dateFormatter = null;
 	
@@ -52,8 +67,8 @@ public class CSRReferenceLookup {
 	public CSRReferenceLookup(Config config) throws IOException, CSRLookupException {
 		System.out.println("Downloading CSR data...");
 		
-		dateFormatter = DateTimeFormatter.ofPattern("YYYYMMDD");
-		csrLookups = new HashMap<String, Map<LocalDate, String>>();
+		dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
+		csrLookups = new HashMap<String, TreeSet<CSREntry>>();
 		
 		URL url = config.getCSRDownloadUrl();
 		
@@ -71,9 +86,11 @@ public class CSRReferenceLookup {
 	public String getCSRReference(String platformCode, LocalDate startDate) {
 		String result = null;
 		
-		Map<LocalDate, String> platformLookups = csrLookups.get(platformCode);
-		if (null != platformLookups) {
-			result = platformLookups.get(startDate);
+		for (CSREntry entry : csrLookups.get(platformCode)) {
+			if (entry.encompassesDate(startDate)) {
+				result = entry.getCsrReference();
+				break;
+			}
 		}
 		
 		return result;
@@ -90,25 +107,37 @@ public class CSRReferenceLookup {
 		
 		// Skip the header
 		for (int i = 1; i < lines.size(); i++) {
-			String[] fields = lines.get(i).split(";");
-			if (fields.length != COLUMN_COUNT) {
-				throw new CSRLookupException(i + 1, "Incorrect number of columns");
-			}
+			try {
+				String line = lines.get(i);
 				
-			String csrReference = stripQuotes(fields[COL_CSR_REFERENCE]);
-			String platformCode = stripQuotes(fields[COL_PLATFORM_CODE]);
-			LocalDate startDate = LocalDate.parse(stripQuotes(fields[COL_START_DATE]), dateFormatter);
-			
-			if (!csrLookups.containsKey(platformCode)) {
-				csrLookups.put(platformCode, new HashMap<LocalDate, String>());
+				String[] fields = new String[COLUMN_COUNT];
+				
+				int currentIndex = 0; // We know the first character is a quote
+				int currentField = 0;
+				
+				while (currentField < COLUMN_COUNT) {
+					int startQuote = line.indexOf('"', currentIndex);
+					int endQuote = line.indexOf('"', startQuote + 1);
+					fields[currentField] = line.substring(startQuote + 1, endQuote);
+					currentIndex = endQuote + 1;
+					currentField++;
+				}
+				
+				String csrReference = stripQuotes(fields[COL_CSR_REFERENCE]);
+				String platformCode = stripQuotes(fields[COL_PLATFORM_CODE]);
+				LocalDate startDate = LocalDate.parse(stripQuotes(fields[COL_START_DATE]), dateFormatter);
+				LocalDate endDate = LocalDate.parse(stripQuotes(fields[COL_END_DATE]), dateFormatter);
+				
+				if (!csrLookups.containsKey(platformCode)) {
+					csrLookups.put(platformCode, new TreeSet<CSREntry>());
+				}
+				
+				TreeSet<CSREntry> platformLookups = csrLookups.get(platformCode);
+				CSREntry entry = new CSREntry(startDate, endDate, csrReference);
+				platformLookups.add(entry);
+			} catch (Exception e) {
+				throw new CSRLookupException(i, e.getMessage());
 			}
-			
-			Map<LocalDate, String> platformLookups = csrLookups.get(platformCode);
-			if (platformLookups.containsKey(startDate)) {
-				throw new CSRLookupException(i + 1, "Platform " + platformCode + " already has a CSR for " + startDate.format(dateFormatter));
-			}
-
-			platformLookups.put(startDate, csrReference);
 		}
 	}
 	
